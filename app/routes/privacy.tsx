@@ -4,8 +4,8 @@
 export default function Privacy() {
   return (
     <div className="w-full h-without-nav-auto bg-primary text-white">
-      <main className="px-8 h-full flex flex-col gap-4 pb-8">
-        <h1>Privacy Policy</h1>
+      <main className="px-4 h-full flex flex-col gap-4 pb-8 pt-4">
+        <h1 className="text-xl font-bold">Privacy Policy</h1>
 
         <p>
           <span className="font-bold">Last Updated</span>: 1/13/2024

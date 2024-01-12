@@ -4,7 +4,7 @@
 export default function Privacy() {
   return (
     <div className="w-full h-without-nav-auto bg-primary text-white">
-      <main className="px-8 h-full flex flex-col gap-4 pb-8">
+      <main className="px-2 h-full flex flex-col gap-4 pb-8">
         <div className="max-w-3xl mx-auto p-4">
           <h1 className="text-2xl font-semibold mb-4">Terms and Conditions</h1>
 
