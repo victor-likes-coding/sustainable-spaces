@@ -6,8 +6,8 @@ export default {
     extend: {
       colors: {
         primary: "#79abaf",
-        secondary: "#7C9952",
-        tertiary: "#021808",
+        secondary: "#246835",
+        tertiary: "#5BB65C",
       },
       height: {
         "without-nav": "calc(100vh - 3rem)",
