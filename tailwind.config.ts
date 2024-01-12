@@ -8,6 +8,7 @@ export default {
         primary: "#79abaf",
         secondary: "#246835",
         tertiary: "#5BB65C",
+        dark: "#1A4939",
       },
       height: {
         "without-nav-fixed": "calc(100vh - 3rem)",
