@@ -10,7 +10,8 @@ export default {
         tertiary: "#5BB65C",
       },
       height: {
-        "without-nav": "calc(100vh - 3rem)",
+        "without-nav-fixed": "calc(100vh - 3rem)",
+        "without-nav-auto": "calc(100% - 3rem);",
       },
     },
   },
