@@ -5,7 +5,7 @@ import Button from "~/components/button";
 
 export default function About() {
   return (
-    <div className="w-full h-without-nav-auto bg-primary text-white">
+    <div className="w-full h-without-nav-auto">
       <main className="px-8 h-full flex flex-col gap-4 pb-8">
         <h2 className="text-lg font-bold pt-6 text-center">Our Company Goal</h2>
         <p className="text-md">
