@@ -6,7 +6,7 @@ import Button from "~/components/button";
 export default function Index() {
   return (
     <div className="w-full h-without-nav-auto bg-primary text-white">
-      <main className="px-8 h-full flex flex-col gap-4 pb-4">
+      <main className="px-8 h-full flex flex-col gap-4 pb-8">
         <h2 className="text-lg font-bold pt-6 text-center">Our Company Goal</h2>
         <p className="text-md">
           At{" "}
