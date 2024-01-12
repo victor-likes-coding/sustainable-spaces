@@ -44,7 +44,7 @@ export default function App() {
         <footer className="bg-dark text-white p-4 text-[.6rem] px-8">
           <nav className="flex justify-between flex-wrap">
             <div className="col-wrapper flex flex-col gap-2">
-              <div>Useful Links</div>
+              <div className="underline">Useful Links</div>
               <Link to="/">Home</Link>
               <Link to="/about">About</Link>
               <Link to="/services">Services</Link>
@@ -56,7 +56,7 @@ export default function App() {
               </Link>
             </div>
             <div className="col-wrapper flex flex-col gap-2">
-              <div>Community</div>
+              <div className="underline">Community</div>
               <Link to="/help">Help</Link>
               <Link to="/properties">Properties</Link>
               <Link to="/forum">Forum</Link>
@@ -64,7 +64,7 @@ export default function App() {
             </div>
 
             <div className="col-wrapper flex flex-col gap-2">
-              <div>Contact</div>
+              <div className="underline">Contact</div>
               <Link to="mailto:some-email@email.com" target="__blank">
                 some-email@email.com
               </Link>
