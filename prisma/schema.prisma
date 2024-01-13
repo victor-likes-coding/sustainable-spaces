@@ -47,4 +47,5 @@ model Property {
   description String
   likesCount Int
   likes Int[]
+  allowRentOption Boolean
 }
