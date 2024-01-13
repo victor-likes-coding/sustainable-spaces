@@ -1,6 +1,7 @@
 import { User } from "./user";
+import { Property } from "./property";
 
-export type PropertyData = {
+export interface BasicPropertyData {
   id: number;
   address: string;
   city: string;
@@ -10,6 +11,9 @@ export type PropertyData = {
   beds: number;
   baths: number;
   sqft: number;
+}
+
+export interface FullPropertyData extends BasicPropertyData {
   tax: number;
   hoa: number;
   yearBuilt: number;
