@@ -3,6 +3,7 @@
 import { json } from "@remix-run/node";
 // import { useLoaderData } from "@remix-run/react";
 import PropertyCard from "~/components/propertycard";
+import { FullPropertyData } from "~/models/property";
 import { db } from "~/utils/db.server";
 
 // import Button from "~/components/button";
@@ -13,7 +14,7 @@ export const loader = async () => {
   });
 };
 
-const fakeData = [
+const fakeData: FullPropertyData[] = [
   {
     id: 1,
     address: "1234 Main St",
@@ -38,6 +39,12 @@ const fakeData = [
     garage: 2,
     owner: "1",
     tenant: "2",
+    likes: [],
+    likesCount: 0,
+    longitude: 0,
+    latitude: 0,
+    description: "",
+    allowRentOption: true,
   },
 ];
 
