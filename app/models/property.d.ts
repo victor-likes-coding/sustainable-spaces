@@ -33,4 +33,4 @@ export interface FullPropertyData extends BasicPropertyData {
   longitude: number;
   latitude: number;
   description: string;
-};
+  allowRentOption: boolean;
