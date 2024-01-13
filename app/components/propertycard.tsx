@@ -4,7 +4,7 @@ import { BasicPropertyData } from "~/models/property";
 const PropertyCard = (property: BasicPropertyData) => {
   const { address, city, state, zip, price, beds, baths, sqft, id } = property;
   return (
-    <div className="card-container w-full h-auto bg-white text-sm text-black rounded-md border-secondary">
+    <div className="card-container w-full h-auto bg-white text-sm text-black rounded-md border-secondary relative">
       <div className="card-image-wrapper w-full border-b h-48"></div>
       <div className="card-content w-full px-2">
         <div className="card-title w-full flex justify-between pt-1">
