@@ -1,3 +1,4 @@
+import { PropertyData } from "./property.d";
 import { User } from "./user";
 
 interface iProperty {
@@ -60,3 +61,5 @@ export class Property implements iProperty {
     this.rent = rent;
   }
 }
+
+export type { PropertyData };
