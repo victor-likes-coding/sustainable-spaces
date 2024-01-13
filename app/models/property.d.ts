@@ -13,14 +13,17 @@ export interface BasicPropertyData {
   sqft: number;
 }
 
+export interface RentalFeeProperties {
+  management: number;
+  capex: number;
+  vacancy: number;
+}
+
 export interface FullPropertyData extends BasicPropertyData {
   tax: number;
   hoa: number;
   yearBuilt: number;
-  management: number;
   insurance: number;
-  capex: number;
-  vacancy: number;
   updated: Date;
   created: Date;
   rent: number;
