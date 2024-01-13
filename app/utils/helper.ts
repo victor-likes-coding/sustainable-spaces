@@ -1,15 +1,12 @@
 import validator from "validator";
+import { userAuthData } from "~/models/user";
 
-interface EmailAuthData {
-  email: string;
-  password: string;
-}
 /**
  * Validates a `Auth` object to contain an email and password
  * @param data - an object containing string properties `email` and `password`
  */
 
-export const validateAuth = ({ email, password }: EmailAuthData) => {
+export const validateAuth = ({ email, password }: userAuthData) => {
   return (
     !!email && !!password && validateEmail(email) && validatePassword(password)
   );
