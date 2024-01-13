@@ -28,7 +28,7 @@ export default function App() {
         <nav className="bg-primary sticky top-0 left-0 px-2 pr-4 border-b border-b-green-700">
           <div className="brand-wrapper flex items-center font-bold text-green-700">
             <div className="logo-wrapper w-12">
-              <Link to="/">
+              <Link to={{ pathname: "/" }}>
                 <img src={Logo} alt="logo" className="w-full" />
               </Link>
             </div>
@@ -47,7 +47,7 @@ export default function App() {
           <nav className="flex justify-between flex-wrap">
             <div className="col-wrapper flex flex-col gap-2">
               <div className="underline">Useful Links</div>
-              <Link to="/">Home</Link>
+              <Link to={{ pathname: "/" }}>Home</Link>
               <Link to="/about">About</Link>
               <Link to="/services">Services</Link>
               <Link to="/privacy">
