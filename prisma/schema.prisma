@@ -16,4 +16,30 @@ model User {
   email String @unique
   updated DateTime @updatedAt
   created DateTime @default(now())
+  renting Property? @relation("Renting")
+  properties Property[] @relation("Properties")
+}
+
+model Property {
+  id Int @id @default(autoincrement())
+  address String
+  city String
+  zip Int
+  updated DateTime @updatedAt
+  created DateTime @default(now())
+  price Int
+  tax Int
+  rent Int
+  payment Int
+  tenant User @relation(fields: [tenantId], references: [id], name: "Renting")
+  tenantId Int @unique
+  owner User @relation(fields: [ownerId], references: [id], name: "Properties")
+  ownerId Int @unique
+  insurance Int
+  sqft Int
+  beds Int
+  baths Int
+  garage Int
+  hoa Int
+  year Int
 }
