@@ -27,19 +27,24 @@ model Property {
   zip Int
   updated DateTime @updatedAt
   created DateTime @default(now())
-  price Int
-  tax Int
-  rent Int
+  price Float
+  tax Float
+  rent Float
   payment Int
   tenant User @relation(fields: [tenantId], references: [id], name: "Renting")
   tenantId Int @unique
   owner User @relation(fields: [ownerId], references: [id], name: "Properties")
   ownerId Int @unique
-  insurance Int
+  insurance Float
   sqft Int
   beds Int
   baths Int
   garage Int
-  hoa Int
+  hoa Float
   year Int
+  longitude Float
+  latitude Float
+  description String
+  likesCount Int
+  likes Int[]
 }
