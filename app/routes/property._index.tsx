@@ -3,7 +3,6 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import PropertyCard from "~/components/propertycard";
-import { FullPropertyData } from "~/models/property";
 import { db } from "~/utils/db.server";
 
 // import Button from "~/components/button";
