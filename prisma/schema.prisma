@@ -24,17 +24,18 @@ model Property {
   id Int @id @default(autoincrement())
   address String
   city String
+  state String
   zip Int
-  updated DateTime @updatedAt
+  updated DateTime @updatedAt @default(now())
   created DateTime @default(now())
   price Float
   tax Float
   rent Float
   payment Int
-  tenant User @relation(fields: [tenantId], references: [id], name: "Renting")
-  tenantId Int @unique
+  tenant User? @relation(fields: [tenantId], references: [id], name: "Renting")
+  tenantId Int? @unique
   owner User @relation(fields: [ownerId], references: [id], name: "Properties")
-  ownerId Int @unique
+  ownerId Int 
   insurance Float
   sqft Int
   beds Int
