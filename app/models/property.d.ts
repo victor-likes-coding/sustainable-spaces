@@ -34,3 +34,12 @@ export interface FullPropertyData extends BasicPropertyData {
   latitude: number;
   description: string;
   allowRentOption: boolean;
+}
+
+export abstract class PropertyService {
+  abstract getProperties(): Promise<Property[]>;
+  abstract getProperty(id: number): Promise<Property>;
+  abstract createProperty(property: Property): Promise<Property>;
+  abstract updateProperty(property: Property): Promise<Property>;
+  abstract deleteProperty(id: number): Promise<void>;
+}
