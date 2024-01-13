@@ -1,6 +1,16 @@
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import { Form, Link } from "@remix-run/react";
 
 // import Button from "~/components/button";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+  console.log(data);
+  return json({
+    message: "success",
+  });
+}
 
 export default function Signup() {
   return (
@@ -47,7 +57,7 @@ export default function Signup() {
 
             <div className="input-group w-full flex flex-col gap-1">
               <button
-                type="button"
+                type="submit"
                 className="rounded-sm bg-secondary py-2 text-xs"
               >
                 Sign up
