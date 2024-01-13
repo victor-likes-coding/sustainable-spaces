@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
-import { PropertyData } from "~/models/property";
+import { BasicPropertyData } from "~/models/property";
 
-const PropertyCard = (property: PropertyData) => {
+const PropertyCard = (property: BasicPropertyData) => {
   const { address, city, state, zip, price, beds, baths, sqft, id } = property;
   return (
     <div className="card-container w-full h-auto bg-white text-sm text-black rounded-md border-secondary">
