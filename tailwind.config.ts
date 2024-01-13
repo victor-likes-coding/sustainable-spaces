@@ -23,6 +23,18 @@ export default {
         "2xlarge": "1440px",
         hd: "2560px",
       },
+      fontFamily: {
+        default: [
+          "Lato",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+          "Noto Color Emoji",
+        ],
+      },
     },
   },
   plugins: [],

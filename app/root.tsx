@@ -24,7 +24,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="font-default">
         <nav className="bg-primary sticky top-0 left-0 px-2 pr-4 border-b border-b-green-700">
           <div className="brand-wrapper flex items-center font-bold text-green-700">
             <div className="logo-wrapper w-12">
