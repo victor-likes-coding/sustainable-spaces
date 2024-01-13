@@ -27,6 +27,12 @@ const PropertyCard = (property: BasicPropertyData) => {
             </div>
           </div>
         </Link>
+        <Link
+          to={{ pathname: `/property/${id}/bid` }}
+          className="absolute bottom-2 right-2 px-8 bg-green-700 text-white rounded-md"
+        >
+          Bid
+        </Link>
       </div>
     </div>
   );
