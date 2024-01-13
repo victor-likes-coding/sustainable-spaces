@@ -24,4 +24,9 @@ export type PropertyData = {
   garage: number;
   owner: User | string;
   tenant: User | string;
+  likes: number[];
+  likesCount: number;
+  longitude: number;
+  latitude: number;
+  description: string;
 };
