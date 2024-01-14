@@ -1,4 +1,4 @@
-import { userAuthData } from "./user.d";
+import { elevatedAuthData, userAuthData } from "./user.d";
 // import { Property } from "./property";
 import { Bank } from "./bank";
 import { validateAuth } from "~/utils/helper";
@@ -23,7 +23,7 @@ export class User implements iUser {
 }
 
 export abstract class UserService {
-  public static async createUser(data: userAuthData) {
+  public static async createUser(data: userAuthData | elevatedAuthData) {
     // validate userAuthData
     if (validateAuth(data)) {
       // hash password
@@ -45,4 +45,4 @@ export abstract class UserService {
     };
   }
 }
-export type { userAuthData };
+export type { userAuthData, elevatedAuthData };
