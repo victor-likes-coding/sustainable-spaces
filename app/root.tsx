@@ -37,9 +37,7 @@ export default function App() {
             </div>
           </div>
         </nav>
-        <div className="app-wrapper min-h-full h-auto bg-primary text-white px-4">
-          <Outlet />
-        </div>
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
