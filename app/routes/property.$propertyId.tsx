@@ -6,6 +6,7 @@ import { db } from "~/utils/db.server";
 import invariant from "invariant";
 import { useLoaderData } from "@remix-run/react";
 import PurchaseTag from "~/components/purchase-tag";
+import Pill from "~/components/pill";
 
 // import Button from "~/components/button";
 
@@ -42,7 +43,7 @@ export default function Property() {
   const [showContent, setShowContent] = useState(false);
   const handler = useSwipeable({
     onSwipedUp: (eventData) => {
-      eventData.velocity > 0.33 ? setShowContent(true) : setShowContent(false);
+      eventData.velocity > 0.25 ? setShowContent(true) : setShowContent(false);
     },
     onSwipedDown: (eventData) => {
       eventData.velocity > 0.5 ? setShowContent(false) : setShowContent(true);
@@ -56,17 +57,12 @@ export default function Property() {
           showContent ? "h-0" : "h-[66%]"
         } relative z-20 top-0 left-0 scroll-smooth`}
       ></div>
-      <div
-        className={`relative border-t rounded-md transition-all duration-300 ease-in-out ${
-          showContent ? "hidden" : "h-6"
-        }`}
-      >
-        <button className="absolute my-2 left-1/2 transform -translate-x-1/2 w-36 h-2 bg-gray-400 rounded-full cursor-pointer transition-transform hover:scale-110"></button>
-      </div>
+
+      <Pill showContent={showContent} handler={handler} />
       <div
         {...handler}
         className={`swipeable-container w-full overflow-y-scroll relative z-30 bottom-0 left-0 transition-transform duration-300 transform ${
-          showContent ? "-translate-y-0 h-auto" : "translate-y-[0] h-[34%]"
+          showContent ? "-translate-y-0 h-auto" : "translate-y-[0] h-[34%] pb-8"
         }`}
       >
         <div className="w-full">
