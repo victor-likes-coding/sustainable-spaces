@@ -3,7 +3,7 @@
 
 export default function Privacy() {
   return (
-    <div className="w-full h-without-nav-auto">
+    <div className="w-full h-without-nav-auto bg-primary">
       <main className="px-4 h-full flex flex-col gap-4 pb-8 pt-4">
         <h1 className="text-xl font-bold">Privacy Policy</h1>
 
@@ -19,9 +19,9 @@ export default function Privacy() {
           consent to the practices described in this Privacy Policy.
         </p>
 
-        <h2>Information We Collect</h2>
+        <h2 className="font-semibold">Information We Collect</h2>
 
-        <h3>Information You Provide to Us:</h3>
+        <h3 className="font-semibold">Information You Provide to Us:</h3>
 
         <ul className="flex gap-2 flex-col">
           <li>
@@ -37,7 +37,7 @@ export default function Privacy() {
           </li>
         </ul>
 
-        <h3>Information We Automatically Collect:</h3>
+        <h3 className="font-semibold">Information We Automatically Collect:</h3>
 
         <ul className="flex gap-2 flex-col">
           <li>
@@ -54,13 +54,13 @@ export default function Privacy() {
           </li>
         </ul>
 
-        <h2>How We Use Your Information</h2>
+        <h2 className="font-semibold">How We Use Your Information</h2>
 
         <p>
           We may use the information we collect for various purposes, including:
         </p>
 
-        <ul className="list-disc">
+        <ul className="list-disc ml-4">
           <li>To provide, maintain, and improve the Service.</li>
           <li>
             To send you updates, newsletters, or marketing communications (you
@@ -76,11 +76,11 @@ export default function Privacy() {
           </li>
         </ul>
 
-        <h2>Information Sharing</h2>
+        <h2 className="font-semibold">Information Sharing</h2>
 
         <p>We may share your information in the following ways:</p>
 
-        <ul className="list-disc">
+        <ul className="list-disc ml-4">
           <li>
             With service providers who assist us in delivering the Service.
           </li>
@@ -95,7 +95,7 @@ export default function Privacy() {
           </li>
         </ul>
 
-        <h2>Your Choices</h2>
+        <h2 className="font-semibold">Your Choices</h2>
 
         <ul className="flex gap-2 flex-col">
           <li>
@@ -109,7 +109,7 @@ export default function Privacy() {
           </li>
         </ul>
 
-        <h2>Your Rights</h2>
+        <h2 className="font-semibold">Your Rights</h2>
 
         <p>
           You may have certain rights regarding your personal information,
@@ -117,7 +117,7 @@ export default function Privacy() {
           contact us at some-email@email.com for assistance with your rights.
         </p>
 
-        <h2>Security</h2>
+        <h2 className="font-semibold">Security</h2>
 
         <p>
           We implement security measures to protect your personal information.
@@ -125,7 +125,7 @@ export default function Privacy() {
           storage is entirely secure, and we cannot guarantee absolute security.
         </p>
 
-        <h2>Changes to this Privacy Policy</h2>
+        <h2 className="font-semibold">Changes to this Privacy Policy</h2>
 
         <p>
           We may update this Privacy Policy from time to time to reflect changes
@@ -134,7 +134,7 @@ export default function Privacy() {
           &quot;Last Updated&quot; date.
         </p>
 
-        <h2>Contact Us</h2>
+        <h2 className="font-semibold">Contact Us</h2>
 
         <p>
           If you have any questions, concerns, or requests regarding this
