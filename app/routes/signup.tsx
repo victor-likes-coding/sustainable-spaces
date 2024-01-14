@@ -61,7 +61,7 @@ export default function Signup() {
               <div className="input-group w-full flex flex-col gap-1">
                 <button
                   type="submit"
-                  className="rounded-sm bg-secondary py-2 text-xs"
+                  className="rounded-sm bg-secondary py-2 text-xs font-bold"
                 >
                   Sign up
                 </button>
