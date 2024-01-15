@@ -25,7 +25,7 @@ const { getSession, commitSession, destroySession } =
       maxAge: 60 * 60 * 24 * 30,
       path: "/",
       sameSite: "lax",
-      secrets: ["s3cret1"],
+      secrets: [process.env.COOKIE_SECRET as string],
       secure: true,
     },
   });
