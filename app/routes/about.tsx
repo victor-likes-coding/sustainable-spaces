@@ -31,7 +31,8 @@ export default function About() {
             purchase properties from homeowners, ensuring affordability. While
             homeowners are welcome to list their properties on our platform,
             they should be aware that they will be competing with the attractive
-            prices we are able to offer through our direct purchase strategy.
+            prices we are able to offer through our direct purchase strategy and
+            commitment to affordable housing.
           </p>
 
           <Button text="Donate Today" className="mt-2" />
