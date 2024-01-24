@@ -44,7 +44,6 @@ export async function action({ request }: ActionFunctionArgs) {
   // redirect to properties
   try {
     const user = await UserService.register(data);
-    // TODO: add session
     return createUserSession({ ...user }, data.redirectTo ?? "/property");
   } catch (error) {
     console.log(`We've encountered an error.`);
@@ -157,12 +156,6 @@ export default function Signup() {
                   <label htmlFor="password" className="text-sm">
                     Password
                   </label>
-                  <Link
-                    to="forgot-password"
-                    className="font-semibold text-secondary"
-                  >
-                    Forgot password?
-                  </Link>
                 </div>
                 <input
                   ref={passwordRef}
