@@ -42,10 +42,12 @@ export abstract class UserService {
   /**
    * The register function will validate the data sent to it and check for existing users. Once the checks are done, it will create a new user in the database and return it.
    * @param data - an object containing string properties `email` and `password` or `adminCode`
-   * @returns {User}
+   * @returns {Promise<User>}
    */
 
-  public static async register(data: userAuthData | elevatedAuthData) {
+  public static async register(
+    data: userAuthData | elevatedAuthData
+  ): Promise<User> {
     // validate userAuthData
     validateAuth(data); // this will throw an error or simply do nothing // should be caught when calling this function a try/catch where this method was called.
 
@@ -53,6 +55,28 @@ export abstract class UserService {
     await UserService.checkForExistingUser(data.email);
     const user = await UserService.createUser(data);
     return user;
+  }
+
+  public static async login(data: userAuthData): Promise<User> {
+    // validate userAuthData
+    validateAuth(data); // this will throw an error or simply do nothing // should be caught when calling this function a try/catch where this method was called.
+
+    // check if user already exists
+    const user = await db.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+    if (!user) throw new UserNotFoundError("User not found");
+
+    // check if password matches
+    const match = await PasswordService.checkPassword({
+      password: data.password,
+      hash: user.password,
+    });
+    if (!match) throw new UserNotFoundError("User not found");
+
+    return new User(user);
   }
 
   public static async getUserById(id: number | string) {
