@@ -3,6 +3,7 @@ export interface userAuthData {
   email: string;
   password: string;
   adminCode?: string;
+  redirectTo?: string;
 }
 
 export interface elevatedAuthData extends userAuthData {
