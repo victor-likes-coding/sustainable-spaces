@@ -18,6 +18,9 @@ model User {
   created DateTime @default(now())
   renting Property? @relation("Renting")
   properties Property[] @relation("Properties")
+  active Boolean @default(true)
+  session Session[]
+  token  String?
 }
 
 model Property {
@@ -49,4 +52,13 @@ model Property {
   likesCount Int
   likes Int[]
   allowRentOption Boolean
+}
+
+model Session {
+  id Int @id @default(autoincrement())
+  token String @unique
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  expires DateTime
+  created DateTime @default(now())
 }
