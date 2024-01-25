@@ -98,3 +98,8 @@ export async function logout(request: Request) {
     },
   });
 }
+
+export async function checkForToken(request: Request) {
+  const payload = await getTokenPayload(request);
+  if (payload) throw redirect("/getting-started");
+}
