@@ -1,8 +1,8 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Link, json, redirect } from "@remix-run/react";
+import { Link, json } from "@remix-run/react";
 import Button from "~/components/button";
 import Navbar from "~/components/navbar";
-import { getTokenPayload } from "~/utils/sessions.server";
+import { checkForToken } from "~/utils/sessions.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,10 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // check and see if user is already logged in
   // if so, redirect to properties
   // if not, continue
-  const payload = await getTokenPayload(request);
-  if (payload) {
-    return redirect("/property");
-  }
+  await checkForToken(request);
   return json({});
 }
 

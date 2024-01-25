@@ -1,16 +1,11 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import { UserService, elevatedAuthData, userAuthData } from "~/models/user";
 import { authError } from "~/utils/helper";
 import { useEffect, useRef } from "react";
 import { DataValidationEror, UserNotFoundError } from "~/utils/errors";
-import { createUserSession, getTokenPayload } from "~/utils/sessions.server";
+import { checkForToken, createUserSession } from "~/utils/sessions.server";
 
 // import Button from "~/components/button";
 
@@ -75,10 +70,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // check and see if user is already logged in
   // if so, redirect to properties
   // if not, continue
-  const payload = await getTokenPayload(request);
-  if (payload) {
-    return redirect("/property");
-  }
+  await checkForToken(request);
   return json({});
 }
 
