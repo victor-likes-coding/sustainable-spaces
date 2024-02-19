@@ -13,6 +13,7 @@ import {
   DatabaseCreationServiceError,
   ExistingUserError,
   HashingPasswordError,
+  IncorrectEmailOrPasswordError,
   UserNotFoundError,
 } from "~/utils/errors";
 
@@ -67,14 +68,14 @@ export abstract class UserService {
         email: data.email,
       },
     });
-    if (!user) throw new UserNotFoundError("User not found");
+    if (!user) throw new UserNotFoundError();
 
     // check if password matches
     const match = await PasswordService.checkPassword({
       password: data.password,
       hash: user.password,
     });
-    if (!match) throw new UserNotFoundError("User not found");
+    if (!match) throw new IncorrectEmailOrPasswordError();
 
     return new User(user);
   }
@@ -85,7 +86,7 @@ export abstract class UserService {
         id: Number(id),
       },
     });
-    if (!user) throw new UserNotFoundError("User not found");
+    if (!user) throw new UserNotFoundError();
     return new User(user);
   }
 

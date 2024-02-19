@@ -12,6 +12,13 @@ export class UserNotFoundError extends Error {
   }
 }
 
+export class IncorrectEmailOrPasswordError extends Error {
+  constructor(message: string = "Incorrect email or password.") {
+    super(message);
+    this.name = "IncorrectEmailOrPasswordError";
+  }
+}
+
 export class HashingPasswordError extends Error {
   constructor(
     message: string = "Server experienced an error processing your password"

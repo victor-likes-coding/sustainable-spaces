@@ -4,7 +4,11 @@ import Navbar from "~/components/navbar";
 import { UserService, elevatedAuthData, userAuthData } from "~/models/user";
 import { authError } from "~/utils/helper";
 import { useEffect, useRef } from "react";
-import { DataValidationEror, UserNotFoundError } from "~/utils/errors";
+import {
+  DataValidationEror,
+  IncorrectEmailOrPasswordError,
+  UserNotFoundError,
+} from "~/utils/errors";
 import { checkForToken, createUserSession } from "~/utils/sessions.server";
 
 // import Button from "~/components/button";
@@ -47,7 +51,10 @@ export async function action({ request }: ActionFunctionArgs) {
       });
     }
 
-    if (error instanceof UserNotFoundError) {
+    if (
+      error instanceof UserNotFoundError ||
+      error instanceof IncorrectEmailOrPasswordError
+    ) {
       return json({
         errors: {
           ...errors,
