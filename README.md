@@ -84,5 +84,18 @@ The initial MVP will have the following features:
 - Withdrawal to bank
 
 Schedule:
-2/19: Rewrite ReadMe to include project details / MVP details / app mechanics ✅, create Property form/page
-2/20: Property (Edit owned), Properties (view Owned)
+
+2/19: Rewrite ReadMe to include project details / MVP details / app mechanics ✅, create Property form/page (WIP)
+
+- Add Places API search input for address autocomplete
+- Create a way to scrape zillow data
+  - Implementation details:
+    - utilize the Fetch API to request a modified address string from the Places API in a way zillow recognizes. Receive the HTML string and search for a specific pattern to parse to JSON.
+  - Issues:
+    - CORS when sending a request from the client
+  - Fixes:
+    - Make a fetch call to another route that performs a server-side action.
+
+2/20: continue creating Property Form/page
+
+- Refactor the code into separate helper functions to declutter event from Autocomplete component.
