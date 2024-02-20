@@ -73,6 +73,7 @@ The initial MVP will have the following features:
   - Properties (view owned)
   - Property (view single) ✅
   - Property (edit owned)
+  - Property (add/create)
   - Inbox (view rent requests)
 
 ## Roadmap (future features)
@@ -81,3 +82,7 @@ The initial MVP will have the following features:
 - Accept payment
 - Manage "Escrow" for property tax / Insurance
 - Withdrawal to bank
+
+Schedule:
+2/19: Rewrite ReadMe to include project details / MVP details / app mechanics ✅, create Property form/page
+2/20: Property (Edit owned), Properties (view Owned)
