@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "@prisma/client": "^5.8.0",
+    "@react-google-maps/api": "^2.19.3",
     "@remix-run/css-bundle": "^2.5.0",
     "@remix-run/node": "^2.5.0",
     "@remix-run/react": "^2.5.0",
     "@remix-run/serve": "^2.5.0",
+    "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "invariant": "^2.2.4",
     "isbot": "^4.1.0",
