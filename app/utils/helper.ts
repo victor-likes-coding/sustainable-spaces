@@ -1,4 +1,3 @@
-import { JwtPayload } from "jsonwebtoken";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
@@ -50,4 +49,104 @@ export const getLoggedInStatus = (payload: TokenPayload) => {
 
   return false;
 };
+
+export const createZillowUrl = (address: string | undefined | null) => {
+  // https://www.zillow.com/homes/6803-119th-Pl-Largo,-FL-33773_rb/
+  // turn 6803 119th Place North, Largo, FL, USA into 6803-119th-Place-North-Largo,-FL-USA
+  if (!address) return;
+  const modifiedAddress = address.split(" ").join("-");
+  const url = `https://www.zillow.com/homes/${modifiedAddress}_rb/`;
+  return url;
+};
+
+export function getStartingIndex(html: string, pattern: string) {
+  return html.indexOf(pattern) + pattern.length;
+}
+
+function findClosingBracket(text: string) {
+  let inQuotes = false;
+  let bracketCount = 0;
+  let closingIndex = -1;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "{" && !inQuotes) {
+      bracketCount++;
+    } else if (char === "}" && !inQuotes) {
+      bracketCount--;
+      if (bracketCount === 0) {
+        closingIndex = i;
+        break;
+      }
+    }
+  }
+
+  return closingIndex;
+}
+
+function getObjectData(html: string, startingIndex: number) {
+  const narrowedData = html.substring(startingIndex); // this starts our object
+  const closingIndex = findClosingBracket(narrowedData);
+  const stringifiedObjectData = narrowedData.substring(0, closingIndex + 1);
+  const objectData = JSON.parse(stringifiedObjectData);
+  return objectData;
+}
+
+type dCache = {
+  [key: string]: {
+    property: unknown;
+  };
+};
+
+type Address = {
+  city: string;
+  state: string;
+  streetAddress: string;
+  zipcode: string;
+};
+
+interface PropertyData {
+  zpid: number;
+  yearBuilt: number;
+  streetAddress: string;
+  state: string;
+  zipcode: string;
+  parcelId: string;
+  lotSize: number;
+  lotAreaUnit: string;
+  livingArea: number;
+  livingAreaUnit: string;
+  latitude: number;
+  longitude: number;
+  homeType: string;
+  description: string;
+  city: string;
+  bedrooms: number;
+  bathrooms: number;
+  address: Address;
+}
+
+function getPropertyData(dpgClientCache: dCache): PropertyData | undefined {
+  if (!dpgClientCache || typeof dpgClientCache !== "object") return;
+
+  const dynamicKey = Object.keys(dpgClientCache)[0];
+  const { property } = dpgClientCache[dynamicKey];
+  return property as PropertyData;
+}
+
+export function getZillowDataFromHtml(html: string, pattern: string) {
+  const startIndex = getStartingIndex(html, pattern);
+
+  // reduce the string so we're only looking at the start of the json object
+  const objectData = getObjectData(html, startIndex);
+  const dpgClientCache =
+    objectData?.props?.pageProps?.componentProps?.gdpClientCache;
+  const zillowData = JSON.parse(dpgClientCache);
+
+  return getPropertyData(zillowData);
+}
+
 export type { authError, TokenPayload };
