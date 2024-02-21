@@ -1,4 +1,5 @@
 import { json, ActionFunction, ActionFunctionArgs } from "@remix-run/node";
+import { ZillowResponseError } from "~/utils/errors";
 
 export const action: ActionFunction = async ({
   request,
@@ -29,9 +30,9 @@ async function getPropertyDataFromZillow(url: string) {
 
   // Check if the request was successful (status code 2xx)
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch data from Zillow API (${response.status} ${response.statusText})`
-    );
+    throw new ZillowResponseError({
+      response,
+    });
   }
 
   // Retrieve the response body as text (HTML)
