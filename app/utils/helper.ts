@@ -108,12 +108,9 @@ type Address = {
   zipcode: string;
 };
 
-interface PropertyData {
+interface ZillowPropertyData {
   zpid: number;
   yearBuilt: number;
-  streetAddress: string;
-  state: string;
-  zipcode: string;
   parcelId: string;
   lotSize: number;
   lotAreaUnit: string;
@@ -123,18 +120,23 @@ interface PropertyData {
   longitude: number;
   homeType: string;
   description: string;
-  city: string;
   bedrooms: number;
   bathrooms: number;
   address: Address;
 }
 
-function getPropertyData(dpgClientCache: dCache): PropertyData | undefined {
+interface AdditionalMutationData {
+  purchaseMethod: "rent" | "sell";
+  price: number;
+}
+function getPropertyData(
+  dpgClientCache: dCache
+): ZillowPropertyData | undefined {
   if (!dpgClientCache || typeof dpgClientCache !== "object") return;
 
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
-  return property as PropertyData;
+  return property as ZillowPropertyData;
 }
 
 export function getZillowDataFromHtml(html: string, pattern: string) {
@@ -149,4 +151,9 @@ export function getZillowDataFromHtml(html: string, pattern: string) {
   return getPropertyData(zillowData);
 }
 
-export type { authError, TokenPayload };
+export type {
+  authError,
+  TokenPayload,
+  ZillowPropertyData,
+  AdditionalMutationData,
+};
