@@ -45,3 +45,19 @@ export class DataValidationEror extends Error {
     this.name = "DataValidationEror";
   }
 }
+
+type ZillowResponseErrorProps = {
+  message?: string;
+  response: Response;
+};
+
+export class ZillowResponseError extends Error {
+  constructor({ message, response }: ZillowResponseErrorProps) {
+    if (!message) {
+      message = "Failed to fetch data from Zillow API";
+    }
+    super(message + ` (${response.status} ${response.statusText})`);
+    this.name = "ZillowResponseError";
+    console.log(response);
+  }
+}
