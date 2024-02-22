@@ -1,42 +1,60 @@
 import { User } from "./user";
 import { Property } from "./property";
 
-export interface BasicPropertyData {
-  id: number;
-  address: string;
+export type Address = {
   city: string;
   state: string;
-  zip: number;
-  price: number;
-  beds: number;
-  baths: number;
-  sqft: number;
+  streetAddress: string;
+  zipcode: string;
+};
+
+export interface ZillowPropertyData {
+  zpid: number;
+  yearBuilt: number;
+  parcelId: string;
+  lotSize: number;
+  lotAreaUnit: string;
+  livingArea: number;
+  livingAreaUnit: string;
+  latitude: number;
+  longitude: number;
+  homeType: string;
+  description: string;
+  bedrooms: number;
+  bathrooms: number;
+  address: Address;
+  timestamp?: string;
 }
 
-export interface RentalFeeProperties {
+export interface DefaultDatabaseProperties {
+  updated: Date;
+  created: Date;
+}
+
+export interface BasicPropertyData extends ZillowPropertyData {
+  id: number;
+  fees: PropertyFees;
+}
+
+export interface PropertyFees {
   management: number;
   capex: number;
   vacancy: number;
+  tax: number;
+  hoa?: number;
+  insurance: number;
 }
 
-export interface FullPropertyData extends BasicPropertyData {
-  tax: number;
-  hoa: number;
-  yearBuilt: number;
-  insurance: number;
-  updated: Date;
-  created: Date;
-  rent: number;
+export interface FullPropertyData
+  extends BasicPropertyData,
+    DefaultDatabaseProperties {
   payment: number;
+  paymentType: "rent" | "sell";
   garage: number;
   owner: User | string;
   tenant: User | string;
   likes: number[];
   likesCount: number;
-  longitude: number;
-  latitude: number;
-  description: string;
-  allowRentOption: boolean;
 }
 
 export abstract class PropertyService {
