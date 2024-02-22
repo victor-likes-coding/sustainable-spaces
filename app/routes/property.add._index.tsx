@@ -9,7 +9,6 @@ import {
   ZillowPropertyData,
   createZillowUrl,
   getLoggedInStatus,
-  getZillowDataFromHtml,
 } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
@@ -85,23 +84,20 @@ export default function Index() {
   const handlePlaceChanged = async () => {
     const place = inputRef.current?.value;
     // now that we have a complete address, we can search zillow with axios
+    if (!place) return;
+    // check and see if we've got this data already
     try {
       const serverResponse = await fetch("/getZillowData", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: createZillowUrl(place) }),
+        body: JSON.stringify({ url: createZillowUrl(place), address: place }),
       });
-      const { data } = await serverResponse.json();
+      const { propertyData } = await serverResponse.json();
+      if (!propertyData) throw new Error("No data found");
 
       // for now the data is @ the .25% mark
-      const html: string = data.substring(Math.floor(data.length * 0.25));
-
-      const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
-
-      const propertyData = getZillowDataFromHtml(html, pattern);
-      if (!propertyData) throw new Error("No property found");
 
       setProperty((prevProperty) => ({
         ...prevProperty,
