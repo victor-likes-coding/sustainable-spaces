@@ -99,3 +99,15 @@ Schedule:
 2/20: continue creating Property Form/page
 
 - Refactor the code into separate helper functions to declutter event from Autocomplete component.
+- Added the form and various input elements as well as pulling zillow property data and placing them in the respective input/textarea elements.
+  - Issues:
+    - Zillow has rate limited me or blocked my IP
+  - Fixes:
+    - Requested access to zillow public data api
+
+2/21: Continue Add property form
+
+- Goals:
+  - Use puppeteer to scrape property data
+- Actual:
+  - Utilize the original form of querying zillow via the ip address given by remix. Save address information locally into files for easier retrieval. Next steps are to save the data into the database. We've refactored our Property Model to reflect the information given from zillow. The add form needs a few more pieces of information to be complete and to then be added to database.
