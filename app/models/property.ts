@@ -1,26 +1,18 @@
-import { FullPropertyData, BasicPropertyData } from "./property.d";
+import {
+  FullPropertyData,
+  BasicPropertyData,
+  Address,
+  PropertyFees,
+} from "./property.d";
 import { User } from "./user";
 
 export class Property implements FullPropertyData {
   id: number;
-  address: string;
-  city: string;
-  state: string;
-  zip: number;
-  price: number;
-  beds: number;
-  baths: number;
-  sqft: number;
-  tax: number;
-  hoa: number;
-  yearBuilt: number;
-  management: number;
-  insurance: number;
-  capex: number;
-  vacancy: number;
+  paymentType: "rent" | "sell";
+  address: Address;
+  fees: PropertyFees;
   updated: Date;
   created: Date;
-  rent: number;
   payment: number;
   garage: number;
   owner: string | User;
@@ -30,28 +22,25 @@ export class Property implements FullPropertyData {
   longitude: number;
   latitude: number;
   description: string;
-  allowRentOption: boolean;
+  zpid: number;
+  yearBuilt: number;
+  parcelId: string;
+  lotSize: number;
+  lotAreaUnit: string;
+  livingArea: number;
+  livingAreaUnit: string;
+  homeType: string;
+  bedrooms: number;
+  bathrooms: number;
+  timestamp?: string | undefined;
 
   constructor(data: FullPropertyData) {
     this.id = data.id;
     this.address = data.address;
-    this.city = data.city;
-    this.state = data.state;
-    this.zip = data.zip;
-    this.price = data.price;
-    this.beds = data.beds;
-    this.baths = data.baths;
-    this.sqft = data.sqft;
-    this.tax = data.tax;
-    this.hoa = data.hoa;
-    this.yearBuilt = data.yearBuilt;
-    this.management = data.management;
-    this.insurance = data.insurance;
-    this.capex = data.capex;
-    this.vacancy = data.vacancy;
+    this.fees = data.fees;
+    this.paymentType = data.paymentType;
     this.updated = data.updated;
     this.created = data.created;
-    this.rent = data.rent;
     this.payment = data.payment;
     this.garage = data.garage;
     this.owner = data.owner;
@@ -61,7 +50,17 @@ export class Property implements FullPropertyData {
     this.longitude = data.longitude;
     this.latitude = data.latitude;
     this.description = data.description;
-    this.allowRentOption = data.allowRentOption;
+    this.zpid = data.zpid;
+    this.yearBuilt = data.yearBuilt;
+    this.parcelId = data.parcelId;
+    this.lotSize = data.lotSize;
+    this.lotAreaUnit = data.lotAreaUnit;
+    this.livingArea = data.livingArea;
+    this.livingAreaUnit = data.livingAreaUnit;
+    this.homeType = data.homeType;
+    this.bedrooms = data.bedrooms;
+    this.bathrooms = data.bathrooms;
+    this.timestamp = data.timestamp;
   }
 }
 
