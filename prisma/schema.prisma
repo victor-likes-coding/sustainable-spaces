@@ -25,33 +25,53 @@ model User {
 
 model Property {
   id Int @id @default(autoincrement())
+  
+  // address information
   address String
   city String
   state String
   zip Int
+
+  // property information
+  beds Int
+  baths Int
+  garage Int
+  yearBuilt Int
+  longitude Float
+  latitude Float
+  description String
+  homeType String
+  parcelId String
+  lotSize Int
+  lotSizeUnit String
+  livingArea Int
+  livingAreaUnit String
+  zpid Int @unique
+
+  // database information
   updated DateTime @updatedAt @default(now())
   created DateTime @default(now())
-  price Float
+
+  // financial information
+  payment Float
+  paymentType String
+
+  // fees
   tax Float
-  rent Float
-  payment Int
+  capex Float
+  vacancy Float
+  hoa Float?
+  insurance Float
+
+  // relationships
   tenant User? @relation(fields: [tenantId], references: [id], name: "Renting")
   tenantId Int? @unique
   owner User @relation(fields: [ownerId], references: [id], name: "Properties")
   ownerId Int 
-  insurance Float
-  sqft Int
-  beds Int
-  baths Int
-  garage Int
-  hoa Float
-  year Int
-  longitude Float
-  latitude Float
-  description String
+
+  // other
   likesCount Int
   likes Int[]
-  allowRentOption Boolean
 }
 
 model Session {
