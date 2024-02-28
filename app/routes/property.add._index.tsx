@@ -79,6 +79,8 @@ export default function Index() {
     parcelId: "",
     purchaseMethod: "rent",
     price: 0,
+    insurance: 0,
+    tax: 0,
   });
 
   const handlePlaceChanged = async () => {
@@ -96,8 +98,6 @@ export default function Index() {
       });
       const { propertyData } = await serverResponse.json();
       if (!propertyData) throw new Error("No data found");
-
-      // for now the data is @ the .25% mark
 
       setProperty((prevProperty) => ({
         ...prevProperty,
@@ -371,6 +371,7 @@ export default function Index() {
                   type="text"
                   name="price"
                   value={property?.price}
+                  className="rounded-sm pl-2 text-secondary"
                   onChange={(e) => {
                     setProperty((prevProperty) => ({
                       ...prevProperty,
