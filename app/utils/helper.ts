@@ -128,6 +128,8 @@ interface ZillowPropertyData {
   bathrooms: number;
   address: Address;
   timestamp?: string;
+  insurance: number;
+  tax?: number;
 }
 
 interface AdditionalMutationData {
