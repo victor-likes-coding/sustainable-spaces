@@ -19,7 +19,7 @@ You'll be notified of a move-in date if you reside in the state/city the home wa
 
 ### Rent Caps
 
-In the event we acqiure homes through crowdfunding, we will make rent equal to PITI (principal, interest, taxes, insurance) \* ~1.28 (capex, management, vacancy, other fees\_ AKA Essential Fees) + 15%. For example:
+In the event we acqiure homes through crowdfunding, we will make rent equal to PITI (principal, interest, taxes, insurance) \* ~1.28 (capex, management, vacancy, other fees\* AKA Essential Fees) + 15%. For example:
 PITI | Essential Fees | Flat Rate | Total
 |----|----|----|----|
 Base | 1.28% | 15% | varies
