@@ -1,3 +1,4 @@
+import { ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
@@ -24,7 +25,7 @@ export const validateAuth = ({ email, password }: userAuthData) => {
       "Invalid password. Please try again. Password must be at least 8 characters long and contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol.";
 
   if (errors.email || errors.password)
-    throw new DataValidationEror(JSON.stringify(errors));
+    throw new DataValidationEror({ message: JSON.stringify(errors) });
 
   return true;
 };
@@ -95,8 +96,13 @@ function getObjectData(html: string, startingIndex: number) {
   const narrowedData = html.substring(startingIndex); // this starts our object
   const closingIndex = findClosingBracket(narrowedData);
   const stringifiedObjectData = narrowedData.substring(0, closingIndex + 1);
-  const objectData = JSON.parse(stringifiedObjectData);
-  return objectData;
+  try {
+    const objectData = JSON.parse(stringifiedObjectData);
+    return objectData;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
 }
 
 type dCache = {
@@ -130,6 +136,20 @@ interface ZillowPropertyData {
   timestamp?: string;
   insurance: number;
   tax?: number;
+  annualHomeownersInsurance: number;
+}
+
+function filterObject(obj: any): Partial<ZillowPropertyData> {
+  const filteredObject: Partial<ZillowPropertyData> = {};
+  const interfaceKeys = Object.keys(obj) as Array<keyof ZillowPropertyData>;
+
+  for (const key of interfaceKeys) {
+    if (key in obj) {
+      filteredObject[key] = obj[key];
+    }
+  }
+
+  return filteredObject;
 }
 
 interface AdditionalMutationData {
@@ -143,7 +163,8 @@ function getPropertyData(
 
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
-  return property as ZillowPropertyData;
+  const propertyData = filterObject(property);
+  return propertyData as ZillowPropertyData;
 }
 
 export function getZillowDataFromHtml(html: string, pattern: string) {
@@ -151,6 +172,7 @@ export function getZillowDataFromHtml(html: string, pattern: string) {
 
   // reduce the string so we're only looking at the start of the json object
   const objectData = getObjectData(html, startIndex);
+  if (!objectData) return;
   const dpgClientCache =
     objectData?.props?.pageProps?.componentProps?.gdpClientCache;
   const zillowData = JSON.parse(dpgClientCache);
