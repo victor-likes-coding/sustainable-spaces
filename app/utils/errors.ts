@@ -13,6 +13,8 @@ type ErrorCodes =
   | "20000"
   | "30000";
 
+// ? TODO: Split errors into AuthErrors, PropertyErrors, and DatabaseErrors
+// ? TODO: combine error strings and error name into single object
 class BaseError extends Error {
   // 1xxxx errors are auth related
   // 2xxxx errors are property related
