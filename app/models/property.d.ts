@@ -1,12 +1,12 @@
 import { User } from "./user";
 import { Property } from "./property";
 
-export type Address = {
+export interface Address {
   city: string;
   state: string;
   streetAddress: string;
   zipcode: string;
-};
+}
 
 export interface ZillowPropertyData {
   zpid: number;
