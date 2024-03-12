@@ -1,47 +1,84 @@
-export class ExistingUserError extends Error {
-  constructor(message: string = "Unable to create user.") {
+type BaseErrorProps = {
+  message: string;
+  code?: ErrorCodes;
+};
+
+type ErrorCodes =
+  | "10000"
+  | "10010"
+  | "10011"
+  | "10100"
+  | "10101"
+  | "10001"
+  | "20000"
+  | "30000";
+
+class BaseError extends Error {
+  // 1xxxx errors are auth related
+  // 2xxxx errors are property related
+  // 3xxxx errors are database related
+  protected errors: Record<ErrorCodes, string> = {
+    10000: "Unable to create user.",
+    10010: "User not found.",
+    10011: "Incorrect email or password.",
+    10100: "Server experienced an error processing your password",
+    10101:
+      "Server experienced an error in creating and saving the user to the database",
+    10001: "The email or password data given is not valid.",
+    20000:
+      "Failed to locate a listing for this property. Please enter manually.",
+    30000: "The server is currently down. Please try again.",
+  };
+  constructor({ message, code }: BaseErrorProps) {
+    if (!message) {
+      message = "[11000]: An unknown error occurred.";
+    }
     super(message);
+    this.name = "BaseErrors";
+    if (code) {
+      this.message = this.errors[code] || message;
+    }
+  }
+}
+
+export class ExistingUserError extends BaseError {
+  constructor({ message, code = "10000" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "ExistingUserError";
   }
 }
 
-export class UserNotFoundError extends Error {
-  constructor(message: string = "User not found.") {
-    super(message);
+export class UserNotFoundError extends BaseError {
+  constructor({ message, code = "10010" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "UserNotFoundError";
   }
 }
 
-export class IncorrectEmailOrPasswordError extends Error {
-  constructor(message: string = "Incorrect email or password.") {
-    super(message);
+export class IncorrectEmailOrPasswordError extends BaseError {
+  constructor({ message, code = "10011" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "IncorrectEmailOrPasswordError";
   }
 }
 
-export class HashingPasswordError extends Error {
-  constructor(
-    message: string = "Server experienced an error processing your password"
-  ) {
-    super(message);
+export class HashingPasswordError extends BaseError {
+  constructor({ message, code = "10100" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "HashingPasswordError";
   }
 }
 
-export class DatabaseCreationServiceError extends Error {
-  constructor(
-    message: string = "Server experienced an error in creating and saving the user to the database"
-  ) {
-    super(message);
+export class DatabaseCreationServiceError extends BaseError {
+  constructor({ message, code = "10101" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "DatabaseCreationServiceError";
   }
 }
 
-export class DataValidationEror extends Error {
-  constructor(
-    message: string = "The email or password data given is not valid."
-  ) {
-    super(message);
+export class DataValidationEror extends BaseError {
+  constructor({ message, code = "10001" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "DataValidationEror";
   }
 }
@@ -62,20 +99,18 @@ export class ZillowResponseError extends Error {
   }
 }
 
-export class PropertyNotFoundError extends Error {
-  constructor(
-    message: string = "Failed to locate a listing for this property. Please enter manually."
-  ) {
-    super(message);
+export class PropertyNotFoundError extends BaseError {
+  constructor({ message, code = "20000" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "PropertyNotFoundError";
   }
 }
 
-export class DatabaseConnectionError extends Error {
-  constructor(
-    message: string = "The server is currently down. Please try again."
-  ) {
-    super(message);
+export class DatabaseConnectionError extends BaseError {
+  constructor({ message, code = "30000" }: BaseErrorProps) {
+    super({ message, code });
     this.name = "DatabaseConnectionError";
   }
 }
+
+export const errors = {};
