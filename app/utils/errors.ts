@@ -61,3 +61,21 @@ export class ZillowResponseError extends Error {
     console.log(response);
   }
 }
+
+export class PropertyNotFoundError extends Error {
+  constructor(
+    message: string = "Failed to locate a listing for this property. Please enter manually."
+  ) {
+    super(message);
+    this.name = "PropertyNotFoundError";
+  }
+}
+
+export class DatabaseConnectionError extends Error {
+  constructor(
+    message: string = "The server is currently down. Please try again."
+  ) {
+    super(message);
+    this.name = "DatabaseConnectionError";
+  }
+}
