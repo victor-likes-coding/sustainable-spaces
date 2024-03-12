@@ -14,6 +14,7 @@ import { requireToken } from "~/utils/sessions.server";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
 import { useMemo, useRef, useState } from "react";
+import { PropertyNotFoundError } from "~/utils/errors";
 
 type Library =
   | "core"
@@ -83,6 +84,18 @@ export default function Index() {
     tax: 0,
   });
 
+  const [errors, setErrors] = useState({
+    address: "",
+    bedrooms: "",
+    bathrooms: "",
+    description: "",
+    lotSize: "",
+    livingArea: "",
+    yearBuilt: "",
+    price: "",
+    generic: "",
+  });
+
   const handlePlaceChanged = async () => {
     const place = inputRef.current?.value;
     // now that we have a complete address, we can search zillow with axios
@@ -98,12 +111,23 @@ export default function Index() {
       });
       const { propertyData } = await serverResponse.json();
       if (!propertyData) throw new Error("No data found");
+      console.log(propertyData);
 
       setProperty((prevProperty) => ({
         ...prevProperty,
         ...propertyData,
       }));
+
+      return;
     } catch (err) {
+      if (err instanceof PropertyNotFoundError) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          generic: "No property found",
+        }));
+        return;
+      }
+
       console.error(err);
     }
   };
