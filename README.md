@@ -151,3 +151,7 @@ Goals:
 3/12:
 
 Resuming from 2/28.
+Accomplished Today:
+
+- Rework error messages / class
+- Install NextUI
