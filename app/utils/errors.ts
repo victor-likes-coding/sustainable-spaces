@@ -106,6 +106,7 @@ export class DataValidationEror extends BaseError {
   ) {
     super(data);
     this.name = "DataValidationEror";
+    this.message = data.message || this.errors["10001"];
   }
 }
 
