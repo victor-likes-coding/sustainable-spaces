@@ -1,5 +1,5 @@
 type BaseErrorProps = {
-  message: string;
+  message?: string;
   code?: ErrorCodes;
 };
 
@@ -44,43 +44,67 @@ class BaseError extends Error {
 }
 
 export class ExistingUserError extends BaseError {
-  constructor({ message, code = "10000" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10000",
+    }
+  ) {
+    super(data);
     this.name = "ExistingUserError";
   }
 }
 
 export class UserNotFoundError extends BaseError {
-  constructor({ message, code = "10010" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10010",
+    }
+  ) {
+    super(data);
     this.name = "UserNotFoundError";
   }
 }
 
 export class IncorrectEmailOrPasswordError extends BaseError {
-  constructor({ message, code = "10011" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10011",
+    }
+  ) {
+    super(data);
     this.name = "IncorrectEmailOrPasswordError";
   }
 }
 
 export class HashingPasswordError extends BaseError {
-  constructor({ message, code = "10100" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10100",
+    }
+  ) {
+    super(data);
     this.name = "HashingPasswordError";
   }
 }
 
 export class DatabaseCreationServiceError extends BaseError {
-  constructor({ message, code = "10101" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10101",
+    }
+  ) {
+    super(data);
     this.name = "DatabaseCreationServiceError";
   }
 }
 
 export class DataValidationEror extends BaseError {
-  constructor({ message, code = "10001" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "10001",
+    }
+  ) {
+    super(data);
     this.name = "DataValidationEror";
   }
 }
@@ -102,15 +126,23 @@ export class ZillowResponseError extends Error {
 }
 
 export class PropertyNotFoundError extends BaseError {
-  constructor({ message, code = "20000" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "20000",
+    }
+  ) {
+    super(data);
     this.name = "PropertyNotFoundError";
   }
 }
 
 export class DatabaseConnectionError extends BaseError {
-  constructor({ message, code = "30000" }: BaseErrorProps) {
-    super({ message, code });
+  constructor(
+    data: BaseErrorProps = {
+      code: "30000",
+    }
+  ) {
+    super(data);
     this.name = "DatabaseConnectionError";
   }
 }
