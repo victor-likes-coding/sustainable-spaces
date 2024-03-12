@@ -27,7 +27,7 @@ Base | 1.28% | 15% | varies
 
 | PITI | Essential Fees     | Capex | Management | Vacancy | Other Fees | Total  |
 | ---- | ------------------ | ----- | ---------- | ------- | ---------- | ------ |
-| Base | Base \* 1.28       | 10%   | 5%         | 5%      | varies     | varies |
+| Base | Base `*` 1.28      | 10%   | 5%         | 5%      | varies     | varies |
 | 1000 | Fees based on 1280 | 128   | 64         | 64      | 28         | 1472   |
 
 In a less table format:
@@ -38,7 +38,7 @@ In a less table format:
   - Management: 5% = 64
   - Vacancy: 5% = 64
   - Other Fee: 1280 - 1000 - 128 - 64 - 64 = 28
-- Flat Rate: 15% = 1280 \* 0.15 = 192
+- Flat Rate: 15% = 1280 `*` 0.15 = 192
 
 This totals: 1472/month in rent.
 
@@ -52,7 +52,7 @@ Rent will obviously go up yearly due to inflation (min 5%), but we will cap rent
   - Management: 5% = 67
   - Vacancy: 5% = 67
   - Other Fee: 1344 - 1050 - 134 - 67 - 67 = 26
-- Flat Rate: 15% = 1318.4 \* 0.15 = 201.6
+- Flat Rate: 15% = 1318.4 `*` 0.15 = 201.6
 
 This totals: 1,545.6/month in rent.
 
