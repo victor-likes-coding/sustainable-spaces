@@ -42,6 +42,18 @@ export async function action({ request }: ActionFunctionArgs) {
     return createUserSession({ ...user }, data.redirectTo ?? "/property");
   } catch (error) {
     console.log(`We've encountered an error.`);
+    // if the error is a PrismaClientInitializationError, the server is down
+    if (
+      (error as { name: string }).name === "PrismaClientInitializationError"
+    ) {
+      return json({
+        errors: {
+          ...errors,
+          message: "Server is down. Please try again at a later time.",
+        },
+      });
+    }
+
     // this catch should only be triggered if the auth data validation fails
     if (error instanceof DataValidationEror) {
       const newErrors: authError = JSON.parse(error.message);

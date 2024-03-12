@@ -39,8 +39,8 @@ export async function action({ request }: ActionFunctionArgs) {
     const user = await UserService.login(data);
     return createUserSession({ ...user }, data.redirectTo ?? "/property");
   } catch (error) {
-    console.log(`We've encountered an error.`);
     // this catch should only be triggered if the auth data validation fails
+
     if (error instanceof DataValidationEror) {
       const newErrors: authError = JSON.parse(error.message);
       return json({
@@ -59,6 +59,16 @@ export async function action({ request }: ActionFunctionArgs) {
         errors: {
           ...errors,
           message: error.message,
+        },
+      });
+    }
+    if (
+      (error as { name: string }).name === "PrismaClientInitializationError"
+    ) {
+      return json({
+        errors: {
+          ...errors,
+          message: "Server is down. Please try again at a later time.",
         },
       });
     }
