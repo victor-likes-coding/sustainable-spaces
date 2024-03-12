@@ -8,7 +8,7 @@ The goal of this app is as follows:
 
 ### The Lottery Mechanic
 
-After achieving a set amount ($50,000), users who have contributed towards the crowdfund (minimum of $100) will have a chance to obtain free rent (4) months worth (minimum) up to 12 months (maximum). Each minimum contribution of $100 will be 1 drawing up to 40 entries ($4000 value). For every 4 entries (rounded down) contributed after attaining 8, if selected for free rent, you will recieve an additional month of free rent. Free rent is split up over a year, for example:
+After achieving a set amount ($75,000), users who have contributed towards the crowdfund (minimum of $100) will have a chance to obtain free rent (4) months worth (minimum) up to 12 months (maximum). Each minimum contribution of $100 will be 1 drawing up to 40 entries ($4000 value). For every 4 entries (rounded down) contributed after attaining 8, if selected for free rent, you will recieve an additional month of free rent. Free rent is split up over a year, for example:
 
 - if you recieve the minimum 4 months free rent, you will recieve free rent every 3rd month up to a year.
 - if you contributed $1600, and are selected for free rent, you have 6 months of free rent and will receive free rent every 2nd month.
@@ -111,3 +111,43 @@ Schedule:
   - Use puppeteer to scrape property data
 - Actual:
   - Utilize the original form of querying zillow via the ip address given by remix. Save address information locally into files for easier retrieval. Next steps are to save the data into the database. We've refactored our Property Model to reflect the information given from zillow. The add form needs a few more pieces of information to be complete and to then be added to database.
+
+2/22 - 2/25: Uber/Lyfting so no code progression.
+
+2/26: Did not code really, took an extra day to do wholesaling real estate
+
+2/27: Continue on Add Form
+
+Goals:
+
+- Work on puppeteer to extract data like the other method of fetching
+- Obtain HOA/Insurance/Tax information, add appropriate input fields
+- Add property into database, remove local file data
+
+Actual:
+
+- Got puppeteer to extra data like insurance information
+- Major refactor of the getZillowData route
+
+2/28: Continue the Add Form
+
+Goals:
+
+- Display modal on generic error message
+- Display errors on missing information from zillow scrape on inputs
+- Loading screen for fetching
+- Maybe add data to database?
+
+Actual:
+
+- I did not work on this today, worked on real estate whole saling.
+
+Today: Maybe work on Add Form
+
+Goals:
+
+- See Above (2/28)
+
+3/12:
+
+Resuming from 2/28.
