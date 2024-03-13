@@ -13,26 +13,31 @@ export interface ZillowPropertyData {
   yearBuilt: number;
   parcelId: string;
   lotSize: number;
-  lotAreaUnit: string;
+  lotAreaUnits: string;
   livingArea: number;
-  livingAreaUnit: string;
+  livingAreaUnits: string;
   latitude: number;
   longitude: number;
   homeType: string;
   description: string;
   bedrooms: number;
   bathrooms: number;
-  address: Address;
+  address: Record<keyof Address, string>;
   timestamp?: string;
+  tax?: number;
+  annualHomeownersInsurance: number;
+  zillowLink?: string;
+  price: number;
+  garage: number;
 }
 
 export interface DefaultDatabaseProperties {
+  id: number;
   updated: Date;
   created: Date;
 }
 
 export interface BasicPropertyData extends ZillowPropertyData {
-  id: number;
   fees: PropertyFees;
 }
 
@@ -40,15 +45,13 @@ export interface PropertyFees {
   management: number;
   capex: number;
   vacancy: number;
-  tax: number;
   hoa?: number;
-  insurance: number;
 }
 
 export interface FullPropertyData
   extends BasicPropertyData,
     DefaultDatabaseProperties {
-  payment: number;
+  price: number;
   paymentType: "rent" | "sell";
   garage: number;
   owner: User | string;
