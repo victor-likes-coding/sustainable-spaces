@@ -234,7 +234,7 @@ export async function getInsuranceData(
 
   console.log(insuranceData);
 
-  propertyData.insurance = Number(insuranceData);
+  propertyData.annualHomeownersInsurance = Number(insuranceData);
 }
 
 export async function getInsuranceDataFromPuppeteer(
