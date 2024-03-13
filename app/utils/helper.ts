@@ -1,8 +1,8 @@
-import { ZillowPropertyData } from "./../models/property.d";
+// import { ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
-import { DataValidationEror } from "./errors";
+import { DataValidationEror, DpgClientCache } from "./errors";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -98,8 +98,12 @@ function getObjectData(html: string, startingIndex: number) {
   const stringifiedObjectData = narrowedData.substring(0, closingIndex + 1);
   try {
     const objectData = JSON.parse(stringifiedObjectData);
+    if (!objectData?.props?.pageProps?.componentProps?.gdpClientCache)
+      // this is a just in case there's no gdpClientCache
+      throw new DpgClientCache();
     return objectData;
   } catch (err) {
+    console.log("returning undefined", err);
     return;
   }
 }
@@ -122,30 +126,70 @@ interface ZillowPropertyData {
   yearBuilt: number;
   parcelId: string;
   lotSize: number;
-  lotAreaUnit: string;
+  lotAreaUnits: string;
   livingArea: number;
-  livingAreaUnit: string;
+  livingAreaUnits: string;
   latitude: number;
   longitude: number;
   homeType: string;
   description: string;
   bedrooms: number;
   bathrooms: number;
-  address: Address;
+  address: Record<keyof Address, string>;
   timestamp?: string;
   insurance: number;
   tax?: number;
   annualHomeownersInsurance: number;
   zillowLink?: string;
+  price: number;
+  garage: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function filterObject(obj: any): Partial<ZillowPropertyData> {
-  const filteredObject: Partial<ZillowPropertyData> = {};
-  const interfaceKeys = Object.keys(obj) as Array<keyof ZillowPropertyData>;
+  const filteredObject: Partial<ZillowPropertyData> = {
+    garage: 0,
+  };
+  const dataKeys = Object.keys(obj) as Array<keyof ZillowPropertyData>;
+  // filter keys based on zillowPropertyData type only
+  const keys = [
+    "zpid",
+    "yearBuilt",
+    "parcelId",
+    "lotSize",
+    "lotAreaUnits",
+    "livingArea",
+    "livingAreaUnits",
+    "latitude",
+    "longitude",
+    "homeType",
+    "description",
+    "bedrooms",
+    "bathrooms",
+    "timestamp",
+    "insurance",
+    "annualHomeownersInsurance",
+    "zillowLink",
+    "city",
+    "state",
+    "streetAddress",
+    "zipcode",
+    "price",
+    "garage",
+  ];
 
-  for (const key of interfaceKeys) {
-    if (key in obj) {
-      filteredObject[key] = obj[key];
+  const addressKeys = ["city", "state", "streetAddress", "zipcode"];
+
+  for (const key of dataKeys) {
+    if (keys.includes(key)) {
+      if (addressKeys.includes(key)) {
+        filteredObject.address = filteredObject.address || ({} as Address);
+        filteredObject.address[key as keyof Address] = obj[key];
+      } else if (key === "lotAreaUnits" && obj[key] === "Acres") {
+        filteredObject.lotSize = obj["lotSize"] / 43560;
+      } else {
+        filteredObject[key] = obj[key];
+      }
     }
   }
 
@@ -164,6 +208,7 @@ function getPropertyData(
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
   const propertyData = filterObject(property);
+  // console.log(propertyData, "filtered property data");
   return propertyData as ZillowPropertyData;
 }
 
@@ -172,7 +217,11 @@ export function getZillowDataFromHtml(html: string, pattern: string) {
 
   // reduce the string so we're only looking at the start of the json object
   const objectData = getObjectData(html, startIndex);
-  if (!objectData) return;
+  if (
+    !objectData ||
+    !objectData?.props?.pageProps?.componentProps?.gdpClientCache
+  )
+    return undefined; // very important we have the dpgClientCache
   const dpgClientCache =
     objectData?.props?.pageProps?.componentProps?.gdpClientCache;
   const zillowData = JSON.parse(dpgClientCache);
