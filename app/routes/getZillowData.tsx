@@ -33,7 +33,6 @@ export const action: ActionFunction = async ({
       propertyData,
     });
   } catch (err) {
-    console.error(err);
     return json({
       error: "An error occurred while fetching data.",
       status: 500,
@@ -114,17 +113,66 @@ function addTaxData(
 async function fetchPropertyDataFromZillow(
   url: string
 ): Promise<ZillowPropertyData> {
-  const html = await getPropertyDataFromZillow(url);
-  const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
+  let html: string;
+  let propertyData:
+    | ZillowPropertyData
+    | Partial<ZillowPropertyData>
+    | undefined = {};
+  try {
+    html = await getPropertyDataFromZillow(url);
+    const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
 
-  let propertyData = getZillowDataFromHtml(html, pattern);
+    propertyData = getZillowDataFromHtml(html, pattern);
 
-  if (!propertyData) {
-    propertyData = await fetchPropertyDataWithPuppeteer(url);
+    if (!propertyData) {
+      propertyData = await fetchPropertyDataWithPuppeteer(url);
+    }
+  } catch (err) {
+    if (err instanceof ZillowResponseError) {
+      // Manually scrape the data we need from Zillow
+      propertyData = await scrapePropertyDataFromZillow(url);
+    } else {
+      throw err; // Rethrow other errors
+    }
+  } finally {
+    // Perform operations that need to be executed regardless of whether an error occurred or not
+    if (propertyData) {
+      propertyData.timestamp = new Date().toISOString();
+    }
   }
 
-  propertyData.timestamp = new Date().toISOString();
-  return propertyData;
+  if (propertyData) {
+    return propertyData as ZillowPropertyData;
+  } else {
+    // Handle the case when propertyData is still undefined or null
+    throw new PropertyNotFoundError();
+  }
+}
+
+async function scrapePropertyDataFromZillow(
+  url: string
+): Promise<ZillowPropertyData> {
+  const browser = await puppeteer.launch({ headless: false, slowMo: 150 });
+  const page = await browser.newPage();
+  await page.goto(url);
+  const propertyData = await extractPropertyDataFromPage(page);
+  if (propertyData) {
+    propertyData.zillowLink = url;
+  }
+  return propertyData as ZillowPropertyData;
+  // finally {
+  //   await browser.close();
+  // }
+}
+
+async function extractPropertyDataFromPage(
+  page: Page
+): Promise<ZillowPropertyData | undefined> {
+  const newPattern = `</div><script id="__NEXT_DATA__" type="application/json">`;
+  const newHTML = await page.content();
+
+  const newPropertyData = getZillowDataFromHtml(newHTML, newPattern);
+  return newPropertyData;
 }
 
 async function fetchPropertyDataWithPuppeteer(
@@ -150,10 +198,7 @@ async function fetchPropertyDataWithPuppeteer(
 
     await Promise.all([page.goto(newUrl), page.waitForNavigation()]);
 
-    const newPattern = `></script></div></div><script id="__NEXT_DATA__" type="application/json">`;
-    const newHTML = await page.content();
-    const newPropertyData = getZillowDataFromHtml(newHTML, newPattern);
-
+    const newPropertyData = await extractPropertyDataFromPage(page);
     if (!newPropertyData) {
       throw new PropertyNotFoundError();
     }
@@ -227,12 +272,9 @@ export async function getInsuranceData(
     const insuranceData: HTMLInputElement | null = document.querySelector(
       "input[id='home-insurance']"
     );
-    console.log(insuranceData);
     if (!insuranceData) return "0";
     return insuranceData.value;
   });
-
-  console.log(insuranceData);
 
   propertyData.annualHomeownersInsurance = Number(insuranceData);
 }
