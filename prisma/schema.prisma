@@ -27,14 +27,14 @@ model Property {
   id Int @id @default(autoincrement())
   
   // address information
-  address String
+  streetAddress String
   city String
   state String
   zip Int
 
   // property information
-  beds Int
-  baths Int
+  bedrooms Int
+  bathrooms Int
   garage Int
   yearBuilt Int
   longitude Float
@@ -43,9 +43,9 @@ model Property {
   homeType String
   parcelId String
   lotSize Int
-  lotSizeUnit String
+  lotAreaUnits String
   livingArea Int
-  livingAreaUnit String
+  livingAreaUnits String
   zpid Int @unique
 
   // database information
@@ -53,7 +53,7 @@ model Property {
   created DateTime @default(now())
 
   // financial information
-  payment Float
+  price Float
   paymentType String
 
   // fees
@@ -61,7 +61,7 @@ model Property {
   capex Float
   vacancy Float
   hoa Float?
-  insurance Float
+  annualHomeownersInsurance Float
 
   // relationships
   tenant User? @relation(fields: [tenantId], references: [id], name: "Renting")
@@ -70,7 +70,7 @@ model Property {
   ownerId Int 
 
   // other
-  likesCount Int
+  likesCount Int @default(0)
   likes Int[]
 }
 
