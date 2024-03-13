@@ -65,7 +65,10 @@ async function getLocalPropertyData(modifiedAddress: string) {
   }
 }
 
-export async function getPropertyData(url: string, address: string) {
+export async function getPropertyData(
+  url: string,
+  address: string
+): Promise<ZillowPropertyData | undefined> {
   const modifiedAddress = modifyAddress(address);
   const localData = await getLocalPropertyData(modifiedAddress);
   if (localData) {
@@ -80,13 +83,9 @@ export async function getPropertyData(url: string, address: string) {
   }
   const propertyData = await fetchPropertyDataFromZillow(url);
 
-  // Add tax data to propertyData
+  // try to Add tax data to propertyData
   addTaxData(propertyData);
-
   saveLocalPropertyData(modifiedAddress, propertyData);
-  // if (!propertyData.insurance || propertyData.insurance === 0) {
-  //   await getInsuranceDataFromPuppeteer(url, address, propertyData);
-  // }
   return propertyData;
 }
 
@@ -131,7 +130,7 @@ async function fetchPropertyDataFromZillow(
 async function fetchPropertyDataWithPuppeteer(
   url: string
 ): Promise<ZillowPropertyData> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: false, slowMo: 300 });
   const page = await browser.newPage();
 
   try {
