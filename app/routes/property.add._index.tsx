@@ -1,7 +1,7 @@
 // import { Form, Link } from "@remix-run/react";
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import {
   AdditionalMutationData,
@@ -15,6 +15,16 @@ import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
 import { useMemo, useRef, useState } from "react";
 import { PropertyNotFoundError } from "~/utils/errors";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Spinner,
+} from "@nextui-org/react";
 
 type Library =
   | "core"
@@ -72,17 +82,21 @@ export default function Index() {
     lotSize: 0,
     livingArea: 0,
     yearBuilt: 0,
+    purchaseMethod: "rent",
+    price: 0,
     homeType: "",
     latitude: 0,
     longitude: 0,
-    livingAreaUnit: "",
-    lotAreaUnit: "",
-    parcelId: "",
-    purchaseMethod: "rent",
-    price: 0,
-    insurance: 0,
+    livingAreaUnits: "",
+    lotAreaUnits: "",
     tax: 0,
+    annualHomeownersInsurance: 0,
+    zillowLink: "",
+    garage: 0,
+    parcelId: "",
   });
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [errors, setErrors] = useState({
     address: "",
@@ -96,12 +110,15 @@ export default function Index() {
     generic: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
+
   const handlePlaceChanged = async () => {
     const place = inputRef.current?.value;
     // now that we have a complete address, we can search zillow with axios
     if (!place) return;
     // check and see if we've got this data already
     try {
+      setIsLoading(true);
       const serverResponse = await fetch("/getZillowData", {
         method: "POST",
         headers: {
@@ -110,27 +127,27 @@ export default function Index() {
         body: JSON.stringify({ url: createZillowUrl(place), address: place }),
       });
       const { propertyData } = await serverResponse.json();
-      if (!propertyData) throw new Error("No data found");
-      console.log(propertyData);
+      if (!propertyData) throw new PropertyNotFoundError();
 
       setProperty((prevProperty) => ({
         ...prevProperty,
         ...propertyData,
       }));
-
-      return;
     } catch (err) {
       if (err instanceof PropertyNotFoundError) {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          generic: "No property found",
+          generic: err.message,
         }));
+
+        onOpen(); // open modal
         return;
       }
-
-      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
+  console.log(property);
 
   return (
     <>
@@ -160,7 +177,7 @@ export default function Index() {
               </Autocomplete>
             </LoadScript>
 
-            <form className="flex flex-col gap-2 mt-4 text-black">
+            <Form method="post" className="flex flex-col gap-2 mt-4 text-black">
               <div className="input-group w-full flex flex-col">
                 <label htmlFor="streetAddress" className="text-sm">
                   Street Address
@@ -410,10 +427,34 @@ export default function Index() {
               >
                 Add
               </button>
-            </form>
+            </Form>
           </div>
         </main>
       </div>
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-gray-800 bg-opacity-80 backdrop-blur flex justify-center items-center z-20">
+          <Spinner label="Looking up property..." />
+        </div>
+      )}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Ooops, Something went wrong!
+              </ModalHeader>
+              <ModalBody>
+                <p>{errors.generic}</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 }
