@@ -11,7 +11,8 @@ type ErrorCodes =
   | "10101"
   | "10001"
   | "20000"
-  | "30000";
+  | "30000"
+  | "60000";
 
 // ? TODO: Split errors into AuthErrors, PropertyErrors, and DatabaseErrors
 // ? TODO: combine error strings and error name into single object
@@ -19,6 +20,7 @@ class BaseError extends Error {
   // 1xxxx errors are auth related
   // 2xxxx errors are property related
   // 3xxxx errors are database related
+  // 6xxxx errors are zillow related
   protected errors: Record<ErrorCodes, string> = {
     10000: "Unable to create user.",
     10010: "User not found.",
@@ -30,6 +32,7 @@ class BaseError extends Error {
     20000:
       "Failed to locate a listing for this property. Please enter manually.",
     30000: "The server is currently down. Please try again.",
+    60000: "GdpCacheNotDetected: GdpCache not detected in the HTML given.",
   };
   constructor({ message, code }: BaseErrorProps) {
     if (!message) {
@@ -145,6 +148,17 @@ export class DatabaseConnectionError extends BaseError {
   ) {
     super(data);
     this.name = "DatabaseConnectionError";
+  }
+}
+
+export class DpgClientCache extends BaseError {
+  constructor(
+    data: BaseErrorProps = {
+      code: "60000",
+    }
+  ) {
+    super(data);
+    this.name = "DpgClientCache";
   }
 }
 
