@@ -100,7 +100,6 @@ function getObjectData(html: string, startingIndex: number) {
     const objectData = JSON.parse(stringifiedObjectData);
     return objectData;
   } catch (err) {
-    console.error(err);
     return;
   }
 }
@@ -137,6 +136,7 @@ interface ZillowPropertyData {
   insurance: number;
   tax?: number;
   annualHomeownersInsurance: number;
+  zillowLink?: string;
 }
 
 function filterObject(obj: any): Partial<ZillowPropertyData> {
