@@ -30,31 +30,31 @@ Base | 1.28% | 15% | varies
 | Base | Base \* 1.28       | 10%   | 5%         | 5%      | varies     | varies |
 | 1000 | Fees based on 1280 | 128   | 64         | 64      | 28         | 1472   |
 
-In a less table format:
+Cost Breakdown:
 
-- PITI: 1000
-- PITI \+ Capex, Management, Vacancy: 1000 \* 1.28 = 1280
-  - Capex: 10% = 128
-  - Management: 5% = 64
-  - Vacancy: 5% = 64
-  - Other Fee: 1280 - 1000 - 128 - 64 - 64 = 28
-- Flat Rate: 15% = 1280 \* 0.15 = 192
+- PITI: $1,000
+- PITI + Capex, Management, Vacancy: $1,000 \* 1.28 = $1,280
+  - Capex: 10% = $128
+  - Management: 5% = $64
+  - Vacancy: 5% = $64
+  - Other Fee: $1,280 - $1,000 - $128 - $64 - $64 = $24
+- Flat Rate: 15% = $1,280 \* 0.15 = $192
 
-This totals: 1472/month in rent.
+Total Monthly Rent: $1,472
 
-### Rent increases
+### Rent Increases:
 
-Rent will obviously go up yearly due to inflation (min 5%), but we will cap rent increases to the CPI or (5%) whichever is higher. So if the CPI for last year is 3% then 5% is what's used due to it being the minimum, then the rent will go up the same amount based on the PITI amount. For Example:
+Rent will increase yearly due to inflation (minimum 5%), capped to the CPI or 5%, whichever is higher. For example:
 
-- PITI: 1050 (5% increase)
-- PITI \+ Capex, Management, Vacancy: 1050 \* 1.28 = 1344
-  - Capex: 10% = 134
-  - Management: 5% = 67
-  - Vacancy: 5% = 67
-  - Other Fee: 1344 - 1050 - 134 - 67 - 67 = 26
-- Flat Rate: 15% = 1318.4 \* 0.15 = 201.6
+- PITI: $1,050 (5% increase)
+- PITI + Capex, Management, Vacancy: $1,050 \* 1.28 = $1,344
+  - Capex: 10% = $134
+  - Management: 5% = $67
+  - Vacancy: 5% = $67
+  - Other Fee: $1,344 - $1,050 - $134 - $67 - $67 = $26
+- Flat Rate: 15% = $1,344 \* 0.15 = $201.6
 
-This totals: 1,545.6/month in rent.
+Total Monthly Rent After Increase: $1,545.6
 
 ## MVP
 
