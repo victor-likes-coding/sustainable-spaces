@@ -13,7 +13,8 @@
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
     "test": "jest --watchAll",
-    "db:migrate": "npx prisma migrate dev"
+    "db:migrate": "npx prisma migrate dev",
+    "db:push": "npx prisma db push"
   },
   "dependencies": {
     "@nextui-org/react": "^2.2.10",
