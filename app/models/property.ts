@@ -3,8 +3,10 @@ import {
   BasicPropertyData,
   Address,
   PropertyFees,
+  DatabaseSafeProperty,
 } from "./property.d";
 import { User } from "./user";
+import { db } from "~/utils/db.server";
 
 export class Property implements FullPropertyData {
   id: number;
@@ -99,10 +101,50 @@ export class Property implements FullPropertyData {
     this.annualHomeownersInsurance = annualHomeownersInsurance;
     this.zillowLink = zillowLink;
   }
+
+  getAddressData(): Address {
+    return this.address;
+  }
+
+  getFeesData(): PropertyFees {
+    return this.fees;
+  }
+
+  getDatabaseRequiredData(): DatabaseSafeProperty {
+    return {
+      ...this.getFeesData(),
+      ...this.getAddressData(),
+      id: this.id,
+      paymentType: this.paymentType,
+      price: this.price,
+      garage: this.garage,
+      owner: this.owner,
+      tenant: this.tenant,
+      likes: this.likes,
+      likesCount: this.likesCount,
+      longitude: this.longitude,
+      latitude: this.latitude,
+      description: this.description,
+      zpid: this.zpid,
+      yearBuilt: this.yearBuilt,
+      parcelId: this.parcelId,
+      lotSize: this.lotSize,
+      livingArea: this.livingArea,
+      homeType: this.homeType,
+      bedrooms: this.bedrooms,
+      bathrooms: this.bathrooms,
+      lotAreaUnits: this.lotAreaUnits,
+      livingAreaUnits: this.livingAreaUnits,
+      tax: this.tax,
+      annualHomeownersInsurance: this.annualHomeownersInsurance,
+    };
+  }
 }
 
 export abstract class PropertyService {
-  abstract getProperties(): Promise<Property[]>;
+  static getProperties(): Promise<DatabaseSafeProperty[]> {
+    return db.property.findMany();
+  }
   abstract getProperty(id: number): Promise<Property>;
   abstract createProperty(property: Property): Promise<Property>;
   abstract updateProperty(property: Property): Promise<Property>;
