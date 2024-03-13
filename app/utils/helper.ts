@@ -1,4 +1,4 @@
-// import { ZillowPropertyData } from "./../models/property.d";
+import { Address, ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
@@ -114,37 +114,6 @@ type dCache = {
   };
 };
 
-type Address = {
-  city: string;
-  state: string;
-  streetAddress: string;
-  zipcode: string;
-};
-
-interface ZillowPropertyData {
-  zpid: number;
-  yearBuilt: number;
-  parcelId: string;
-  lotSize: number;
-  lotAreaUnits: string;
-  livingArea: number;
-  livingAreaUnits: string;
-  latitude: number;
-  longitude: number;
-  homeType: string;
-  description: string;
-  bedrooms: number;
-  bathrooms: number;
-  address: Record<keyof Address, string>;
-  timestamp?: string;
-  insurance: number;
-  tax?: number;
-  annualHomeownersInsurance: number;
-  zillowLink?: string;
-  price: number;
-  garage: number;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function filterObject(obj: any): Partial<ZillowPropertyData> {
   const filteredObject: Partial<ZillowPropertyData> = {
@@ -181,8 +150,8 @@ function filterObject(obj: any): Partial<ZillowPropertyData> {
   const addressKeys = ["city", "state", "streetAddress", "zipcode"];
 
   for (const key of dataKeys) {
-    if (keys.includes(key)) {
-      if (addressKeys.includes(key)) {
+    if (keys.includes(key as string)) {
+      if (addressKeys.includes(key as string)) {
         filteredObject.address = filteredObject.address || ({} as Address);
         filteredObject.address[key as keyof Address] = obj[key];
       } else if (key === "lotAreaUnits" && obj[key] === "Acres") {
