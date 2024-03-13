@@ -1,5 +1,5 @@
 import { json, ActionFunction, ActionFunctionArgs } from "@remix-run/node";
-import { ZillowResponseError } from "~/utils/errors";
+import { PropertyNotFoundError, ZillowResponseError } from "~/utils/errors";
 import { writeFile, readFile, access, mkdir } from "fs/promises";
 import { dirname, join } from "path";
 import {
@@ -32,6 +32,7 @@ export const action: ActionFunction = async ({
       propertyData,
     });
   } catch (err) {
+    console.error(err);
     return json({
       error: "An error occurred while fetching data.",
       status: 500,
@@ -107,18 +108,48 @@ async function getLocalPropertyData(
 async function fetchPropertyDataFromZillow(
   url: string
 ): Promise<ZillowPropertyData> {
-  const data = await getPropertyDataFromZillow(url);
-
-  const html: string = data.substring(Math.floor(data.length * 0.25));
+  const html = await getPropertyDataFromZillow(url);
 
   const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
 
   const propertyData = getZillowDataFromHtml(html, pattern);
-  if (!propertyData) throw new Error("No property found");
+  if (!propertyData) {
+    // try using puppeteer
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto(url);
+
+    const anchor = await page.waitForSelector(
+      `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
+    );
+    if (!anchor) {
+      await browser.close();
+      throw new PropertyNotFoundError();
+    }
+    const newUrl =
+      `https://www.zillow.com` +
+      (await page.evaluate((el) => el.getAttribute("href"), anchor));
+    await Promise.all([
+      await page.goto(newUrl),
+      await page.waitForNavigation(),
+    ]);
+
+    const newPattern = `></script></div></div><script id="__NEXT_DATA__" type="application/json">`;
+    const newHTML = await page.content();
+    const propertyData = getZillowDataFromHtml(newHTML, newPattern);
+
+    if (!propertyData) {
+      await browser.close();
+      throw new PropertyNotFoundError();
+    }
+    await browser.close();
+    propertyData.zillowLink = newUrl;
+    propertyData.timestamp = new Date().toISOString();
+    return propertyData;
+  }
   propertyData.timestamp = new Date().toISOString();
   return propertyData;
 }
-
 async function saveLocalPropertyData(
   modifiedAddress: string,
   propertyData: ZillowPropertyData
@@ -167,11 +198,9 @@ export async function getInsuranceData(
     const insuranceData: HTMLInputElement | null =
       document.querySelector("#home-insurance");
 
-    if (!insuranceData) return;
+    if (!insuranceData) return "0";
     return insuranceData.value;
   });
-
-  if (!insuranceData) throw new Error("No insurance data found");
 
   propertyData.insurance = Number(insuranceData);
 }
@@ -186,7 +215,7 @@ export async function getPropertyData(url: string, address: string) {
     // getting here means we have local data
     // check and see if timestamp is less than 30 days
     const isFreshData = await checkFreshnessOfLocalData(localData);
-    if (isFreshData) {
+    if (isFreshData && localData.insurance !== 0) {
       return localData;
     }
   }
@@ -198,12 +227,23 @@ export async function getPropertyData(url: string, address: string) {
   saveLocalPropertyData(modifiedAddress, propertyData); // handles most of the data we need
 
   // also we need to grab the insurance information and anything else we need from the actual zillow page in puppeteer
-  const browser = await puppeteer.launch({ headless: false, slowMo: 100 });
+  // should only grab if insurance is not already in the local data (or if it's old)
+  if (!propertyData.insurance || propertyData.insurance === 0) {
+    await getInsuranceDataFromPuppeteer(url, address, propertyData);
+  }
+  return propertyData;
+}
+
+export async function getInsuranceDataFromPuppeteer(
+  url: string,
+  address: string,
+  propertyData: ZillowPropertyData
+) {
+  const browser = await puppeteer.launch({ headless: false, slowMo: 300 });
   const page = await browser.newPage();
-  await typeAddress(page, url, "6803 119th Place North, Largo, FL, USA");
+  await typeAddress(page, url, address);
   await getInsuranceData(page, propertyData);
   await browser.close();
-  return propertyData;
 }
 
 async function checkFreshnessOfLocalData(localData: ZillowPropertyData) {
