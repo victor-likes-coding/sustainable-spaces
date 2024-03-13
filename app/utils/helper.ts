@@ -103,7 +103,6 @@ function getObjectData(html: string, startingIndex: number) {
       throw new DpgClientCache();
     return objectData;
   } catch (err) {
-    console.log("returning undefined", err);
     return;
   }
 }
@@ -167,7 +166,6 @@ function filterObject(obj: any): Partial<ZillowPropertyData> {
 
 interface AdditionalMutationData {
   purchaseMethod: "rent" | "sell";
-  price: number;
 }
 function getPropertyData(
   dpgClientCache: dCache
