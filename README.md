@@ -158,3 +158,11 @@ Accomplished Today:
 - Create a fallback on fetching zillow data when the first method doesn't work
 - Filter zillow data
 - Add Spinner for data fetching property information from zillow
+
+3/13:
+
+We have beaten Zillow's anti-fetching mechanisms. Created a fallback for when fetching gives a forbidden response via puppeteer.
+
+Accomplishments today:
+
+- Create fallback on zillow scraping.
