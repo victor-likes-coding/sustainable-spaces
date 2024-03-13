@@ -23,6 +23,11 @@ model User {
   token  String?
 }
 
+enum PaymentType {
+  rent
+  sell
+}
+
 model Property {
   id Int @id @default(autoincrement())
   
@@ -30,7 +35,7 @@ model Property {
   streetAddress String
   city String
   state String
-  zip Int
+  zipcode String
 
   // property information
   bedrooms Int
@@ -54,13 +59,14 @@ model Property {
 
   // financial information
   price Float
-  paymentType String
+  paymentType PaymentType
 
   // fees
   tax Float
   capex Float
   vacancy Float
-  hoa Float?
+  hoa Float? @default(0)
+  management Float
   annualHomeownersInsurance Float
 
   // relationships
