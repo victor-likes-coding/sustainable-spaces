@@ -14,6 +14,12 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import { Page } from "puppeteer";
 
+// based on 2 letter state, get tax rate
+type State = "FL"; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
+const taxes: Record<State, number> = {
+  FL: 0.0072,
+};
+
 puppeteer.use(StealthPlugin());
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
@@ -21,13 +27,8 @@ export const action: ActionFunction = async ({
   request,
 }: ActionFunctionArgs) => {
   try {
-    // Perform server-side tasks, such as fetching data from a database or making external API requests
     const { url, address } = await request.json();
-    // before doing this, let's check and see if we have the data stored locally
     const propertyData = await getPropertyData(url, address);
-    addTaxData(propertyData);
-
-    // Return the fetched data as JSON
     return json({
       propertyData,
     });
@@ -40,7 +41,54 @@ export const action: ActionFunction = async ({
   }
 };
 
-type State = "FL"; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
+async function getPropertyDataFromZillow(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new ZillowResponseError({ response });
+  }
+  const htmlString = await response.text();
+  return htmlString;
+}
+
+async function getLocalPropertyData(modifiedAddress: string) {
+  try {
+    const data = await readFile(
+      join("app", "localPropertyData", `${modifiedAddress}.json`),
+      "utf8"
+    );
+    return JSON.parse(data);
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function getPropertyData(url: string, address: string) {
+  const modifiedAddress = modifyAddress(address);
+  const localData = await getLocalPropertyData(modifiedAddress);
+  if (localData) {
+    const isFreshData = await checkFreshnessOfLocalData(localData);
+    if (
+      isFreshData &&
+      localData.insurance !== undefined &&
+      localData.insurance !== 0
+    ) {
+      return localData;
+    }
+  }
+  const propertyData = await fetchPropertyDataFromZillow(url);
+
+  // Add tax data to propertyData
+  addTaxData(propertyData);
+
+  saveLocalPropertyData(modifiedAddress, propertyData);
+  // if (!propertyData.insurance || propertyData.insurance === 0) {
+  //   await getInsuranceDataFromPuppeteer(url, address, propertyData);
+  // }
+  return propertyData;
+}
 
 function addTaxData(
   propertyData: ZillowPropertyData & Partial<AdditionalMutationData>
@@ -57,11 +105,6 @@ function addTaxData(
     price,
   } = propertyData;
 
-  // based on 2 letter state, get tax rate
-  const taxes: Record<State, number> = {
-    FL: 0.0072,
-  };
-
   const taxRate = taxes[state as State];
   if (!taxRate || !price) return; // we don't have tax data for this state yet or a purchase price
 
@@ -69,87 +112,62 @@ function addTaxData(
   propertyData.tax = tax; // yearly tax rate
 }
 
-// Function to fetch data from an external API (replace this with your actual data fetching logic)
-async function getPropertyDataFromZillow(url: string) {
-  // Example: Fetch data from an external API
-  const response = await fetch(url);
-
-  // Check if the request was successful (status code 2xx)
-  if (!response.ok) {
-    throw new ZillowResponseError({
-      response,
-    });
-  }
-
-  // Retrieve the response body as text (HTML)
-  const htmlString = await response.text();
-
-  return htmlString;
-}
-
-async function getLocalPropertyData(
-  modifiedAddress: string
-): Promise<ZillowPropertyData | null> {
-  try {
-    const data = await readFile(
-      join("app", "localPropertyData", `${modifiedAddress}.json`),
-      "utf8"
-    );
-    return JSON.parse(data);
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-      // File doesn't exist
-      return null;
-    }
-    throw err;
-  }
-}
-
 async function fetchPropertyDataFromZillow(
   url: string
 ): Promise<ZillowPropertyData> {
   const html = await getPropertyDataFromZillow(url);
-
   const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
 
-  const propertyData = getZillowDataFromHtml(html, pattern);
+  let propertyData = getZillowDataFromHtml(html, pattern);
+
   if (!propertyData) {
-    // try using puppeteer
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+    propertyData = await fetchPropertyDataWithPuppeteer(url);
+  }
+
+  propertyData.timestamp = new Date().toISOString();
+  return propertyData;
+}
+
+async function fetchPropertyDataWithPuppeteer(
+  url: string
+): Promise<ZillowPropertyData> {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  try {
     await page.goto(url);
 
     const anchor = await page.waitForSelector(
       `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
     );
+
     if (!anchor) {
-      await browser.close();
       throw new PropertyNotFoundError();
     }
+
     const newUrl =
       `https://www.zillow.com` +
       (await page.evaluate((el) => el.getAttribute("href"), anchor));
-    await Promise.all([
-      await page.goto(newUrl),
-      await page.waitForNavigation(),
-    ]);
+
+    await Promise.all([page.goto(newUrl), page.waitForNavigation()]);
 
     const newPattern = `></script></div></div><script id="__NEXT_DATA__" type="application/json">`;
     const newHTML = await page.content();
-    const propertyData = getZillowDataFromHtml(newHTML, newPattern);
+    const newPropertyData = getZillowDataFromHtml(newHTML, newPattern);
 
-    if (!propertyData) {
-      await browser.close();
+    if (!newPropertyData) {
       throw new PropertyNotFoundError();
     }
+
+    newPropertyData.zillowLink = newUrl;
+    newPropertyData.timestamp = new Date().toISOString();
+
+    return newPropertyData;
+  } finally {
     await browser.close();
-    propertyData.zillowLink = newUrl;
-    propertyData.timestamp = new Date().toISOString();
-    return propertyData;
   }
-  propertyData.timestamp = new Date().toISOString();
-  return propertyData;
 }
+
 async function saveLocalPropertyData(
   modifiedAddress: string,
   propertyData: ZillowPropertyData
@@ -166,7 +184,7 @@ async function saveLocalPropertyData(
 }
 
 export async function typeAddress(page: Page, url: string, address: string) {
-  page.setDefaultTimeout(5000);
+  page.setDefaultTimeout(10000);
   await page.goto(url);
   const inputSelector =
     "input[placeholder='Enter an address, neighborhood, city, or ZIP code']";
@@ -192,46 +210,32 @@ export async function getInsuranceData(
   page: Page,
   propertyData: ZillowPropertyData
 ) {
-  await page.waitForSelector("#home-insurance");
+  const button = await page.waitForSelector(
+    `button[id="label-home-insurance"]`
+  );
+  if (!button) {
+    throw new Error("Button not found");
+  }
+
+  await Promise.all([
+    await button.click(),
+    await page.waitForSelector(`input[id="home-insurance"]`), // this won't show up until we click on the button
+  ]);
+
+  // wait for the input to show up
   const insuranceData = await page.evaluate(() => {
     // #home-insurance is an input element
-    const insuranceData: HTMLInputElement | null =
-      document.querySelector("#home-insurance");
-
+    const insuranceData: HTMLInputElement | null = document.querySelector(
+      "input[id='home-insurance']"
+    );
+    console.log(insuranceData);
     if (!insuranceData) return "0";
     return insuranceData.value;
   });
 
+  console.log(insuranceData);
+
   propertyData.insurance = Number(insuranceData);
-}
-
-export async function getPropertyData(url: string, address: string) {
-  const modifiedAddress = modifyAddress(address);
-
-  // check for local data
-  const localData = await getLocalPropertyData(modifiedAddress);
-
-  if (localData) {
-    // getting here means we have local data
-    // check and see if timestamp is less than 30 days
-    const isFreshData = await checkFreshnessOfLocalData(localData);
-    if (isFreshData && localData.insurance !== 0) {
-      return localData;
-    }
-  }
-
-  // Fetch data from Zillow
-  const propertyData = await fetchPropertyDataFromZillow(url);
-
-  // Save data to local storage
-  saveLocalPropertyData(modifiedAddress, propertyData); // handles most of the data we need
-
-  // also we need to grab the insurance information and anything else we need from the actual zillow page in puppeteer
-  // should only grab if insurance is not already in the local data (or if it's old)
-  if (!propertyData.insurance || propertyData.insurance === 0) {
-    await getInsuranceDataFromPuppeteer(url, address, propertyData);
-  }
-  return propertyData;
 }
 
 export async function getInsuranceDataFromPuppeteer(
@@ -239,10 +243,19 @@ export async function getInsuranceDataFromPuppeteer(
   address: string,
   propertyData: ZillowPropertyData
 ) {
-  const browser = await puppeteer.launch({ headless: false, slowMo: 300 });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await typeAddress(page, url, address);
+  if (!propertyData.zillowLink || !url) {
+    // the url should work
+    await typeAddress(page, `https://www.zillow.com`, address);
+  } else {
+    await page.goto(propertyData.zillowLink || url);
+  }
+
   await getInsuranceData(page, propertyData);
+  // save propertyData
+  const modifiedAddress = modifyAddress(address);
+  await saveLocalPropertyData(modifiedAddress, propertyData);
   await browser.close();
 }
 
