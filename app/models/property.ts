@@ -9,11 +9,11 @@ import { User } from "./user";
 export class Property implements FullPropertyData {
   id: number;
   paymentType: "rent" | "sell";
-  address: Address;
+  address: Record<keyof Address, string>;
   fees: PropertyFees;
   updated: Date;
   created: Date;
-  payment: number;
+  price: number;
   garage: number;
   owner: string | User;
   tenant: string | User;
@@ -26,41 +26,78 @@ export class Property implements FullPropertyData {
   yearBuilt: number;
   parcelId: string;
   lotSize: number;
-  lotAreaUnit: string;
   livingArea: number;
-  livingAreaUnit: string;
   homeType: string;
   bedrooms: number;
   bathrooms: number;
-  timestamp?: string | undefined;
-
+  timestamp: string | undefined;
+  lotAreaUnits: string;
+  livingAreaUnits: string;
+  tax: number | undefined;
+  annualHomeownersInsurance: number;
+  zillowLink: string | undefined;
   constructor(data: FullPropertyData) {
-    this.id = data.id;
-    this.address = data.address;
-    this.fees = data.fees;
-    this.paymentType = data.paymentType;
-    this.updated = data.updated;
-    this.created = data.created;
-    this.payment = data.payment;
-    this.garage = data.garage;
-    this.owner = data.owner;
-    this.tenant = data.tenant;
-    this.likes = data.likes;
-    this.likesCount = data.likesCount;
-    this.longitude = data.longitude;
-    this.latitude = data.latitude;
-    this.description = data.description;
-    this.zpid = data.zpid;
-    this.yearBuilt = data.yearBuilt;
-    this.parcelId = data.parcelId;
-    this.lotSize = data.lotSize;
-    this.lotAreaUnit = data.lotAreaUnit;
-    this.livingArea = data.livingArea;
-    this.livingAreaUnit = data.livingAreaUnit;
-    this.homeType = data.homeType;
-    this.bedrooms = data.bedrooms;
-    this.bathrooms = data.bathrooms;
-    this.timestamp = data.timestamp;
+    const {
+      id,
+      paymentType,
+      address,
+      fees,
+      updated,
+      created,
+      price,
+      garage,
+      owner,
+      tenant,
+      likes = [],
+      likesCount,
+      longitude,
+      latitude,
+      description,
+      zpid,
+      yearBuilt,
+      parcelId,
+      lotSize,
+      livingArea,
+      homeType,
+      bedrooms,
+      bathrooms,
+      timestamp,
+      lotAreaUnits,
+      livingAreaUnits,
+      tax,
+      annualHomeownersInsurance,
+      zillowLink,
+    } = data;
+
+    this.id = id;
+    this.paymentType = paymentType;
+    this.address = address;
+    this.fees = fees;
+    this.updated = updated;
+    this.created = created;
+    this.price = price;
+    this.garage = garage;
+    this.owner = owner;
+    this.tenant = tenant;
+    this.likes = likes;
+    this.likesCount = likesCount;
+    this.longitude = longitude;
+    this.latitude = latitude;
+    this.description = description;
+    this.zpid = zpid;
+    this.yearBuilt = yearBuilt;
+    this.parcelId = parcelId;
+    this.lotSize = lotSize;
+    this.livingArea = livingArea;
+    this.homeType = homeType;
+    this.bedrooms = bedrooms;
+    this.bathrooms = bathrooms;
+    this.timestamp = timestamp;
+    this.lotAreaUnits = lotAreaUnits;
+    this.livingAreaUnits = livingAreaUnits;
+    this.tax = tax;
+    this.annualHomeownersInsurance = annualHomeownersInsurance;
+    this.zillowLink = zillowLink;
   }
 }
 
