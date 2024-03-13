@@ -1,6 +1,19 @@
 import { User } from "./user";
 import { Property } from "./property";
 
+export interface DatabaseSafeProperty
+  extends Partial<DefaultDatabaseProperties>,
+    Address,
+    Partial<ZillowPropertyData>,
+    PropertyFees {
+  paymentType: "rent" | "sell";
+  garage: number;
+  owner?: string | User;
+  tenant?: string | User;
+  likes: number[];
+  likesCount: number;
+}
+
 export interface Address {
   city: string;
   state: string;
@@ -45,7 +58,7 @@ export interface PropertyFees {
   management: number;
   capex: number;
   vacancy: number;
-  hoa?: number;
+  hoa?: number | null;
 }
 
 export interface FullPropertyData
