@@ -130,7 +130,7 @@ async function fetchPropertyDataFromZillow(
 async function fetchPropertyDataWithPuppeteer(
   url: string
 ): Promise<ZillowPropertyData> {
-  const browser = await puppeteer.launch({ headless: false, slowMo: 300 });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   try {
