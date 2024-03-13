@@ -33,7 +33,7 @@ Base | 1.28% | 15% | varies
 In a less table format:
 
 - PITI: 1000
-- PITI _ Capex, Management, Vacancy: 1000 _ 1.28 = 1280
+- PITI \+ Capex, Management, Vacancy: 1000 \_ 1.28 = 1280
   - Capex: 10% = 128
   - Management: 5% = 64
   - Vacancy: 5% = 64
@@ -47,7 +47,7 @@ This totals: 1472/month in rent.
 Rent will obviously go up yearly due to inflation (min 5%), but we will cap rent increases to the CPI or (5%) whichever is higher. So if the CPI for last year is 3% then 5% is what's used due to it being the minimum, then the rent will go up the same amount based on the PITI amount. For Example:
 
 - PITI: 1050 (5% increase)
-- PITI _ Capex, Management, Vacancy: 1050 _ 1.28 = 1344
+- PITI \+ Capex, Management, Vacancy: 1050 \* 1.28 = 1344
   - Capex: 10% = 134
   - Management: 5% = 67
   - Vacancy: 5% = 67
