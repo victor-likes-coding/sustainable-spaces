@@ -157,3 +157,4 @@ Accomplished Today:
 - Install NextUI
 - Create a fallback on fetching zillow data when the first method doesn't work
 - Filter zillow data
+- Add Spinner for data fetching property information from zillow
