@@ -33,7 +33,7 @@ Base | 1.28% | 15% | varies
 In a less table format:
 
 - PITI: 1000
-- PITI \+ Capex, Management, Vacancy: 1000 \_ 1.28 = 1280
+- PITI \+ Capex, Management, Vacancy: 1000 \* 1.28 = 1280
   - Capex: 10% = 128
   - Management: 5% = 64
   - Vacancy: 5% = 64
