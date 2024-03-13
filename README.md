@@ -155,3 +155,5 @@ Accomplished Today:
 
 - Rework error messages / class
 - Install NextUI
+- Create a fallback on fetching zillow data when the first method doesn't work
+- Filter zillow data
