@@ -11,6 +11,7 @@ type ErrorCodes =
   | "10101"
   | "10001"
   | "20000"
+  | "20001"
   | "30000"
   | "60000";
 
@@ -31,6 +32,8 @@ class BaseError extends Error {
     10001: "The email or password data given is not valid.",
     20000:
       "Failed to locate a listing for this property. Please enter manually.",
+    20001:
+      "An error occurred while processing the property data. Please try again.",
     30000: "The server is currently down. Please try again.",
     60000: "GdpCacheNotDetected: GdpCache not detected in the HTML given.",
   };
@@ -137,6 +140,17 @@ export class PropertyNotFoundError extends BaseError {
   ) {
     super(data);
     this.name = "PropertyNotFoundError";
+  }
+}
+
+export class PropertyValidationError extends BaseError {
+  constructor(
+    data: BaseErrorProps = {
+      code: "20001",
+    }
+  ) {
+    super(data);
+    this.name = "PropertyValidationError";
   }
 }
 
