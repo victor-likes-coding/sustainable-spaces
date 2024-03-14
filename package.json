@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.2.10",
-    "@prisma/client": "^5.8.0",
+    "@prisma/client": "^5.11.0",
     "@react-google-maps/api": "^2.19.3",
     "@remix-run/css-bundle": "^2.5.0",
     "@remix-run/node": "^2.5.0",
