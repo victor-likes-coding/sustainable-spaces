@@ -50,9 +50,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const payload = await requireToken(request);
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API;
     return json({
-      payload,
+    payload: payload as TokenPayload,
       apiKey,
     });
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const payload = (await requireToken(request)) as TokenPayload;
