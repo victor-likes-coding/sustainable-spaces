@@ -153,8 +153,6 @@ function filterObject(obj: any): Partial<ZillowPropertyData> {
       if (addressKeys.includes(key as string)) {
         filteredObject.address = filteredObject.address || ({} as Address);
         filteredObject.address[key as keyof Address] = obj[key];
-      } else if (key === "lotAreaUnits" && obj[key] === "Acres") {
-        filteredObject.lotSize = obj["lotSize"] / 43560;
       } else {
         filteredObject[key] = obj[key];
       }
