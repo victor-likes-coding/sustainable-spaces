@@ -8,6 +8,29 @@ import {
 import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
+import { getUser } from "~/utils/sessions.server";
+
+const createPropertyFields = {
+  zpid: z.number({ coerce: true }),
+  bedrooms: z.number({ coerce: true }),
+  bathrooms: z.number({ coerce: true }),
+  description: z.string(),
+  lotSize: z.number({ coerce: true }),
+  livingArea: z.number({ coerce: true }),
+  yearBuilt: z.number({ coerce: true }),
+  purchaseMethod: z.enum(["rent", "sell"]),
+  price: z.number({ coerce: true }),
+  homeType: z.string(),
+  latitude: z.number({ coerce: true }),
+  longitude: z.number({ coerce: true }),
+  livingAreaUnits: z.string(),
+  lotAreaUnits: z.string(),
+  tax: z.number({ coerce: true }),
+  annualHomeownersInsurance: z.number({ coerce: true }),
+  zillowLink: z.string().optional(),
+  garage: z.number({ coerce: true }).optional(),
+  parcelId: z.string(),
+};
 
 const addressPropertyFields = {
   streetAddress: z.string(),
@@ -18,40 +41,25 @@ const addressPropertyFields = {
 
 const commonPropertyFields = {
   id: z.number(),
-  paymentType: z.enum(["rent", "sell"]),
-  price: z.number(),
-  garage: z.number(),
-  ownerId: z.number(),
-  tenantId: z.number().optional().nullable(),
+  purchaseMethod: z.enum(["rent", "sell"]),
+  ownerId: z.number({ coerce: true }),
+  tenantId: z.number({ coerce: true }).optional().nullable(),
   likes: z.array(z.number()),
   likesCount: z.number(),
-  longitude: z.number(),
-  latitude: z.number(),
-  description: z.string(),
-  zpid: z.number(),
-  yearBuilt: z.number(),
-  parcelId: z.string(),
-  lotSize: z.number(),
-  livingArea: z.number(),
-  homeType: z.string(),
-  bedrooms: z.number(),
-  bathrooms: z.number(),
   timestamp: z.string().optional(),
-  lotAreaUnits: z.string(),
-  livingAreaUnits: z.string(),
-  tax: z.number().optional(),
-  annualHomeownersInsurance: z.number(),
-  zillowLink: z.string().optional(),
+};
+
+const propertyFeeFields = {
+  hoa: z.number({ coerce: true }).optional().nullable(),
+  management: z.number({ coerce: true }),
+  capex: z.number({ coerce: true }),
+  vacancy: z.number({ coerce: true }),
 };
 
 const propertySchema = z.object({
   ...commonPropertyFields,
-  fees: z.object({
-    hoa: z.number().optional().nullable(),
-    management: z.number(),
-    capex: z.number(),
-    vacancy: z.number(),
-  }),
+  ...createPropertyFields,
+  fees: z.object(propertyFeeFields),
   address: z.object(addressPropertyFields),
   updated: z.date(),
   created: z.date(),
@@ -60,18 +68,25 @@ const propertySchema = z.object({
 const databaseSafePropertyData = z.object({
   ...commonPropertyFields,
   ...addressPropertyFields,
-  hoa: z.number().optional().nullable(),
-  management: z.number(),
-  capex: z.number(),
-  vacancy: z.number(),
+  ...createPropertyFields,
+  ...propertyFeeFields,
 });
 
-type PropertyData = z.infer<typeof propertySchema>;
-type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>;
+const mutationSafePropertyData = z.object({
+  ...createPropertyFields,
+  ...addressPropertyFields,
+});
+
+export type PropertyData = z.infer<typeof propertySchema>;
+export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>;
+export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>;
+
+// this class is used for the frontend creating a property
+// it is not used for data that comes from the database
 
 export class Property implements PropertyData {
   id: number;
-  paymentType: "rent" | "sell";
+  purchaseMethod: "rent" | "sell";
   address: Address; // Add the 'address' property
   fees: PropertyFees; // Add the 'fees' property
   ownerId: number; // Add the 'owner' property
@@ -79,7 +94,7 @@ export class Property implements PropertyData {
   updated: Date;
   created: Date;
   price: number;
-  garage: number;
+  garage: number | undefined;
   likes: number[];
   likesCount: number;
   longitude: number;
@@ -96,14 +111,14 @@ export class Property implements PropertyData {
   timestamp: string | undefined;
   lotAreaUnits: string;
   livingAreaUnits: string;
-  tax: number | undefined;
+  tax: number;
   annualHomeownersInsurance: number;
   zillowLink: string | undefined;
 
   constructor(data: PropertyData) {
     const {
       id,
-      paymentType,
+      purchaseMethod,
       address,
       fees,
       ownerId,
@@ -134,7 +149,7 @@ export class Property implements PropertyData {
     } = data;
 
     this.id = id;
-    this.paymentType = paymentType;
+    this.purchaseMethod = purchaseMethod;
     this.address = address as Address;
     this.fees = fees;
     this.ownerId = ownerId;
@@ -177,7 +192,7 @@ export class Property implements PropertyData {
       ...this.getFeesData(),
       ...this.getAddressData(),
       id: this.id,
-      paymentType: this.paymentType,
+      purchaseMethod: this.purchaseMethod,
       price: this.price,
       garage: this.garage,
       ownerId: this.ownerId,
@@ -199,6 +214,7 @@ export class Property implements PropertyData {
       livingAreaUnits: this.livingAreaUnits,
       tax: this.tax,
       annualHomeownersInsurance: this.annualHomeownersInsurance,
+      zillowLink: this.zillowLink,
     };
   }
 }
