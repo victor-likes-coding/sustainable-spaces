@@ -4,8 +4,7 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import PropertyCard from "~/components/propertycard";
-import { BasicPropertyData } from "~/models/property";
-import { db } from "~/utils/db.server";
+import { PropertyService } from "~/models/property";
 import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 
@@ -13,7 +12,7 @@ import { requireToken } from "~/utils/sessions.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const payload = await requireToken(request);
-  const properties = await db.property.findMany();
+  const properties = await PropertyService.getProperties();
   return json({
     properties,
     payload,
@@ -34,10 +33,7 @@ export default function Property() {
           <h1 className="text-4xl font-bold text-center pb-4">Properties</h1>
           <div className="properties-list w-full flex flex-col gap-4 pb-4">
             {properties?.map((property) => (
-              <PropertyCard
-                key={property?.id}
-                {...(property as BasicPropertyData)}
-              />
+              <PropertyCard key={property?.id} {...property} />
             ))}
             {properties?.length === 0 && (
               <div className="text-center text-xl font-bold">
