@@ -8,7 +8,6 @@ import {
 import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
-import { getUser } from "~/utils/sessions.server";
 
 const createPropertyFields = {
   zpid: z.number({ coerce: true }),
@@ -30,6 +29,7 @@ const createPropertyFields = {
   zillowLink: z.string().optional(),
   garage: z.number({ coerce: true }).optional(),
   parcelId: z.string(),
+  ownerId: z.number({ coerce: true }),
 };
 
 const addressPropertyFields = {
@@ -40,23 +40,22 @@ const addressPropertyFields = {
 };
 
 const commonPropertyFields = {
-  id: z.number(),
   purchaseMethod: z.enum(["rent", "sell"]),
-  ownerId: z.number({ coerce: true }),
   tenantId: z.number({ coerce: true }).optional().nullable(),
-  likes: z.array(z.number()),
-  likesCount: z.number(),
+  likes: z.array(z.number()).optional(),
+  likesCount: z.number().optional(),
   timestamp: z.string().optional(),
 };
 
 const propertyFeeFields = {
   hoa: z.number({ coerce: true }).optional().nullable(),
-  management: z.number({ coerce: true }),
-  capex: z.number({ coerce: true }),
-  vacancy: z.number({ coerce: true }),
+  management: z.number({ coerce: true }).optional(),
+  capex: z.number({ coerce: true }).optional(),
+  vacancy: z.number({ coerce: true }).optional(),
 };
 
 const propertySchema = z.object({
+  id: z.number(),
   ...commonPropertyFields,
   ...createPropertyFields,
   fees: z.object(propertyFeeFields),
@@ -77,147 +76,12 @@ const mutationSafePropertyData = z.object({
   ...addressPropertyFields,
 });
 
-export type PropertyData = z.infer<typeof propertySchema>;
-export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>;
-export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>;
+export type PropertyData = z.infer<typeof propertySchema>; // use for property data from database
+export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // use for property data from frontend
+export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // use for property creation
 
 // this class is used for the frontend creating a property
 // it is not used for data that comes from the database
-
-export class Property implements PropertyData {
-  id: number;
-  purchaseMethod: "rent" | "sell";
-  address: Address; // Add the 'address' property
-  fees: PropertyFees; // Add the 'fees' property
-  ownerId: number; // Add the 'owner' property
-  tenantId: number | undefined | null; // Add the 'tenant' property
-  updated: Date;
-  created: Date;
-  price: number;
-  garage: number | undefined;
-  likes: number[];
-  likesCount: number;
-  longitude: number;
-  latitude: number;
-  description: string;
-  zpid: number;
-  yearBuilt: number;
-  parcelId: string;
-  lotSize: number;
-  livingArea: number;
-  homeType: string;
-  bedrooms: number;
-  bathrooms: number;
-  timestamp: string | undefined;
-  lotAreaUnits: string;
-  livingAreaUnits: string;
-  tax: number;
-  annualHomeownersInsurance: number;
-  zillowLink: string | undefined;
-
-  constructor(data: PropertyData) {
-    const {
-      id,
-      purchaseMethod,
-      address,
-      fees,
-      ownerId,
-      tenantId,
-      updated,
-      created,
-      price,
-      garage,
-      likes = [],
-      likesCount,
-      longitude,
-      latitude,
-      description,
-      zpid,
-      yearBuilt,
-      parcelId,
-      lotSize,
-      livingArea,
-      homeType,
-      bedrooms,
-      bathrooms,
-      timestamp,
-      lotAreaUnits,
-      livingAreaUnits,
-      tax,
-      annualHomeownersInsurance,
-      zillowLink,
-    } = data;
-
-    this.id = id;
-    this.purchaseMethod = purchaseMethod;
-    this.address = address as Address;
-    this.fees = fees;
-    this.ownerId = ownerId;
-    this.tenantId = tenantId;
-    this.updated = updated;
-    this.created = created;
-    this.price = price;
-    this.garage = garage;
-    this.likes = likes;
-    this.likesCount = likesCount;
-    this.longitude = longitude;
-    this.latitude = latitude;
-    this.description = description;
-    this.zpid = zpid;
-    this.yearBuilt = yearBuilt;
-    this.parcelId = parcelId;
-    this.lotSize = lotSize;
-    this.livingArea = livingArea;
-    this.homeType = homeType;
-    this.bedrooms = bedrooms;
-    this.bathrooms = bathrooms;
-    this.timestamp = timestamp;
-    this.lotAreaUnits = lotAreaUnits;
-    this.livingAreaUnits = livingAreaUnits;
-    this.tax = tax;
-    this.annualHomeownersInsurance = annualHomeownersInsurance;
-    this.zillowLink = zillowLink;
-  }
-
-  getAddressData(): Address {
-    return this.address;
-  }
-
-  getFeesData(): PropertyFees {
-    return this.fees;
-  }
-
-  getDatabaseRequiredData(): DatabaseSafePropertyData {
-    return {
-      ...this.getFeesData(),
-      ...this.getAddressData(),
-      id: this.id,
-      purchaseMethod: this.purchaseMethod,
-      price: this.price,
-      garage: this.garage,
-      ownerId: this.ownerId,
-      tenantId: this.tenantId,
-      likes: this.likes,
-      likesCount: this.likesCount,
-      longitude: this.longitude,
-      latitude: this.latitude,
-      description: this.description,
-      zpid: this.zpid,
-      yearBuilt: this.yearBuilt,
-      parcelId: this.parcelId,
-      lotSize: this.lotSize,
-      livingArea: this.livingArea,
-      homeType: this.homeType,
-      bedrooms: this.bedrooms,
-      bathrooms: this.bathrooms,
-      lotAreaUnits: this.lotAreaUnits,
-      livingAreaUnits: this.livingAreaUnits,
-      tax: this.tax,
-      annualHomeownersInsurance: this.annualHomeownersInsurance,
-      zillowLink: this.zillowLink,
-    };
-  }
-}
 
 export abstract class PropertyService {
   static getProperties(): Promise<DatabaseSafePropertyData[]> {
@@ -232,18 +96,29 @@ export abstract class PropertyService {
     });
   }
 
-  static createProperty(property: Property): Promise<DatabaseSafePropertyData> {
-    const databaseSafeProperty = property.getDatabaseRequiredData();
-
+  static async createProperty(
+    property: MutationSafePropertyData
+  ): Promise<DatabaseSafePropertyData> {
     // validate we have all the required data
     try {
-      databaseSafePropertyData.parse(databaseSafeProperty); // will throw if failed
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { zillowLink: _, ...data } =
+        mutationSafePropertyData.parse(property); // will throw if failed
+      console.log(data);
+
+      // lets tack on the other required properties to create a full property
+      // get user from session
+
+      return db.property.create({
+        data,
+      });
     } catch (e) {
+      console.log(e);
       throw new PropertyValidationError({});
     }
   }
   abstract updateProperty(
-    property: Property
+    property: unknown
   ): Promise<DatabaseSafeProperty | void>;
   abstract deleteProperty(id: number): Promise<void>;
 }
