@@ -1,7 +1,7 @@
 // import { Form, Link } from "@remix-run/react";
 
-import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import {
   AdditionalMutationData,
@@ -13,7 +13,7 @@ import {
 import { requireToken } from "~/utils/sessions.server";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { PropertyNotFoundError } from "~/utils/errors";
 import {
   Modal,
@@ -25,6 +25,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import Loader from "~/components/Loader";
+import { MutationSafePropertyData, PropertyService } from "~/models/property";
 
 type Library =
   | "core"
@@ -52,13 +53,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       payload,
       apiKey,
     });
-  } catch (error) {
-    return json({
-      payload: {},
-      apiKey: "",
-    });
-  }
-};
+
+export async function action({ request }: ActionFunctionArgs) {
+  const payload = (await requireToken(request)) as TokenPayload;
+  const clonedRequest = request.clone(); // fixes locking up the readable stream for the request object
+  const formData = await clonedRequest.formData(); // ! flattens our form data :)
+
+  const data = Object.fromEntries(formData);
+  PropertyService.createProperty({
+    ...data,
+    ownerId: payload.id,
+  } as MutationSafePropertyData);
+
+  return json({});
+}
 
 export default function Index() {
   const { payload, apiKey } = useLoaderData<typeof loader>();
@@ -95,6 +103,7 @@ export default function Index() {
     garage: 0,
     parcelId: "",
   });
+  const submit = useSubmit();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -112,11 +121,9 @@ export default function Index() {
 
   const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
 
-  const handlePlaceChanged = async () => {
+  const handlePlaceChanged = useCallback(async () => {
     const place = inputRef.current?.value;
-    // now that we have a complete address, we can search zillow with axios
     if (!place) return;
-    // check and see if we've got this data already
     try {
       setIsLoading(true);
       const serverResponse = await fetch("/getZillowData", {
@@ -146,8 +153,8 @@ export default function Index() {
     } finally {
       setIsLoading(false);
     }
-  };
-  console.log(property);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -177,7 +184,16 @@ export default function Index() {
               </Autocomplete>
             </LoadScript>
 
-            <Form method="post" className="flex flex-col gap-2 mt-4 text-black">
+            <Form
+              method="post"
+              onSubmit={() => {
+                submit(
+                  { ...property },
+                  { method: "post", encType: "application/json" }
+                );
+              }}
+              className="flex flex-col gap-2 mt-4 text-black"
+            >
               <div className="input-group w-full flex flex-col">
                 <label htmlFor="streetAddress" className="text-sm">
                   Street Address
