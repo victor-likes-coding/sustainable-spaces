@@ -1,10 +1,3 @@
-import {
-  FullPropertyData,
-  BasicPropertyData,
-  Address,
-  PropertyFees,
-  DatabaseSafeProperty,
-} from "./property.d";
 import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
@@ -40,7 +33,6 @@ const addressPropertyFields = {
 };
 
 const commonPropertyFields = {
-  purchaseMethod: z.enum(["rent", "sell"]),
   tenantId: z.number({ coerce: true }).optional().nullable(),
   likes: z.array(z.number()).optional(),
   likesCount: z.number().optional(),
@@ -54,15 +46,28 @@ const propertyFeeFields = {
   vacancy: z.number({ coerce: true }).optional(),
 };
 
-const propertySchema = z.object({
+const propertyDataFields = {
   id: z.number(),
-  ...commonPropertyFields,
-  ...createPropertyFields,
-  fees: z.object(propertyFeeFields),
-  address: z.object(addressPropertyFields),
   updated: z.date(),
   created: z.date(),
+  ...commonPropertyFields,
+  ...createPropertyFields,
+};
+
+const databasePropertySchema = z.object({
+  ...propertyDataFields,
+  ...addressPropertyFields,
+  ...propertyFeeFields,
 });
+
+const propertySchema = z.object({
+  ...propertyDataFields,
+  address: z.object(addressPropertyFields),
+  fees: z.object(propertyFeeFields),
+});
+
+const propertyFeeSchema = z.object(propertyFeeFields);
+const addressPropertySchema = z.object(addressPropertyFields);
 
 const databaseSafePropertyData = z.object({
   ...commonPropertyFields,
@@ -76,19 +81,21 @@ const mutationSafePropertyData = z.object({
   ...addressPropertyFields,
 });
 
-export type PropertyData = z.infer<typeof propertySchema>; // use for property data from database
+export type PropertyFeeData = z.infer<typeof propertyFeeSchema>; //
+export type AddressData = z.infer<typeof addressPropertySchema>;
 export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // use for property data from frontend
 export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // use for property creation
-
+export type PropertyData = z.infer<typeof databasePropertySchema>; // from database
+export type PropertyDataStructure = z.infer<typeof propertySchema>; // use for property data from database
 // this class is used for the frontend creating a property
 // it is not used for data that comes from the database
 
 export abstract class PropertyService {
-  static getProperties(): Promise<DatabaseSafePropertyData[]> {
+  static getProperties(): Promise<PropertyData[]> {
     return db.property.findMany();
   }
 
-  static getProperty(id: number): Promise<DatabaseSafePropertyData | null> {
+  static getProperty(id: number): Promise<PropertyData | null> {
     return db.property.findUnique({
       where: {
         id,
@@ -119,8 +126,90 @@ export abstract class PropertyService {
   }
   abstract updateProperty(
     property: unknown
-  ): Promise<DatabaseSafeProperty | void>;
+  ): Promise<DatabaseSafePropertyData | void>;
   abstract deleteProperty(id: number): Promise<void>;
 }
 
-export type { FullPropertyData, BasicPropertyData };
+// this class is used for representing a property from the database
+export class DatabaseProperty implements PropertyDataStructure {
+  id: number;
+  purchaseMethod: "rent" | "sell";
+  tenantId: number | null | undefined;
+  likes: number[] | undefined;
+  likesCount: number | undefined;
+  timestamp: string | undefined;
+  zpid: number;
+  bedrooms: number;
+  bathrooms: number;
+  description: string;
+  lotSize: number;
+  livingArea: number;
+  yearBuilt: number;
+  price: number;
+  homeType: string;
+  latitude: number;
+  longitude: number;
+  livingAreaUnits: string;
+  lotAreaUnits: string;
+  tax: number;
+  annualHomeownersInsurance: number;
+  zillowLink: string | undefined;
+  garage: number | undefined;
+  parcelId: string;
+  ownerId: number;
+  fees: {
+    hoa: number | null | undefined;
+    management: number | undefined;
+    capex: number | undefined;
+    vacancy: number | undefined;
+  };
+  address: {
+    streetAddress: string;
+    city: string;
+    state: string;
+    zipcode: string;
+  };
+  updated: Date;
+  created: Date;
+  constructor(data: PropertyData) {
+    this.id = data.id;
+    this.purchaseMethod = data.purchaseMethod;
+    this.tenantId = data.tenantId;
+    this.likes = data.likes;
+    this.likesCount = data.likesCount;
+    this.timestamp = data.timestamp;
+    this.zpid = data.zpid;
+    this.bedrooms = data.bedrooms;
+    this.bathrooms = data.bathrooms;
+    this.description = data.description;
+    this.lotSize = data.lotSize;
+    this.livingArea = data.livingArea;
+    this.yearBuilt = data.yearBuilt;
+    this.price = data.price;
+    this.homeType = data.homeType;
+    this.latitude = data.latitude;
+    this.longitude = data.longitude;
+    this.livingAreaUnits = data.livingAreaUnits;
+    this.lotAreaUnits = data.lotAreaUnits;
+    this.tax = data.tax;
+    this.annualHomeownersInsurance = data.annualHomeownersInsurance;
+    this.zillowLink = data.zillowLink;
+    this.garage = data.garage;
+    this.parcelId = data.parcelId;
+    this.ownerId = data.ownerId;
+    this.fees = {
+      hoa: data.hoa,
+      management: data.management,
+      capex: data.capex,
+      vacancy: data.vacancy,
+    };
+    this.address = {
+      streetAddress: data.streetAddress,
+      city: data.city,
+      state: data.state,
+      zipcode: data.zipcode,
+    };
+    this.updated = data.updated;
+    this.created = data.created;
+  }
+}
