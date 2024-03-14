@@ -5,20 +5,81 @@ import {
   PropertyFees,
   DatabaseSafeProperty,
 } from "./property.d";
-import { User } from "./user";
 import { db } from "~/utils/db.server";
+import { z } from "zod";
+import { PropertyValidationError } from "~/utils/errors";
 
-export class Property implements FullPropertyData {
+const addressPropertyFields = {
+  streetAddress: z.string(),
+  city: z.string(),
+  state: z.string(),
+  zipcode: z.string(),
+};
+
+const commonPropertyFields = {
+  id: z.number(),
+  paymentType: z.enum(["rent", "sell"]),
+  price: z.number(),
+  garage: z.number(),
+  ownerId: z.number(),
+  tenantId: z.number().optional().nullable(),
+  likes: z.array(z.number()),
+  likesCount: z.number(),
+  longitude: z.number(),
+  latitude: z.number(),
+  description: z.string(),
+  zpid: z.number(),
+  yearBuilt: z.number(),
+  parcelId: z.string(),
+  lotSize: z.number(),
+  livingArea: z.number(),
+  homeType: z.string(),
+  bedrooms: z.number(),
+  bathrooms: z.number(),
+  timestamp: z.string().optional(),
+  lotAreaUnits: z.string(),
+  livingAreaUnits: z.string(),
+  tax: z.number().optional(),
+  annualHomeownersInsurance: z.number(),
+  zillowLink: z.string().optional(),
+};
+
+const propertySchema = z.object({
+  ...commonPropertyFields,
+  fees: z.object({
+    hoa: z.number().optional().nullable(),
+    management: z.number(),
+    capex: z.number(),
+    vacancy: z.number(),
+  }),
+  address: z.object(addressPropertyFields),
+  updated: z.date(),
+  created: z.date(),
+});
+
+const databaseSafePropertyData = z.object({
+  ...commonPropertyFields,
+  ...addressPropertyFields,
+  hoa: z.number().optional().nullable(),
+  management: z.number(),
+  capex: z.number(),
+  vacancy: z.number(),
+});
+
+type PropertyData = z.infer<typeof propertySchema>;
+type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>;
+
+export class Property implements PropertyData {
   id: number;
   paymentType: "rent" | "sell";
-  address: Record<keyof Address, string>;
-  fees: PropertyFees;
+  address: Address; // Add the 'address' property
+  fees: PropertyFees; // Add the 'fees' property
+  ownerId: number; // Add the 'owner' property
+  tenantId: number | undefined | null; // Add the 'tenant' property
   updated: Date;
   created: Date;
   price: number;
   garage: number;
-  owner: string | User;
-  tenant: string | User;
   likes: number[];
   likesCount: number;
   longitude: number;
@@ -38,18 +99,19 @@ export class Property implements FullPropertyData {
   tax: number | undefined;
   annualHomeownersInsurance: number;
   zillowLink: string | undefined;
-  constructor(data: FullPropertyData) {
+
+  constructor(data: PropertyData) {
     const {
       id,
       paymentType,
       address,
       fees,
+      ownerId,
+      tenantId,
       updated,
       created,
       price,
       garage,
-      owner,
-      tenant,
       likes = [],
       likesCount,
       longitude,
@@ -73,14 +135,14 @@ export class Property implements FullPropertyData {
 
     this.id = id;
     this.paymentType = paymentType;
-    this.address = address;
+    this.address = address as Address;
     this.fees = fees;
+    this.ownerId = ownerId;
+    this.tenantId = tenantId;
     this.updated = updated;
     this.created = created;
     this.price = price;
     this.garage = garage;
-    this.owner = owner;
-    this.tenant = tenant;
     this.likes = likes;
     this.likesCount = likesCount;
     this.longitude = longitude;
@@ -110,7 +172,7 @@ export class Property implements FullPropertyData {
     return this.fees;
   }
 
-  getDatabaseRequiredData(): DatabaseSafeProperty {
+  getDatabaseRequiredData(): DatabaseSafePropertyData {
     return {
       ...this.getFeesData(),
       ...this.getAddressData(),
@@ -118,8 +180,8 @@ export class Property implements FullPropertyData {
       paymentType: this.paymentType,
       price: this.price,
       garage: this.garage,
-      owner: this.owner,
-      tenant: this.tenant,
+      ownerId: this.ownerId,
+      tenantId: this.tenantId,
       likes: this.likes,
       likesCount: this.likesCount,
       longitude: this.longitude,
@@ -142,12 +204,31 @@ export class Property implements FullPropertyData {
 }
 
 export abstract class PropertyService {
-  static getProperties(): Promise<DatabaseSafeProperty[]> {
+  static getProperties(): Promise<DatabaseSafePropertyData[]> {
     return db.property.findMany();
   }
-  abstract getProperty(id: number): Promise<Property>;
-  abstract createProperty(property: Property): Promise<Property>;
-  abstract updateProperty(property: Property): Promise<Property>;
+
+  static getProperty(id: number): Promise<DatabaseSafePropertyData | null> {
+    return db.property.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  static createProperty(property: Property): Promise<DatabaseSafePropertyData> {
+    const databaseSafeProperty = property.getDatabaseRequiredData();
+
+    // validate we have all the required data
+    try {
+      databaseSafePropertyData.parse(databaseSafeProperty); // will throw if failed
+    } catch (e) {
+      throw new PropertyValidationError({});
+    }
+  }
+  abstract updateProperty(
+    property: Property
+  ): Promise<DatabaseSafeProperty | void>;
   abstract deleteProperty(id: number): Promise<void>;
 }
 
