@@ -62,7 +62,7 @@ The initial MVP will have the following features:
 
 - Authentication (login/register) ✅
   - Known issues:
-    - need error for connection issue with database
+    - need error for connection issue with database ✅
 - Property management
 - Pages:
   - Home ✅
@@ -73,7 +73,7 @@ The initial MVP will have the following features:
   - Properties (view owned)
   - Property (view single) ✅
   - Property (edit owned)
-  - Property (add/create)
+  - Property (add/create) ✅
   - Inbox (view rent requests)
 
 ## Roadmap (future features)
@@ -126,7 +126,7 @@ Goals:
 
 Actual:
 
-- Got puppeteer to extra data like insurance information
+- Got puppeteer to extract data like insurance information
 - Major refactor of the getZillowData route
 
 2/28: Continue the Add Form
@@ -166,3 +166,14 @@ We have beaten Zillow's anti-fetching mechanisms. Created a fallback for when fe
 Accomplishments today:
 
 - Create fallback on zillow scraping.
+- Add Zod for validating data.
+- Add property into database
+- Fix an issue regarding sessions
+
+Next steps:
+
+- Validate/Verify true ownership of property (maybe later)
+- View/Manage property (/user/{id}/property)
+- Fix View Properties page (/property)
+- Delete local copy of data
+- UI updates / navigation bar at the bottom / quick menus
