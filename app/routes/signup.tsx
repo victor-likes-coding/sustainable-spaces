@@ -3,7 +3,7 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import { UserService, elevatedAuthData, userAuthData } from "~/models/user";
 import { authError } from "~/utils/helper";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DataValidationEror,
   DatabaseCreationServiceError,
@@ -12,6 +12,7 @@ import {
   UserNotFoundError,
 } from "~/utils/errors";
 import { checkForToken, createUserSession } from "~/utils/sessions.server";
+import Loader from "~/components/Loader";
 
 // import Button from "~/components/button";
 
@@ -101,6 +102,7 @@ export default function Signup() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const actionData = useActionData<typeof action>(); // should only be the errors
   const [searchParams] = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (actionData?.errors?.email) {
@@ -108,6 +110,11 @@ export default function Signup() {
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
     }
+
+    if (isLoading) {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionData]);
   return (
     <>
@@ -128,6 +135,7 @@ export default function Signup() {
             </div>
             {/* ) : null} */}
             <Form
+              onSubmit={() => setIsLoading(true)}
               method="post"
               className="w-full h-auto flex flex-col gap-4 mb-2"
             >
@@ -205,6 +213,9 @@ export default function Signup() {
           </div>
         </main>
       </div>
+      {isLoading ? (
+        <Loader text="Creating account" color="success" labelColor="success" />
+      ) : null}
     </>
   );
 }
