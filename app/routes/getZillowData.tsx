@@ -49,7 +49,9 @@ async function getPropertyDataFromZillow(url: string) {
   return htmlString;
 }
 
-async function getLocalPropertyData(modifiedAddress: string) {
+async function getLocalPropertyData(
+  modifiedAddress: string
+): Promise<ZillowPropertyData | null> {
   try {
     const data = await readFile(
       join("app", "localPropertyData", `${modifiedAddress}.json`),
@@ -69,22 +71,27 @@ export async function getPropertyData(
   address: string
 ): Promise<ZillowPropertyData | undefined> {
   const modifiedAddress = modifyAddress(address);
-  const localData = await getLocalPropertyData(modifiedAddress);
+
+  // TODO: Check database first
+
+  // Check if we have local data to fill in
+  const localData = await getLocalPropertyData(modifiedAddress); // this will change to database call
   if (localData) {
     const isFreshData = await checkFreshnessOfLocalData(localData);
     if (
       isFreshData &&
-      localData.insurance !== undefined &&
-      localData.insurance !== 0
+      localData.annualHomeownersInsurance !== undefined &&
+      localData.annualHomeownersInsurance !== 0
     ) {
       return localData;
     }
   }
+  // if we don't have local data or database data, fetch it from Zillow
   const propertyData = await fetchPropertyDataFromZillow(url);
 
   // try to Add tax data to propertyData
   addTaxData(propertyData);
-  saveLocalPropertyData(modifiedAddress, propertyData);
+  saveLocalPropertyData(modifiedAddress, propertyData); // we will save locally until database adds property and then delete
   return propertyData;
 }
 
@@ -125,12 +132,12 @@ async function fetchPropertyDataFromZillow(
     propertyData = getZillowDataFromHtml(html, pattern);
 
     if (!propertyData) {
-      propertyData = await fetchPropertyDataWithPuppeteer(url);
+      propertyData = await fetchPropertyDataWithPuppeteer(url); // first fallback
     }
   } catch (err) {
     if (err instanceof ZillowResponseError) {
       // Manually scrape the data we need from Zillow
-      propertyData = await scrapePropertyDataFromZillow(url);
+      propertyData = await scrapePropertyDataFromZillow(url); // second fallback (really works)
     } else {
       throw err; // Rethrow other errors
     }
@@ -152,7 +159,7 @@ async function fetchPropertyDataFromZillow(
 async function scrapePropertyDataFromZillow(
   url: string
 ): Promise<ZillowPropertyData> {
-  const browser = await puppeteer.launch({ headless: false, slowMo: 150 });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(url);
   const propertyData = await extractPropertyDataFromPage(page);
