@@ -6,7 +6,7 @@ The goal of this app is as follows:
 - to provide rent stabilization through crowdfunding. we hope to be able to reduce the cost of owning a house, thus having less expenses that would require a higher rent to achieve some sort of cash flow.
 - to provide homeowners with the tools to efficiently check a renters background, collect payment, schedule cleanings and other services like handyman work.
 
-### The Lottery Mechanic
+### The "Free Housing Sweepstakes" Mechanic
 
 After achieving a set amount ($75,000), users who have contributed towards the crowdfund (minimum of $100) will have a chance to obtain free rent (4) months worth (minimum) up to 12 months (maximum). Each minimum contribution of $100 will be 1 drawing up to 40 entries ($4000 value). For every 4 entries (rounded down) contributed after attaining 8, if selected for free rent, you will recieve an additional month of free rent. Free rent is split up over a year, for example:
 
