@@ -23,7 +23,7 @@ model User {
   token  String?
 }
 
-enum PaymentType {
+enum PurchaseMethod {
   rent
   sell
 }
@@ -40,7 +40,7 @@ model Property {
   // property information
   bedrooms Int
   bathrooms Int
-  garage Int
+  garage Int @default(0)
   yearBuilt Int
   longitude Float
   latitude Float
@@ -59,14 +59,14 @@ model Property {
 
   // financial information
   price Float
-  paymentType PaymentType
+  purchaseMethod PurchaseMethod
 
   // fees
   tax Float
-  capex Float
-  vacancy Float
+  capex Float @default(0.10)
+  vacancy Float @default(0.05)
   hoa Float? @default(0)
-  management Float
+  management Float @default(0.10)
   annualHomeownersInsurance Float
 
   // relationships
