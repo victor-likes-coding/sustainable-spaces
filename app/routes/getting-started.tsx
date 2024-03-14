@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, useLoaderData } from "@remix-run/react";
+import { Link, json, useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
@@ -31,7 +31,9 @@ export default function Index() {
                 <img src={SearchImage} alt="Search for house" />
               </div>
               <div className="service-card-body mt-2">
-                <div className="service-card-title">View Properties</div>
+                <Link to={"/property"} className="mt-2">
+                  <div className="service-card-title">View Properties</div>
+                </Link>
               </div>
             </div>
 
