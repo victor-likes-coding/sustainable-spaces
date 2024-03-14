@@ -13,18 +13,11 @@ import { requireToken } from "~/utils/sessions.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const payload = await requireToken(request);
-  try {
-    const properties = await db.property.findMany();
-    return json({
-      properties,
-      payload,
-    });
-  } catch (error) {
-    return json({
-      properties: [],
-      payload: {},
-    });
-  }
+  const properties = await db.property.findMany();
+  return json({
+    properties,
+    payload,
+  });
 };
 
 export default function Property() {
