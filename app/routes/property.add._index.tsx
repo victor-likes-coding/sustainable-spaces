@@ -46,13 +46,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     process.env.REACT_APP_GOOGLE_MAPS_API,
     "REACT_APP_GOOGLE_MAPS_API is not defined"
   );
-  try {
-    const payload = await requireToken(request);
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API;
-    return json({
+  const payload = await requireToken(request);
+  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API;
+  return json({
     payload: payload as TokenPayload,
-      apiKey,
-    });
+    apiKey,
+  });
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -289,7 +288,7 @@ export default function Index() {
                   </label>
 
                   <input
-                    type="text"
+                    type="number"
                     name="bedrooms"
                     className="rounded-sm pl-2 text-secondary"
                     id="bedrooms"
@@ -307,7 +306,7 @@ export default function Index() {
                     Bathrooms
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="bathrooms"
                     className="rounded-sm pl-2 text-secondary"
                     id="bathrooms"
@@ -339,7 +338,6 @@ export default function Index() {
                   }
                 />
               </div>
-
               <div className="flex justify-between">
                 <div className="input-group w-[48%] flex flex-col">
                   <label htmlFor="lotSize" className="text-sm">
@@ -347,7 +345,7 @@ export default function Index() {
                   </label>
 
                   <input
-                    type="text"
+                    type="number"
                     name="lotSize"
                     className="rounded-sm pl-2 text-secondary"
                     id="lotSize"
@@ -365,7 +363,7 @@ export default function Index() {
                     Living Area (sqft)
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="livingArea"
                     className="rounded-sm pl-2 text-secondary"
                     id="livingArea"
@@ -379,14 +377,13 @@ export default function Index() {
                   />
                 </div>
               </div>
-
               <div className="flex justify-between">
                 <div className="input-group w-[48%] flex flex-col">
                   <label htmlFor="yearBuilt" className="text-sm">
                     Year Built
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="yearBuilt"
                     className="rounded-sm pl-2 text-secondary"
                     id="yearBuilt"
@@ -426,7 +423,7 @@ export default function Index() {
                 </label>
                 <input
                   id="price"
-                  type="text"
+                  type="number"
                   name="price"
                   value={property?.price}
                   className="rounded-sm pl-2 text-secondary"
@@ -438,6 +435,82 @@ export default function Index() {
                   }}
                 />
               </div>
+              <input
+                type="number"
+                className="hidden"
+                name="zpid"
+                value={property?.zpid}
+                readOnly
+              />
+              <input
+                type="text"
+                className="hidden"
+                name="homeType"
+                value={property?.homeType}
+                readOnly
+              />
+              <input
+                type="number"
+                className="hidden"
+                name="latitude"
+                value={property?.latitude}
+                readOnly
+              />
+              <input
+                type="number"
+                className="hidden"
+                name="longitude"
+                value={property?.longitude}
+                readOnly
+              />
+              <input
+                type="text"
+                className="hidden"
+                name="livingAreaUnits"
+                value={property?.livingAreaUnits}
+                readOnly
+              />
+              <input
+                type="text"
+                className="hidden"
+                name="lotAreaUnits"
+                value={property?.lotAreaUnits}
+                readOnly
+              />
+              <input
+                type="number"
+                className="hidden"
+                name="tax"
+                value={property?.tax}
+                readOnly
+              />
+              <input
+                type="number"
+                className="hidden"
+                name="annualHomeownersInsurance"
+                value={property?.annualHomeownersInsurance}
+                readOnly
+              />
+              <input
+                type="text"
+                className="hidden"
+                name="zillowLink"
+                value={property?.zillowLink}
+                readOnly
+              />
+              <input
+                type="number"
+                className="hidden"
+                value={property?.garage}
+                readOnly
+              />
+              <input
+                type="text"
+                className="hidden"
+                name="parcelId"
+                value={property?.parcelId}
+                readOnly
+              />
               <button
                 type="submit"
                 className="rounded-sm bg-secondary py-2 text-xs font-bold text-white mt-2 mb-4"
@@ -448,7 +521,13 @@ export default function Index() {
           </div>
         </main>
       </div>
-      {isLoading && <Loader />}
+      {isLoading && (
+        <Loader
+          labelColor="success"
+          color="success"
+          text="Looking up property"
+        />
+      )}
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
