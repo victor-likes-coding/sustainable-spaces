@@ -23,8 +23,8 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Spinner,
 } from "@nextui-org/react";
+import Loader from "~/components/Loader";
 
 type Library =
   | "core"
@@ -431,11 +431,7 @@ export default function Index() {
           </div>
         </main>
       </div>
-      {isLoading && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-gray-800 bg-opacity-80 backdrop-blur flex justify-center items-center z-20">
-          <Spinner label="Looking up property..." />
-        </div>
-      )}
+      {isLoading && <Loader />}
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
