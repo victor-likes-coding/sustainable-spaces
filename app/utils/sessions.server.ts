@@ -92,7 +92,7 @@ export async function getUser(request: Request) {
 
 export async function logout(request: Request) {
   const session = await getUserSession(request);
-  return redirect("/login", {
+  throw redirect("/login", {
     headers: {
       "Set-Cookie": await destroySession(session),
     },
