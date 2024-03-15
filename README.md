@@ -177,3 +177,12 @@ Next steps:
 - Fix View Properties page (/property)
 - Delete local copy of data
 - UI updates / navigation bar at the bottom / quick menus
+
+3/14:
+
+What we've done today:
+
+- Fix the `/property` route to now show a more eloquent version of a card without a background. Will need multiple properties to check.
+- Fix the `/property/{id}` route to match database types and display appropriate information.
+- Update error handling for properties existing in the database. Redirects/Navigates to the page of existing property.
+- Remove local file management. Functions still exist but are basically deprecated.
