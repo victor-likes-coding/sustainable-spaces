@@ -1,78 +1,91 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSwipeable } from "react-swipeable";
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { db } from "~/utils/db.server";
 import invariant from "invariant";
 import { useLoaderData } from "@remix-run/react";
 import PurchaseTag from "~/components/purchase-tag";
 import Pill from "~/components/pill";
+import { DatabaseProperty, PropertyService } from "~/models/property";
+import { requireToken } from "~/utils/sessions.server";
 
 // import Button from "~/components/button";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  const payload = requireToken(request);
   invariant(params.propertyId, "Property ID is required");
-  const property = await db.property.findUnique({
-    where: { id: parseFloat(params.propertyId as string) },
-  });
+  const id = parseFloat(params.propertyId as string);
+  const property = await PropertyService.getProperty(id);
 
   if (!property) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return json(property);
+  const databaseProperty = new DatabaseProperty(property);
+
+  return json({ databaseProperty, payload });
 };
 
 export default function Property() {
   const {
-    // id,
-    address,
-    city,
-    state,
-    zip,
-    price,
-    beds,
-    baths,
-    sqft,
-    allowRentOption,
-    // description,
-    tax,
-    insurance,
-    hoa,
+    databaseProperty: {
+      address: { streetAddress, city, state, zipcode },
+      bedrooms,
+      bathrooms,
+      livingArea,
+      price,
+      purchaseMethod,
+      description,
+      tax,
+      annualHomeownersInsurance,
+      fees: { hoa },
+      ownerId,
+    },
+    payload,
   } = useLoaderData<typeof loader>();
   const [showContent, setShowContent] = useState(false);
   const handler = useSwipeable({
     onSwipedUp: (eventData) => {
-      eventData.velocity > 0.25 ? setShowContent(true) : setShowContent(false);
+      eventData.velocity > 0.15 ? setShowContent(true) : setShowContent(false);
     },
     onSwipedDown: (eventData) => {
-      eventData.velocity > 0.5 ? setShowContent(false) : setShowContent(true);
+      eventData.velocity > 0.15 ? setShowContent(false) : setShowContent(true);
+    },
+    onSwiped: () => {
+      focusRef.current?.scrollIntoView({ behavior: "smooth" });
     },
   });
+  const focusRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-screen h-screen bg-white relative z-10 top-0 left-0 overflow-y-hidden">
+    <div className="w-screen h-auto bg-white relative z-10 top-0 left-0 overflow-y-scroll">
       <div
         className={`images-wrapper w-full transition-all duration-300 ease-in-out ${
           showContent ? "h-0" : "h-[66%]"
         } relative z-20 top-0 left-0 scroll-smooth`}
       ></div>
 
-      <Pill showContent={showContent} handler={handler} />
       <div
         {...handler}
-        className={`swipeable-container w-full overflow-y-scroll relative z-30 bottom-0 left-0 transition-transform duration-300 transform ${
-          showContent ? "-translate-y-0 h-auto" : "translate-y-[0] h-[34%] pb-8"
+        className={`swipeable-container w-full relative z-30 bottom-0 left-0 transition-transform duration-300 transform pb-3 ${
+          showContent ? "-translate-y-0 h-full" : "translate-y-[34%] h-[34%] "
         }`}
       >
-        <div className="w-full">
-          <div className="padded-wrapper px-2 flex flex-col gap-1 pb-2">
-            <section className="address-row text-xl font-bold">
-              {address}, {city}, {state} {zip}
+        <Pill showContent={showContent} />
+        <div className="w-full px-4 pt-2 divide-y flex flex-col gap-3">
+          <div className="padded-wrapper  flex flex-col gap-1 pb-2">
+            <section
+              className="address-row text-md font-bold"
+              data-testid="swipeableFocus"
+              ref={focusRef}
+            >
+              {streetAddress}
+              <br />
+              {city}, {state}, {zipcode}
             </section>
-            <section className="info-row flex justify-between">
-              <div>
-                {beds} beds | {baths} baths | {sqft} sqft
+            <section className="info-row flex flex-col-reverse">
+              <div className="text-sm">
+                {bedrooms} beds | {bathrooms} baths | {livingArea} sqft
               </div>
               <div className="font-bold">
                 {price
@@ -83,35 +96,22 @@ export default function Property() {
                   .replace(/\.\d+/, "")}
               </div>
             </section>
-            <section className="purchase-options-row flex">
-              <PurchaseTag text="For Sale" canRent={false} />
-              {allowRentOption && (
-                <PurchaseTag text="For Rent" canRent={allowRentOption} />
+            <section className="purchase-options-row flex gap-3">
+              {purchaseMethod === "rent" ? (
+                <PurchaseTag text="For Rent" canRent={true} />
+              ) : (
+                <PurchaseTag text="For Sale" canRent={false} />
               )}
             </section>
           </div>
 
-          <div className="padded-wrapper px-2 flex flex-col divide-y gap-2">
-            <div className="description-row">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique
-              ipsam, voluptatem aliquam nulla est sint dolorum quasi provident
-              dolorem quam optio, asperiores cupiditate eum nihil delectus
-              labore, accusantium maiores saepe! Lorem ipsum, dolor sit amet
-              consectetur adipisicing elit. Illum, blanditiis repellat veritatis
-              asperiores tempora iure incidunt tempore nesciunt dolor, eius
-              iusto sapiente? Dolores quidem eligendi laborum harum enim id
-              eveniet, sunt deleniti illo ducimus ab magni? Quas omnis assumenda
-              porro odio atque aperiam laborum fugit voluptatem numquam autem
-              culpa, obcaecati consectetur, ut nemo dignissimos totam tempora
-              qui pariatur rerum adipisci harum impedit sunt ipsam voluptates.
-              Aliquid ab iusto recusandae voluptate saepe, assumenda excepturi,
-              exercitationem porro autem repellat suscipit quod quisquam!
-            </div>
+          <div className="description-row pt-3">{description}</div>
+          <div className="padded-wrapper flex flex-col gap-2">
             <section className="financial-row text-center py-2">
               <h2 className="font-semibold mb-2 text-xl">
                 Financial & Public Data
               </h2>
-              <div className="flex flex-col gap-1 divide-y px-[10%]">
+              <div className="flex flex-col gap-1 divide-y">
                 <div className="flex justify-between">
                   <div>Property Tax</div>
                   <div className="font-bold">
@@ -127,7 +127,7 @@ export default function Property() {
                 <div className="flex justify-between">
                   <div>Home Insurance</div>
                   <div className="font-bold">
-                    {(insurance / 12)
+                    {(annualHomeownersInsurance / 12)
                       .toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -139,12 +139,12 @@ export default function Property() {
                 <div className="flex justify-between">
                   <div>HOA</div>
                   <div className="font-bold">
-                    {(hoa / 12)
+                    {(hoa ? hoa / 12 : 0)
                       .toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })
-                      .replace(/\.\d+/, "")}
+                      .replace(/\.\d+/, "")}{" "}
                     /month
                   </div>
                 </div>
