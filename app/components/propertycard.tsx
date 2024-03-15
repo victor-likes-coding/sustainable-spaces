@@ -1,18 +1,30 @@
+import { Image } from "@nextui-org/react";
 import { Link } from "@remix-run/react";
-import { BasicPropertyData } from "~/models/property";
+import { PropertyDataStructure } from "~/models/property";
 
-const PropertyCard = (property?: BasicPropertyData) => {
+const PropertyCard = (property?: PropertyDataStructure) => {
   if (!property) {
     return null;
   }
-  const { address, city, state, zip, price, beds, baths, sqft, id } = property;
+
+  const {
+    address: { streetAddress, state },
+    price,
+    bedrooms,
+    bathrooms,
+    livingArea,
+    id,
+  } = property;
+
   return (
-    <div className="card-container w-full h-auto bg-white text-sm text-black rounded-md border-secondary relative z-0">
-      <div className="card-image-wrapper w-full border-b h-48"></div>
+    <div className="card-container w-full h-auto text-sm rounded-md border-secondary relative z-0 text-white">
+      <div className="card-image-wrapper w-full pb-2">
+        <Image src="https://nextui-docs-v2.vercel.app/images/hero-card-complete.jpeg" />
+      </div>
       <div className="card-content w-full px-2">
-        <div className="card-title w-full flex justify-between pt-1">
-          <div className="left">
-            {address}, {city}, {state}, {zip}
+        <div className="card-title w-full flex justify-between pt-1 pr-3">
+          <div className="left font-bold">
+            {streetAddress} | {state}
           </div>
           <div className="right font-semibold">
             {price
@@ -25,8 +37,8 @@ const PropertyCard = (property?: BasicPropertyData) => {
         </div>
         <Link to={{ pathname: `/property/${id}` }}>
           <div className="card-description w-full h-8 flex justify-between items-center">
-            <div className="left">
-              {beds} beds | {baths} baths | {sqft} sqft
+            <div className="left text-xs">
+              {bedrooms} beds • {bathrooms} baths • {livingArea} sqft
             </div>
           </div>
         </Link>
