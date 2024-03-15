@@ -12,6 +12,7 @@ type ErrorCodes =
   | "10001"
   | "20000"
   | "20001"
+  | "20002"
   | "30000"
   | "60000";
 
@@ -34,6 +35,8 @@ class BaseError extends Error {
       "Failed to locate a listing for this property. Please enter manually.",
     20001:
       "An error occurred while processing the property data. Please try again.",
+    20002:
+      "A listing for this address already exists. You may report the property on that property page. You'll be redirected in 3 seconds.",
     30000: "The server is currently down. Please try again.",
     60000: "GdpCacheNotDetected: GdpCache not detected in the HTML given.",
   };
@@ -50,69 +53,50 @@ class BaseError extends Error {
 }
 
 export class ExistingUserError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10000",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "ExistingUserError";
+    this.message = this.errors["10000"];
   }
 }
 
 export class UserNotFoundError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10010",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "UserNotFoundError";
+    this.message = this.errors["10010"];
   }
 }
 
 export class IncorrectEmailOrPasswordError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10011",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "IncorrectEmailOrPasswordError";
+    this.message = this.errors["10011"];
   }
 }
 
 export class HashingPasswordError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10100",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "HashingPasswordError";
+    this.message = this.errors["10100"];
   }
 }
 
 export class DatabaseCreationServiceError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10101",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "DatabaseCreationServiceError";
+    this.message = this.errors["10101"];
   }
 }
 
 export class DataValidationEror extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "10001",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "DataValidationEror";
-    this.message = data.message || this.errors["10001"];
+    this.message = this.errors["10001"];
   }
 }
 
@@ -128,51 +112,55 @@ export class ZillowResponseError extends Error {
     }
     super(message + ` (${response.status} ${response.statusText})`);
     this.name = "ZillowResponseError";
-    console.log(response);
   }
 }
 
 export class PropertyNotFoundError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "20000",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "PropertyNotFoundError";
+    this.message = this.errors["20000"];
   }
 }
 
 export class PropertyValidationError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "20001",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "PropertyValidationError";
+    this.message = this.errors["20001"];
+  }
+}
+
+type WithPropertyId = {
+  propertyId?: number | undefined;
+};
+
+export class PropertyAlreadyExistsError
+  extends BaseError
+  implements WithPropertyId
+{
+  propertyId?: number;
+  constructor(data: BaseErrorProps & WithPropertyId = {}) {
+    super(data);
+    this.name = "PropertyAlreadyExistsError";
+    this.propertyId = data.propertyId;
+    this.message = this.errors["20002"];
   }
 }
 
 export class DatabaseConnectionError extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "30000",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "DatabaseConnectionError";
+    this.message = this.errors["30000"];
   }
 }
 
 export class DpgClientCache extends BaseError {
-  constructor(
-    data: BaseErrorProps = {
-      code: "60000",
-    }
-  ) {
+  constructor(data: BaseErrorProps = {}) {
     super(data);
     this.name = "DpgClientCache";
+    this.message = this.errors["60000"];
   }
 }
 
