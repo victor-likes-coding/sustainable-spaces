@@ -173,7 +173,6 @@ function getPropertyData(
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
   const propertyData = filterObject(property);
-  // console.log(propertyData, "filtered property data");
   return propertyData as ZillowPropertyData;
 }
 
