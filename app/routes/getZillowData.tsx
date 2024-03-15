@@ -1,5 +1,9 @@
 import { json, ActionFunction, ActionFunctionArgs } from "@remix-run/node";
-import { PropertyNotFoundError, ZillowResponseError } from "~/utils/errors";
+import {
+  PropertyAlreadyExistsError,
+  PropertyNotFoundError,
+  ZillowResponseError,
+} from "~/utils/errors";
 import { writeFile, readFile, access, mkdir } from "fs/promises";
 import { dirname, join } from "path";
 import {
@@ -13,6 +17,7 @@ import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import { Page } from "puppeteer";
+import { PropertyData, PropertyService } from "~/models/property";
 
 // based on 2 letter state, get tax rate
 type State = "FL"; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
@@ -26,16 +31,23 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 export const action: ActionFunction = async ({
   request,
 }: ActionFunctionArgs) => {
+  const { url, address } = await request.json();
   try {
-    const { url, address } = await request.json();
     const propertyData = await getPropertyData(url, address);
     return json({
       propertyData,
     });
-  } catch (err) {
+  } catch (e) {
+    if (e instanceof PropertyAlreadyExistsError) {
+      return json({
+        propertyData: null,
+        propertyId: e.propertyId,
+        error: e.name,
+      });
+    }
+
     return json({
-      error: "An error occurred while fetching data.",
-      status: 500,
+      error: (e as Error).name,
     });
   }
 };
@@ -49,7 +61,7 @@ async function getPropertyDataFromZillow(url: string) {
   return htmlString;
 }
 
-async function getLocalPropertyData(
+export async function getLocalPropertyData(
   modifiedAddress: string
 ): Promise<ZillowPropertyData | null> {
   try {
@@ -69,29 +81,26 @@ async function getLocalPropertyData(
 export async function getPropertyData(
   url: string,
   address: string
-): Promise<ZillowPropertyData | undefined> {
-  const modifiedAddress = modifyAddress(address);
+): Promise<PropertyData | ZillowPropertyData | undefined | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [streetAddress, city, stateZip, ..._] = address.split(", ");
+  const [state, zipcode] = stateZip.split(" ");
 
-  // TODO: Check database first
+  const searchData = {
+    streetAddress,
+    city,
+    state,
+    zipcode,
+  };
 
-  // Check if we have local data to fill in
-  const localData = await getLocalPropertyData(modifiedAddress); // this will change to database call
-  if (localData) {
-    const isFreshData = await checkFreshnessOfLocalData(localData);
-    if (
-      isFreshData &&
-      localData.annualHomeownersInsurance !== undefined &&
-      localData.annualHomeownersInsurance !== 0
-    ) {
-      return localData;
-    }
-  }
-  // if we don't have local data or database data, fetch it from Zillow
-  const propertyData = await fetchPropertyDataFromZillow(url);
+  let propertyData: PropertyData | ZillowPropertyData | undefined | null;
 
-  // try to Add tax data to propertyData
+  propertyData = await PropertyService.getPropertyByAddress(searchData);
+  if (propertyData)
+    throw new PropertyAlreadyExistsError({ propertyId: propertyData.id });
+  propertyData = await fetchPropertyDataFromZillow(url);
   addTaxData(propertyData);
-  saveLocalPropertyData(modifiedAddress, propertyData); // we will save locally until database adds property and then delete
+
   return propertyData;
 }
 
@@ -307,7 +316,7 @@ export async function getInsuranceDataFromPuppeteer(
   await browser.close();
 }
 
-async function checkFreshnessOfLocalData(localData: ZillowPropertyData) {
+export async function checkFreshnessOfLocalData(localData: ZillowPropertyData) {
   const currentTime = new Date().getTime();
   if (!localData.timestamp) throw new Error("No timestamp found");
 
