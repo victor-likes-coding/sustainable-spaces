@@ -1,7 +1,12 @@
 // import { Form, Link } from "@remix-run/react";
 
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import {
   AdditionalMutationData,
@@ -13,8 +18,11 @@ import {
 import { requireToken } from "~/utils/sessions.server";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { PropertyNotFoundError } from "~/utils/errors";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  PropertyAlreadyExistsError,
+  PropertyNotFoundError,
+} from "~/utils/errors";
 import {
   Modal,
   ModalContent,
@@ -65,7 +73,9 @@ export async function action({ request }: ActionFunctionArgs) {
     ownerId: payload.id,
   } as MutationSafePropertyData);
 
-  return json({});
+  // remove the localPropertyData file
+
+  return redirect(`/property/${data.id}`);
 }
 
 export default function Index() {
@@ -103,6 +113,7 @@ export default function Index() {
     garage: 0,
     parcelId: "",
   });
+  const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
   const submit = useSubmit();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -119,10 +130,23 @@ export default function Index() {
     generic: "",
   });
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(redirectTimer);
+    };
+  }, [redirectTimer]);
+
   const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
 
   const handlePlaceChanged = useCallback(async () => {
     const place = inputRef.current?.value;
+    let jsonPayload: {
+      error?: string;
+      propertyId?: number;
+      propertyData?: any;
+    };
     if (!place) return;
     try {
       setIsLoading(true);
@@ -133,23 +157,39 @@ export default function Index() {
         },
         body: JSON.stringify({ url: createZillowUrl(place), address: place }),
       });
-      const { propertyData } = await serverResponse.json();
-      if (!propertyData) throw new PropertyNotFoundError();
+      jsonPayload = await serverResponse.json();
+      const { propertyData } = jsonPayload;
+      if (!propertyData) {
+        if (jsonPayload.error === "PropertyAlreadyExistsError") {
+          throw new PropertyAlreadyExistsError();
+        }
+        throw new PropertyNotFoundError();
+      }
 
       setProperty((prevProperty) => ({
         ...prevProperty,
         ...propertyData,
       }));
     } catch (err) {
-      if (err instanceof PropertyNotFoundError) {
+      if (
+        err instanceof PropertyNotFoundError ||
+        err instanceof PropertyAlreadyExistsError
+      ) {
+        console.error(err);
         setErrors((prevErrors) => ({
           ...prevErrors,
           generic: err.message,
         }));
-
-        onOpen(); // open modal
-        return;
       }
+
+      onOpen(); // open modal
+      if (err instanceof PropertyAlreadyExistsError) {
+        const timeoutId = setTimeout(() => {
+          navigate(`/property/${jsonPayload.propertyId}`);
+        }, 3000);
+        setRedirectTimer(timeoutId);
+      }
+      return;
     } finally {
       setIsLoading(false);
     }
