@@ -4,7 +4,11 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import PropertyCard from "~/components/propertycard";
-import { PropertyService } from "~/models/property";
+import {
+  DatabaseProperty,
+  PropertyData,
+  PropertyService,
+} from "~/models/property";
 import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 
@@ -12,7 +16,7 @@ import { requireToken } from "~/utils/sessions.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const payload = await requireToken(request);
-  const properties = await PropertyService.getProperties();
+  const properties: PropertyData[] = await PropertyService.getProperties();
   return json({
     properties,
     payload,
@@ -27,14 +31,15 @@ export default function Property() {
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} />
+      {/* <Navbar isLoggedIn={isLoggedIn} /> */}
       <div className={`w-full ${size} bg-primary text-white`}>
-        <main className="px-4 h-full flex flex-col pt-6">
-          <h1 className="text-4xl font-bold text-center pb-4">Properties</h1>
-          <div className="properties-list w-full flex flex-col gap-4 pb-4">
-            {properties?.map((property) => (
-              <PropertyCard key={property?.id} {...property} />
-            ))}
+        <main className=" h-full flex flex-col pt-3">
+          {/* property card container */}
+          <div className="properties-list w-full flex flex-col gap-4 pb-4 px-3">
+            {properties?.map((property) => {
+              const currentProperty = new DatabaseProperty(property);
+              return <PropertyCard key={property?.id} {...currentProperty} />;
+            })}
             {properties?.length === 0 && (
               <div className="text-center text-xl font-bold">
                 No properties to display
