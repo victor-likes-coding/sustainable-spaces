@@ -48,8 +48,8 @@ const propertyFeeFields = {
 
 const propertyDataFields = {
   id: z.number(),
-  updated: z.date(),
-  created: z.date(),
+  updated: z.string().datetime().or(z.date()),
+  created: z.string().datetime().or(z.date()),
   ...commonPropertyFields,
   ...createPropertyFields,
 };
@@ -103,6 +103,23 @@ export abstract class PropertyService {
     });
   }
 
+  static getPropertyByAddress({
+    streetAddress,
+    city,
+    state,
+    zipcode,
+  }: AddressData): Promise<PropertyData | null> {
+    return db.property.findFirst({
+      where: {
+        AND: {
+          streetAddress,
+          state,
+          zipcode,
+        },
+      },
+    });
+  }
+
   static async createProperty(
     property: MutationSafePropertyData
   ): Promise<DatabaseSafePropertyData> {
@@ -111,7 +128,6 @@ export abstract class PropertyService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { zillowLink: _, ...data } =
         mutationSafePropertyData.parse(property); // will throw if failed
-      console.log(data);
 
       // lets tack on the other required properties to create a full property
       // get user from session
@@ -120,7 +136,6 @@ export abstract class PropertyService {
         data,
       });
     } catch (e) {
-      console.log(e);
       throw new PropertyValidationError({});
     }
   }
@@ -169,8 +184,8 @@ export class DatabaseProperty implements PropertyDataStructure {
     state: string;
     zipcode: string;
   };
-  updated: Date;
-  created: Date;
+  updated: Date | string;
+  created: Date | string;
   constructor(data: PropertyData) {
     this.id = data.id;
     this.purchaseMethod = data.purchaseMethod;
@@ -209,7 +224,7 @@ export class DatabaseProperty implements PropertyDataStructure {
       state: data.state,
       zipcode: data.zipcode,
     };
-    this.updated = data.updated;
-    this.created = data.created;
+    this.updated = new Date(data.updated);
+    this.created = new Date(data.created);
   }
 }
