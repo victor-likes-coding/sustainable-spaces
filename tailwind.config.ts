@@ -38,6 +38,7 @@ export default {
           "Segoe UI Symbol",
           "Noto Color Emoji",
         ],
+        roboto: ["Roboto", "sans-serif"], // Add 'roboto' as a key with the font family.
       },
     },
   },
