@@ -1,3 +1,4 @@
+import type { PropertyFormData } from "./property.d";
 import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
@@ -105,7 +106,6 @@ export abstract class PropertyService {
 
   static getPropertyByAddress({
     streetAddress,
-    city,
     state,
     zipcode,
   }: AddressData): Promise<PropertyData | null> {
@@ -122,7 +122,7 @@ export abstract class PropertyService {
 
   static async createProperty(
     property: MutationSafePropertyData
-  ): Promise<DatabaseSafePropertyData> {
+  ): Promise<PropertyData> {
     // validate we have all the required data
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -228,3 +228,5 @@ export class DatabaseProperty implements PropertyDataStructure {
     this.created = new Date(data.created);
   }
 }
+
+export type { PropertyFormData };
