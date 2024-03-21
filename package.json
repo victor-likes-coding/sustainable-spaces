@@ -17,6 +17,7 @@
     "db:push": "npx prisma db push"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.0.12",
     "@nextui-org/react": "^2.2.10",
     "@prisma/client": "^5.11.0",
     "@react-google-maps/api": "^2.19.3",
