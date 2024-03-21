@@ -16,7 +16,7 @@ import {
 } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import invariant from "invariant";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
