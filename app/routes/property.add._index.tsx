@@ -40,9 +40,6 @@ import {
   PropertyService,
   PropertyFormData,
 } from "~/models/property";
-import FileUpload from "~/components/InputFileUpload";
-import InputFileUpload from "~/components/InputFileUpload";
-import InputFileArea from "~/components/InputFileArea";
 import Upload from "~/components/Upload";
 import PlacesSearch from "~/components/PlacesSearch";
 
@@ -65,22 +62,19 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await clonedRequest.formData(); // ! flattens our form data :)
 
   const data = Object.fromEntries(formData);
-  PropertyService.createProperty({
+  const property = await PropertyService.createProperty({
     ...data,
     ownerId: payload.id,
   } as MutationSafePropertyData);
 
   // remove the localPropertyData file
 
-  return redirect(`/property/${data.id}`);
+  return redirect(`/property/${property.id}`);
 }
 
 export default function Index() {
   const { payload, apiKey } = useLoaderData<typeof loader>();
   const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const loadScriptRef = useRef(null);
-  const libraries: Library[] = useMemo(() => ["places"], []);
   const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
   const [fileData, setFileData] = useState<FileList | null>(null);
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
@@ -401,6 +395,7 @@ export default function Index() {
                     placeholder="Select an option"
                     label="Purchase Method"
                     name="purchaseMethod"
+                    defaultSelectedKeys={["sell"]}
                     className="rounded-sm pl-1 text-secondary"
                     id="purchaseMethod"
                     onChange={(e) =>
@@ -423,7 +418,6 @@ export default function Index() {
                 <Input
                   label={property.purchaseMethod === "rent" ? "Rent" : "Price"}
                   id="price"
-                  type="number"
                   name="price"
                   value={property?.price}
                   className="rounded-sm  text-secondary"
