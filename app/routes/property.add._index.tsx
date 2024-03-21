@@ -11,14 +11,20 @@ import Navbar from "~/components/navbar";
 import {
   AdditionalMutationData,
   TokenPayload,
-  ZillowPropertyData,
   createZillowUrl,
   getLoggedInStatus,
 } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
@@ -31,9 +37,21 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Input,
+  Textarea,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import Loader from "~/components/Loader";
-import { MutationSafePropertyData, PropertyService } from "~/models/property";
+import {
+  MutationSafePropertyData,
+  PropertyService,
+  PropertyFormData,
+} from "~/models/property";
+import FileUpload from "~/components/InputFileUpload";
+import InputFileUpload from "~/components/InputFileUpload";
+import InputFileArea from "~/components/InputFileArea";
+import Upload from "~/components/Upload";
 
 type Library =
   | "core"
@@ -84,39 +102,42 @@ export default function Index() {
   const inputRef = useRef<HTMLInputElement>(null);
   const loadScriptRef = useRef(null);
   const libraries: Library[] = useMemo(() => ["places"], []);
+  const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
+  const [fileData, setFileData] = useState<FileList | null>(null);
+  const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const submit = useSubmit();
+  const navigate = useNavigate();
+
   const [property, setProperty] = useState<
-    ZillowPropertyData & AdditionalMutationData
+    PropertyFormData & AdditionalMutationData
   >({
-    zpid: 0,
+    zpid: "0",
     address: {
       streetAddress: "",
       city: "",
       state: "",
       zipcode: "",
     },
-    bedrooms: 0,
-    bathrooms: 0,
+    bedrooms: "0",
+    bathrooms: "0",
     description: "",
-    lotSize: 0,
-    livingArea: 0,
-    yearBuilt: 0,
+    lotSize: "0",
+    livingArea: "0",
+    yearBuilt: "0",
     purchaseMethod: "rent",
-    price: 0,
+    price: "0",
     homeType: "",
-    latitude: 0,
-    longitude: 0,
+    latitude: "0",
+    longitude: "0",
     livingAreaUnits: "",
     lotAreaUnits: "",
-    tax: 0,
-    annualHomeownersInsurance: 0,
+    tax: "0",
+    annualHomeownersInsurance: "0",
     zillowLink: "",
-    garage: 0,
+    garage: "0",
     parcelId: "",
   });
-  const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
-  const submit = useSubmit();
-
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [errors, setErrors] = useState({
     address: "",
@@ -130,22 +151,23 @@ export default function Index() {
     generic: "",
   });
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     return () => {
       clearTimeout(redirectTimer);
     };
   }, [redirectTimer]);
 
-  const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFileData(e.target.files);
+  };
 
   const handlePlaceChanged = useCallback(async () => {
     const place = inputRef.current?.value;
     let jsonPayload: {
       error?: string;
       propertyId?: number;
-      propertyData?: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      propertyData?: any; // ! TODO: place proper data type
     };
     if (!place) return;
     try {
@@ -200,16 +222,15 @@ export default function Index() {
     <>
       <Navbar isLoggedIn={isLoggedIn} />
       <div className={`w-full h-without-nav-auto bg-primary text-white`}>
-        <main className="px-4 h-full flex flex-col pt-6">
-          <h1 className="text-4xl font-bold text-center pb-4">Add Property</h1>
-          <div className="w-full">
+        <main className="h-full flex flex-col pt-6">
+          <div className="w-full px-4">
             <LoadScript
               googleMapsApiKey={apiKey}
               libraries={libraries}
               ref={loadScriptRef}
             >
               <Autocomplete
-                className="text-black"
+                className="text-black "
                 onLoad={() => {
                   return;
                 }}
@@ -218,31 +239,31 @@ export default function Index() {
                 <input
                   ref={inputRef}
                   type="text"
-                  placeholder="Search for a location"
-                  className="w-full border-2 border-gray-300 rounded-md p-2"
+                  placeholder="Look up a property"
+                  className="w-full rounded-lg
+                  bg-white text-black p-2 py-3"
                 />
               </Autocomplete>
             </LoadScript>
 
             <Form
               method="post"
+              encType="multipart/form-data"
               onSubmit={() => {
                 submit(
                   { ...property },
                   { method: "post", encType: "application/json" }
                 );
               }}
-              className="flex flex-col gap-2 mt-4 text-black"
+              className="flex flex-col gap-3 mt-4 text-black"
             >
               <div className="input-group w-full flex flex-col">
-                <label htmlFor="streetAddress" className="text-sm">
-                  Street Address
-                </label>
-                <input
+                <Input
+                  label="Street Address"
                   id="streetAddress"
                   type="text"
                   name="streetAddress"
-                  className="rounded-sm pl-2 text-secondary"
+                  className="rounded-sm  text-secondary"
                   value={property?.address.streetAddress}
                   onChange={(e) => {
                     setProperty((prevProperty) => ({
@@ -256,15 +277,13 @@ export default function Index() {
                 />
               </div>
               <div className="input-group flex flex-col w-full grow">
-                <label htmlFor="city" className="text-sm">
-                  City
-                </label>
-                <input
+                <Input
+                  label="City"
                   type="text"
                   name="city"
                   id="city"
                   value={property?.address.city}
-                  className="rounded-sm pl-2 text-secondary"
+                  className="rounded-sm  text-secondary"
                   onChange={(e) =>
                     setProperty((prevProperty) => ({
                       ...prevProperty,
@@ -278,15 +297,13 @@ export default function Index() {
               </div>
               <div className="flex justify-between">
                 <div className="input-group flex flex-col w-[34%]">
-                  <label htmlFor="state" className="text-sm">
-                    State
-                  </label>
-                  <input
+                  <Input
+                    label="State"
                     type="text"
                     name="state"
                     id="state"
                     value={property?.address.state}
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
@@ -300,13 +317,11 @@ export default function Index() {
                 </div>
 
                 <div className="input-group flex flex-col">
-                  <label htmlFor="zipcode" className="text-sm">
-                    Zipcode
-                  </label>
-                  <input
+                  <Input
+                    label="Zipcode"
                     type="text"
                     name="zipcode"
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     id="zipcode"
                     value={property?.address.zipcode}
                     onChange={(e) =>
@@ -323,49 +338,42 @@ export default function Index() {
               </div>
               <div className="flex justify-between">
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="bedrooms" className="text-sm">
-                    Bedrooms
-                  </label>
-
-                  <input
-                    type="number"
+                  <Input
+                    label="Bedrooms"
                     name="bedrooms"
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     id="bedrooms"
                     value={property?.bedrooms}
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
-                        bedrooms: parseInt(e.target.value),
+                        bedrooms: e.target.value,
                       }))
                     }
                   />
                 </div>
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="bathrooms" className="text-sm">
-                    Bathrooms
-                  </label>
-                  <input
+                  <Input
+                    label="Bathrooms"
                     type="number"
                     name="bathrooms"
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     id="bathrooms"
                     value={property?.bathrooms}
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
-                        bathrooms: parseInt(e.target.value),
+                        bathrooms: e.target.value,
                       }))
                     }
                   />
                 </div>
               </div>
               <div className="input-group w-full flex flex-col">
-                <label htmlFor="description" className="text-sm">
-                  Description
-                </label>
-                <textarea
-                  className="rounded-sm text-secondary text-xs p-1"
+                <Textarea
+                  label="Description"
+                  className="rounded-sm text-secondary text-xs"
+                  aria-label="description"
                   rows={10}
                   name="description"
                   id="description"
@@ -380,38 +388,33 @@ export default function Index() {
               </div>
               <div className="flex justify-between">
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="lotSize" className="text-sm">
-                    Lot Size (sqft)
-                  </label>
-
-                  <input
+                  <Input
                     type="number"
                     name="lotSize"
-                    className="rounded-sm pl-2 text-secondary"
+                    label="Lot Size (sqft)"
+                    className="rounded-sm  text-secondary"
                     id="lotSize"
                     value={property?.lotSize}
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
-                        lotSize: parseInt(e.target.value),
+                        lotSize: e.target.value,
                       }))
                     }
                   />
                 </div>
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="livingArea" className="text-sm">
-                    Living Area (sqft)
-                  </label>
-                  <input
+                  <Input
+                    label="Living Area (sqft)"
                     type="number"
                     name="livingArea"
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     id="livingArea"
                     value={property?.livingArea}
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
-                        livingArea: parseInt(e.target.value),
+                        livingArea: e.target.value,
                       }))
                     }
                   />
@@ -419,29 +422,27 @@ export default function Index() {
               </div>
               <div className="flex justify-between">
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="yearBuilt" className="text-sm">
-                    Year Built
-                  </label>
-                  <input
+                  <Input
+                    label="Year Built"
                     type="number"
                     name="yearBuilt"
-                    className="rounded-sm pl-2 text-secondary"
+                    className="rounded-sm  text-secondary"
                     id="yearBuilt"
                     value={property?.yearBuilt}
                     onChange={(e) =>
                       setProperty((prevProperty) => ({
                         ...prevProperty,
-                        yearBuilt: parseInt(e.target.value),
+                        yearBuilt: e.target.value,
                       }))
                     }
                   />
                 </div>
 
                 <div className="input-group w-[48%] flex flex-col">
-                  <label htmlFor="purchaseMethod" className="text-sm">
-                    Purchase Method
-                  </label>
-                  <select
+                  <Select
+                    selectionMode="single"
+                    placeholder="Select an option"
+                    label="Purchase Method"
                     name="purchaseMethod"
                     className="rounded-sm pl-1 text-secondary"
                     id="purchaseMethod"
@@ -452,105 +453,108 @@ export default function Index() {
                       }))
                     }
                   >
-                    <option value="rent">Rent</option>
-                    <option value="sell">Sell</option>
-                  </select>
+                    <SelectItem value="rent" key="rent">
+                      Rent
+                    </SelectItem>
+                    <SelectItem value="sell" key="sell">
+                      Sell
+                    </SelectItem>
+                  </Select>
                 </div>
               </div>
               <div className="input-group w-full flex flex-col">
-                <label htmlFor="price" className="text-sm">
-                  {property.purchaseMethod === "rent" ? "Rent" : "Price"}
-                </label>
-                <input
+                <Input
+                  label={property.purchaseMethod === "rent" ? "Rent" : "Price"}
                   id="price"
                   type="number"
                   name="price"
                   value={property?.price}
-                  className="rounded-sm pl-2 text-secondary"
+                  className="rounded-sm  text-secondary"
                   onChange={(e) => {
                     setProperty((prevProperty) => ({
                       ...prevProperty,
-                      price: parseInt(e.target.value),
+                      price: e.target.value,
                     }));
                   }}
                 />
               </div>
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 name="zpid"
                 value={property?.zpid}
                 readOnly
               />
-              <input
+              <Input
                 type="text"
                 className="hidden"
                 name="homeType"
                 value={property?.homeType}
                 readOnly
               />
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 name="latitude"
                 value={property?.latitude}
                 readOnly
               />
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 name="longitude"
                 value={property?.longitude}
                 readOnly
               />
-              <input
+              <Input
                 type="text"
                 className="hidden"
                 name="livingAreaUnits"
                 value={property?.livingAreaUnits}
                 readOnly
               />
-              <input
+              <Input
                 type="text"
                 className="hidden"
                 name="lotAreaUnits"
                 value={property?.lotAreaUnits}
                 readOnly
               />
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 name="tax"
                 value={property?.tax}
                 readOnly
               />
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 name="annualHomeownersInsurance"
                 value={property?.annualHomeownersInsurance}
                 readOnly
               />
-              <input
+              <Input
                 type="text"
                 className="hidden"
                 name="zillowLink"
                 value={property?.zillowLink}
                 readOnly
               />
-              <input
+              <Input
                 type="number"
                 className="hidden"
                 value={property?.garage}
                 readOnly
               />
-              <input
+              <Input
                 type="text"
                 className="hidden"
                 name="parcelId"
                 value={property?.parcelId}
                 readOnly
               />
+              <Upload files={fileData} setFiles={setFileData} />
               <button
                 type="submit"
                 className="rounded-sm bg-secondary py-2 text-xs font-bold text-white mt-2 mb-4"
