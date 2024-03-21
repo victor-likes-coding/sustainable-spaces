@@ -16,7 +16,7 @@ import {
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
-import { Page } from "puppeteer";
+import { LaunchOptions, Page } from "puppeteer";
 import { PropertyData, PropertyService } from "~/models/property";
 
 // based on 2 letter state, get tax rate
@@ -166,9 +166,10 @@ async function fetchPropertyDataFromZillow(
 }
 
 async function scrapePropertyDataFromZillow(
-  url: string
+  url: string,
+  config?: LaunchOptions
 ): Promise<ZillowPropertyData> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
   await page.goto(url);
   const propertyData = await extractPropertyDataFromPage(page);
@@ -192,9 +193,10 @@ async function extractPropertyDataFromPage(
 }
 
 async function fetchPropertyDataWithPuppeteer(
-  url: string
+  url: string,
+  config?: LaunchOptions
 ): Promise<ZillowPropertyData> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
 
   try {
