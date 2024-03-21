@@ -2,14 +2,14 @@
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import Navbar from "~/components/navbar";
+// import Navbar from "~/components/navbar";
 import PropertyCard from "~/components/propertycard";
 import {
   DatabaseProperty,
   PropertyData,
   PropertyService,
 } from "~/models/property";
-import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
+// import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 
 // import Button from "~/components/button";
@@ -24,10 +24,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Property() {
-  const { properties, payload } = useLoaderData<typeof loader>();
-  const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
+  const { properties } = useLoaderData<typeof loader>();
+  // const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
   const size =
-    properties?.length > 3 ? "h-without-nav-auto" : "h-without-nav-fixed";
+    properties?.length >= 3 ? "h-without-nav-auto" : "h-without-nav-fixed";
 
   return (
     <>
