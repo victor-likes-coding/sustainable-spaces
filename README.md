@@ -8,6 +8,8 @@ The goal of this app is as follows:
 
 ### The "Free Housing Sweepstakes" Mechanic -- Deemed illegal in Florida under Gambling laws -- unless under a charitable organization according to the [law](http://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&URL=0800-0899/0849/Sections/0849.0935.html)
 
+Until we can get around the legality of `Gambling` in the state of Florida. This feature will be unavailable and under construction.
+
 After achieving a set amount ($75,000), users who have contributed towards the crowdfund (minimum of $100) will have a chance to obtain free rent (4) months worth (minimum) up to 12 months (maximum). Each minimum contribution of $100 will be 1 drawing up to 40 entries ($4000 value). For every 4 entries (rounded down) contributed after attaining 8, if selected for free rent, you will recieve an additional month of free rent. Free rent is split up over a year, for example:
 
 - if you recieve the minimum 4 months free rent, you will recieve free rent every 3rd month up to a year.
