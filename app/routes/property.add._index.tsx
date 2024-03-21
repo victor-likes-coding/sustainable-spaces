@@ -15,16 +15,8 @@ import {
   getLoggedInStatus,
 } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
-import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import invariant from "invariant";
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
@@ -52,20 +44,7 @@ import FileUpload from "~/components/InputFileUpload";
 import InputFileUpload from "~/components/InputFileUpload";
 import InputFileArea from "~/components/InputFileArea";
 import Upload from "~/components/Upload";
-
-type Library =
-  | "core"
-  | "maps"
-  | "places"
-  | "geocoding"
-  | "routes"
-  | "marker"
-  | "geometry"
-  | "elevation"
-  | "streetView"
-  | "journeySharing"
-  | "drawing"
-  | "visualization";
+import PlacesSearch from "~/components/PlacesSearch";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -157,12 +136,7 @@ export default function Index() {
     };
   }, [redirectTimer]);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFileData(e.target.files);
-  };
-
-  const handlePlaceChanged = useCallback(async () => {
-    const place = inputRef.current?.value;
+  const handlePlaceChanged = useCallback(async (place: string | undefined) => {
     let jsonPayload: {
       error?: string;
       propertyId?: number;
@@ -224,27 +198,10 @@ export default function Index() {
       <div className={`w-full h-without-nav-auto bg-primary text-white`}>
         <main className="h-full flex flex-col pt-6">
           <div className="w-full px-4">
-            <LoadScript
-              googleMapsApiKey={apiKey}
-              libraries={libraries}
-              ref={loadScriptRef}
-            >
-              <Autocomplete
-                className="text-black "
-                onLoad={() => {
-                  return;
-                }}
-                onPlaceChanged={handlePlaceChanged}
-              >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Look up a property"
-                  className="w-full rounded-lg
-                  bg-white text-black p-2 py-3"
-                />
-              </Autocomplete>
-            </LoadScript>
+            <PlacesSearch
+              apiKey={apiKey}
+              handlePlaceChanged={handlePlaceChanged}
+            />
 
             <Form
               method="post"

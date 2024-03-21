@@ -18,7 +18,19 @@ export default function Upload({ files, setFiles }: Props) {
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFiles(event.target.files);
+    const newFiles = event.target.files;
+    const dataTransfer = new DataTransfer();
+
+    // add existing files
+    if (files) {
+      Array.from(files).forEach((file) => dataTransfer.items.add(file));
+    }
+
+    if (newFiles) {
+      Array.from(newFiles).forEach((file) => dataTransfer.items.add(file));
+    }
+
+    setFiles(dataTransfer.files);
   };
 
   return (
