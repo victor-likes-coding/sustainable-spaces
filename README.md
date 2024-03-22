@@ -211,10 +211,10 @@ Changelog:
 
 - Fix redirect in property creation action to refer to the correct object that holds property data.
 - Implement image upload for new properties.
-  - Next steps: Hook a cloud storage provider and save images to provider and save link to database
 - Refactor Place API into it's own component
 - Hook a cloud storage provider to save images and save link to database
 - Refactor form into it's own component
+- Fetch images to include in property card
 
 Known Issues:
 
@@ -223,6 +223,6 @@ Known Issues:
 Things to Do:
 
 - Fetch images to include in the properties page
-- Fetch images to include in property card
+- Add an edit route for specific properties owned by user
 - Create a view for user owned properties
 - Create a new Navbar (Home | Properties | Inbox | Profile) kind of like Tiktok
