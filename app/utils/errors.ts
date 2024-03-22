@@ -14,7 +14,8 @@ type ErrorCodes =
   | "20001"
   | "20002"
   | "30000"
-  | "60000";
+  | "60000"
+  | "60001";
 
 // ? TODO: Split errors into AuthErrors, PropertyErrors, and DatabaseErrors
 // ? TODO: combine error strings and error name into single object
@@ -39,6 +40,8 @@ class BaseError extends Error {
       "A listing for this address already exists. You may report the property on that property page. You'll be redirected in 3 seconds.",
     30000: "The server is currently down. Please try again.",
     60000: "GdpCacheNotDetected: GdpCache not detected in the HTML given.",
+    60001:
+      "Captcha detected. Please enter the information for the property manually until the captcha is solved.",
   };
   constructor({ message, code }: BaseErrorProps) {
     if (!message) {
@@ -161,6 +164,14 @@ export class DpgClientCache extends BaseError {
     super(data);
     this.name = "DpgClientCache";
     this.message = this.errors["60000"];
+  }
+}
+
+export class ZillowCaptchaError extends BaseError {
+  constructor(data: BaseErrorProps = {}) {
+    super(data);
+    this.name = "ZillowCaptchaError";
+    this.message = this.errors["60001"];
   }
 }
 
