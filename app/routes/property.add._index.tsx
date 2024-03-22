@@ -39,9 +39,13 @@ import {
   MutationSafePropertyData,
   PropertyService,
   PropertyFormData,
+  PropertyService,
 } from "~/models/property";
-import Upload from "~/components/Upload";
 import PlacesSearch from "~/components/PlacesSearch";
+import AddPropertyForm from "~/components/AddPropertyForm";
+import { uploadImage } from "~/utils/storage.server";
+import { ImageService } from "~/models/Image";
+import { compressImage, SupportedFileTypes } from "~/utils/compressImage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -59,17 +63,53 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export async function action({ request }: ActionFunctionArgs) {
   const payload = (await requireToken(request)) as TokenPayload;
   const clonedRequest = request.clone(); // fixes locking up the readable stream for the request object
-  const formData = await clonedRequest.formData(); // ! flattens our form data :)
+  const formData = await clonedRequest.formData();
 
-  const data = Object.fromEntries(formData);
-  const property = await PropertyService.createProperty({
-    ...data,
+  // get image files
+  const files = formData.getAll("files");
+  let imageUrls: string[] = [];
+
+  if (files.length > 0) {
+    const uploadPromises = files.map(async (file) => {
+      if (file instanceof File) {
+        // Convert file to buffer
+        const originalBuffer = Buffer.from(await file.arrayBuffer());
+        // Compress the image
+        const compressedBuffer = await compressImage(originalBuffer, {
+          width: 800, // Example width, adjust as needed
+          format: file.type as SupportedFileTypes, // Or dynamically determine based on file.type
+          quality: 80, // Adjust quality as needed
+        });
+        return uploadImage(compressedBuffer, file.name, file.type);
+      }
+      return null;
+    });
+    imageUrls = (await Promise.all(uploadPromises)).filter(
+      (url) => url != null
+    );
+  }
+  const { property } = Object.fromEntries(formData);
+  // property is a string, so we need to parse it
+  const { address, ...rest }: Partial<ZillowPropertyData> = JSON.parse(
+    property as string
+  );
+
+  // shape into flat data
+  const flatData = {
+    ...address,
+    ...rest,
+  } as MutationSafePropertyData;
+
+  const newProperty = await PropertyService.createProperty({
+    ...flatData,
     ownerId: payload.id,
   } as MutationSafePropertyData);
 
-  // remove the localPropertyData file
+  // save image url to database with coinciding with property id
+  if (imageUrls.length > 0)
+    await ImageService.addImageUrls(newProperty.id, imageUrls);
 
-  return redirect(`/property/${property.id}`);
+  return redirect(`/property/${newProperty.id}`);
 }
 
 export default function Index() {
