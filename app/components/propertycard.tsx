@@ -14,12 +14,19 @@ const PropertyCard = (property?: PropertyDataStructure) => {
     bathrooms,
     livingArea,
     id,
+    images,
   } = property;
 
   return (
     <div className="card-container w-full h-auto text-sm rounded-md border-secondary relative z-0 text-white">
       <div className="card-image-wrapper w-full pb-2">
-        <Image src="https://nextui-docs-v2.vercel.app/images/hero-card-complete.jpeg" />
+        <Image
+          src={
+            images && images.length > 0
+              ? images[0].url
+              : "https://nextui-docs-v2.vercel.app/images/hero-card-complete.jpeg"
+          }
+        />
       </div>
       <div className="card-content w-full px-2">
         <div className="card-title w-full flex justify-between pt-1 pr-3">
