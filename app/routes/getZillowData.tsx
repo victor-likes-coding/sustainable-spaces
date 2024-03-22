@@ -2,6 +2,7 @@ import { json, ActionFunction, ActionFunctionArgs } from "@remix-run/node";
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
+  ZillowCaptchaError,
   ZillowResponseError,
 } from "~/utils/errors";
 import { writeFile, readFile, access, mkdir } from "fs/promises";
@@ -122,7 +123,7 @@ function addTaxData(
   const taxRate = taxes[state as State];
   if (!taxRate || !price) return; // we don't have tax data for this state yet or a purchase price
 
-  const tax = price * taxRate;
+  const tax = Number(price) * taxRate;
   propertyData.tax = tax; // yearly tax rate
 }
 
@@ -147,9 +148,9 @@ async function fetchPropertyDataFromZillow(
     if (err instanceof ZillowResponseError) {
       // Manually scrape the data we need from Zillow
       propertyData = await scrapePropertyDataFromZillow(url); // second fallback (really works)
-    } else {
-      throw err; // Rethrow other errors
     }
+
+    if (err instanceof ZillowCaptchaError) throw err;
   } finally {
     // Perform operations that need to be executed regardless of whether an error occurred or not
     if (propertyData) {
@@ -202,6 +203,53 @@ async function fetchPropertyDataWithPuppeteer(
   try {
     await page.goto(url);
 
+    // check and see if there's an iframe with the title="Human verification challenge"
+    // get a p that has the text "Press & Hold"
+    // if it exists, we need to solve the captcha
+    const captcha = await page.$(
+      "iframe[title='Human verification challenge']"
+    );
+    if (captcha) {
+      // Wait for the iframe to load
+      await page.waitForSelector(
+        'iframe[title="Human verification challenge"]'
+      );
+
+      // Switch to the iframe context
+      const frames = page.frames();
+      const captchaFrame = frames.find(
+        async (frame) =>
+          (await frame.title()) === "Human verification challenge"
+      );
+
+      // Ensure the frame was found
+      if (captchaFrame) {
+        // Wait for the text and button to be visible inside the iframe
+        const buttonSelector = 'p:contains("Press & Hold")'; // Adjust if necessary
+        await captchaFrame.waitForSelector(buttonSelector);
+
+        // Get the position of the button
+        const rect = await captchaFrame.evaluate((selector) => {
+          const element = document.querySelector(selector);
+          if (!element) {
+            // throw new Error(`Element not found: ${selector}`);
+            throw new Error("Captcha detected");
+          }
+          const { top, left, width, height } = element.getBoundingClientRect();
+          return { x: left + width / 2, y: top + height / 2 };
+        }, buttonSelector);
+
+        // Move to the button position and press & hold
+        await page.mouse.move(rect.x, rect.y, { steps: 10 }); // Move in steps for smoother action
+        await page.mouse.down();
+
+        // Hold for the required duration, e.g., 3000 milliseconds = 3 seconds
+        setTimeout(async () => {
+          // Release the mouse to complete the press and hold action
+          await page.mouse.up();
+        }, 7000); // Adjust time as necessary based on CAPTCHA requirements
+      }
+    }
     const anchor = await page.waitForSelector(
       `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
     );
