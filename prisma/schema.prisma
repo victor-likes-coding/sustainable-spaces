@@ -19,8 +19,8 @@ model User {
   renting Property? @relation("Renting")
   properties Property[] @relation("Properties")
   active Boolean @default(true)
-  session Session[]
   token  String?
+  payment Payment[]
 }
 
 enum PurchaseMethod {
@@ -52,6 +52,7 @@ model Property {
   livingArea Int
   livingAreaUnits String
   zpid Int @unique
+  zillowLink String?
 
   // database information
   updated DateTime @updatedAt @default(now())
@@ -74,17 +75,32 @@ model Property {
   tenantId Int? @unique
   owner User @relation(fields: [ownerId], references: [id], name: "Properties")
   ownerId Int 
+  payments Payment[]
 
   // other
   likesCount Int @default(0)
   likes Int[]
+
+  images Image[]
 }
 
-model Session {
+model Payment {
   id Int @id @default(autoincrement())
-  token String @unique
+  amount Float
+  propertyId Int
+  property Property @relation(fields: [propertyId], references: [id])
   userId Int
   user User @relation(fields: [userId], references: [id])
-  expires DateTime
   created DateTime @default(now())
+  updated DateTime @updatedAt
+
+}
+
+model Image {
+  id Int @id @default(autoincrement())
+  url String
+  propertyId Int
+  property Property @relation(fields: [propertyId], references: [id])
+  created DateTime @default(now())
+  updated DateTime @updatedAt
 }
