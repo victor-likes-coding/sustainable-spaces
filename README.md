@@ -213,6 +213,8 @@ Changelog:
 - Implement image upload for new properties.
   - Next steps: Hook a cloud storage provider and save images to provider and save link to database
 - Refactor Place API into it's own component
+- Hook a cloud storage provider to save images and save link to database
+- Refactor form into it's own component
 
 Known Issues:
 
@@ -220,9 +222,7 @@ Known Issues:
 
 Things to Do:
 
-- Hook a cloud storage provider to save images and save link to database
 - Fetch images to include in the properties page
 - Fetch images to include in property card
-- Refactor form into it's own component
 - Create a view for user owned properties
 - Create a new Navbar (Home | Properties | Inbox | Profile) kind of like Tiktok
