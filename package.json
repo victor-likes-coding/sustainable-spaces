@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.12",
+    "@google-cloud/storage": "^7.9.0",
     "@nextui-org/react": "^2.2.10",
     "@prisma/client": "^5.11.0",
     "@react-google-maps/api": "^2.19.3",
@@ -38,6 +39,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-swipeable": "^7.0.1",
+    "sharp": "^0.33.2",
     "validator": "^13.11.0",
     "zod": "^3.22.4"
   },
@@ -45,6 +47,7 @@
     "@babel/preset-env": "^7.23.8",
     "@remix-run/dev": "^2.5.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/google-cloud__storage": "^2.3.1",
     "@types/invariant": "^2.2.37",
     "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.5",
