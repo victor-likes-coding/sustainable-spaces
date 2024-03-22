@@ -21,6 +21,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
+  ZillowCaptchaError,
 } from "~/utils/errors";
 import {
   Modal,
@@ -132,7 +133,7 @@ export default function Index() {
     lotSize: "0",
     livingArea: "0",
     yearBuilt: "0",
-    purchaseMethod: "rent",
+    purchaseMethod: "sell",
     price: "0",
     homeType: "",
     latitude: "0",
@@ -197,9 +198,9 @@ export default function Index() {
     } catch (err) {
       if (
         err instanceof PropertyNotFoundError ||
-        err instanceof PropertyAlreadyExistsError
+        err instanceof PropertyAlreadyExistsError ||
+        err instanceof ZillowCaptchaError
       ) {
-        console.error(err);
         setErrors((prevErrors) => ({
           ...prevErrors,
           generic: err.message,
