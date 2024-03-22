@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db } from "~/utils/db.server";
 
-const databaseImageFields = {
+export const databaseImageFields = {
   id: z.number(),
   url: z.string(),
   propertyId: z.number(),
@@ -11,7 +11,7 @@ const databaseImageFields = {
 
 export const databaseImageSchema = z.object(databaseImageFields);
 
-type ImageSchema = z.infer<typeof databaseImageSchema>;
+export type ImageSchema = z.infer<typeof databaseImageSchema>;
 
 export abstract class ImageService {
   static async addImageUrls(propertyId: number, urls: string[]) {

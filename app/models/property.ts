@@ -2,6 +2,7 @@ import type { PropertyFormData } from "./property.d";
 import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
+import { databaseImageFields, ImageSchema } from "./Image";
 
 const createPropertyFields = {
   zpid: z.number({ coerce: true }),
@@ -51,6 +52,7 @@ const propertyDataFields = {
   id: z.number(),
   updated: z.string().datetime().or(z.date()),
   created: z.string().datetime().or(z.date()),
+  images: z.array(z.object(databaseImageFields)).optional(),
   ...commonPropertyFields,
   ...createPropertyFields,
 };
@@ -93,7 +95,7 @@ export type PropertyDataStructure = z.infer<typeof propertySchema>; // use for p
 
 export abstract class PropertyService {
   static getProperties(): Promise<PropertyData[]> {
-    return db.property.findMany();
+    return db.property.findMany({ include: { images: true } });
   }
 
   static getProperty(id: number): Promise<PropertyData | null> {
@@ -101,6 +103,7 @@ export abstract class PropertyService {
       where: {
         id,
       },
+      include: { images: true },
     });
   }
 
@@ -186,6 +189,7 @@ export class DatabaseProperty implements PropertyDataStructure {
   };
   updated: Date | string;
   created: Date | string;
+  images?: ImageSchema[]; // Add the 'images' property
   constructor(data: PropertyData) {
     this.id = data.id;
     this.purchaseMethod = data.purchaseMethod;
@@ -226,6 +230,7 @@ export class DatabaseProperty implements PropertyDataStructure {
     };
     this.updated = new Date(data.updated);
     this.created = new Date(data.created);
+    this.images = data.images; // Assign the 'images' property
   }
 }
 
