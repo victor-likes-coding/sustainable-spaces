@@ -78,6 +78,22 @@ The initial MVP will have the following features:
   - Property (add/create) ✅
   - Inbox (view rent requests)
 
+## File Routing
+
+/ - Root ✅
+/about - About ✅
+/tos - Terms of Service ✅
+/privacy - Privacy ✅
+/property/ - Root Property (show all properties, requires auth) ✅
+/property/add - Add Form for adding properties (requires auth) ✅
+/property/$id         - View single Property (requires auth) ❌
+/property/$id/edit - Edit single property (requires auth + owner) ❌
+/property/$id/delete  - Removes property / mark as inactive (requires auth + owner) ❌
+/user/                - nothing ✅
+/user/$id - The user by $id (requires auth) ❌
+/user/$id/edit - Edit user information (requires auth, and authed should be that user) ❌
+/user/$id/property - View all properties belonging to user ❌
+
 ## Roadmap (future features)
 
 - Book a handy man / cleaning
@@ -188,3 +204,25 @@ What we've done today:
 - Fix the `/property/{id}` route to match database types and display appropriate information.
 - Update error handling for properties existing in the database. Redirects/Navigates to the page of existing property.
 - Remove local file management. Functions still exist but are basically deprecated.
+
+3/21:
+
+Changelog:
+
+- Fix redirect in property creation action to refer to the correct object that holds property data.
+- Implement image upload for new properties.
+  - Next steps: Hook a cloud storage provider and save images to provider and save link to database
+- Refactor Place API into it's own component
+
+Known Issues:
+
+- Zillow will periodically ask for human to confirm if they're not a bot causing the property fetch mechanism to fail
+
+Things to Do:
+
+- Hook a cloud storage provider to save images and save link to database
+- Fetch images to include in the properties page
+- Fetch images to include in property card
+- Refactor form into it's own component
+- Create a view for user owned properties
+- Create a new Navbar (Home | Properties | Inbox | Profile) kind of like Tiktok
