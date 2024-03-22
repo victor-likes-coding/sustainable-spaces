@@ -20,7 +20,7 @@ const createPropertyFields = {
   lotAreaUnits: z.string(),
   tax: z.number({ coerce: true }),
   annualHomeownersInsurance: z.number({ coerce: true }),
-  zillowLink: z.string().optional(),
+  zillowLink: z.string().optional().nullable(),
   garage: z.number({ coerce: true }).optional(),
   parcelId: z.string(),
   ownerId: z.number({ coerce: true }),
@@ -168,7 +168,7 @@ export class DatabaseProperty implements PropertyDataStructure {
   lotAreaUnits: string;
   tax: number;
   annualHomeownersInsurance: number;
-  zillowLink: string | undefined;
+  zillowLink: string | undefined | null;
   garage: number | undefined;
   parcelId: string;
   ownerId: number;
