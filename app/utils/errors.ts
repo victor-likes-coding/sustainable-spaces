@@ -13,6 +13,7 @@ type ErrorCodes =
   | "20000"
   | "20001"
   | "20002"
+  | "20003"
   | "30000"
   | "60000"
   | "60001";
@@ -38,6 +39,7 @@ class BaseError extends Error {
       "An error occurred while processing the property data. Please try again.",
     20002:
       "A listing for this address already exists. You may report the property on that property page. You'll be redirected in 3 seconds.",
+    20003: "You're not authorized to perform this action. Redirecting...",
     30000: "The server is currently down. Please try again.",
     60000: "GdpCacheNotDetected: GdpCache not detected in the HTML given.",
     60001:
@@ -131,6 +133,14 @@ export class PropertyValidationError extends BaseError {
     super(data);
     this.name = "PropertyValidationError";
     this.message = this.errors["20001"];
+  }
+}
+
+export class UnauthorizedMutationRequestError extends BaseError {
+  constructor(data: BaseErrorProps = {}) {
+    super(data);
+    this.name = "UnauthorizedMutationRequestError";
+    this.message = this.errors["20003"];
   }
 }
 
