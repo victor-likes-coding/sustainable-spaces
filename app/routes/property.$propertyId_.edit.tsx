@@ -1,20 +1,12 @@
 // import { Form, Link } from "@remix-run/react";
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { db } from "~/utils/db.server";
-import invariant from "invariant";
+import { validatePropertyOwner } from "~/utils/helper";
 
 // import Button from "~/components/button";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  invariant(params.propertyId, "Property ID is required");
-  const property = await db.property.findUnique({
-    where: { id: parseFloat(params.propertyId as string) },
-  });
-
-  if (!property) {
-    throw new Response("Not Found", { status: 404 });
-  }
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  const { property } = await validatePropertyOwner(params, request);
 
   return json({
     property,

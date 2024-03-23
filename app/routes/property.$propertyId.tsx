@@ -2,34 +2,22 @@ import { useState, useRef } from "react";
 import { useSwipeable } from "react-swipeable";
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import invariant from "invariant";
 import { Link, useLoaderData } from "@remix-run/react";
 import PurchaseTag from "~/components/purchase-tag";
 import EditSVG from "~/components/svg/Edit";
 import Pill from "~/components/pill";
-import { DatabaseProperty, PropertyService } from "~/models/property";
-import { requireToken } from "~/utils/sessions.server";
-
+import { validatePropertyOwner } from "~/utils/helper";
 // import Button from "~/components/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  const payload = requireToken(request);
-  invariant(params.propertyId, "Property ID is required");
-  const id = parseFloat(params.propertyId as string);
-  const property = await PropertyService.getProperty(id);
+  const { property, payload } = await validatePropertyOwner(params, request);
 
-  if (!property) {
-    throw new Response("Not Found", { status: 404 });
-  }
-
-  const databaseProperty = new DatabaseProperty(property);
-
-  return json({ databaseProperty, payload });
+  return json({ property, payload });
 };
 
 export default function Property() {
   const {
-    databaseProperty: {
+    property: {
       id,
       address: { streetAddress, city, state, zipcode },
       bedrooms,
@@ -44,7 +32,7 @@ export default function Property() {
       ownerId,
       images,
     },
-    payload,
+    payload: { id: userId },
   } = useLoaderData<typeof loader>();
   const [showContent, setShowContent] = useState(false);
   const handler = useSwipeable({
@@ -95,12 +83,14 @@ export default function Property() {
             >
               {streetAddress}
               {/* // edit button */}
-              <Link
-                to={`/properties/${id}/edit`}
-                className="absolute right-0 top-0"
-              >
-                <EditSVG size={1.5} />
-              </Link>
+              {ownerId === userId && (
+                <Link
+                  to={`/properties/${id}/edit`}
+                  className="absolute right-0 top-0"
+                >
+                  <EditSVG size={1.5} />
+                </Link>
+              )}
               <br />
               {city}, {state}, {zipcode}
             </section>
