@@ -2,7 +2,22 @@ import { Address, ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
-import { DataValidationEror, DpgClientCache } from "./errors";
+import {
+  DataValidationEror,
+  DpgClientCache,
+  PropertyNotFoundError,
+  UnauthorizedMutationRequestError,
+} from "./errors";
+import {
+  DatabaseProperty,
+  PropertyData,
+  PropertyDataStructure,
+  PropertyService,
+} from "~/models/property";
+import { requireToken } from "./sessions.server";
+import { Params } from "@remix-run/react";
+import invariant from "invariant";
+import { Property } from "@prisma/client";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -199,3 +214,35 @@ export type {
   ZillowPropertyData,
   AdditionalMutationData,
 };
+
+export async function validateAndRetrieveProperty(
+  { propertyId }: Params<string>,
+  request: Request
+): Promise<{ property: PropertyDataStructure; payload: TokenPayload }> {
+  invariant(propertyId, "Property ID is required");
+  const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
+  const id = parseFloat(propertyId);
+  const property = await PropertyService.getProperty(id);
+
+  if (!property) {
+    throw new PropertyNotFoundError();
+  }
+
+  const databaseProperty = new DatabaseProperty(property);
+  return { property: databaseProperty, payload };
+}
+
+export async function validatePropertyOwner(
+  { propertyId }: Params<string>,
+  request: Request
+) {
+  const { property, payload } = await validateAndRetrieveProperty(
+    { propertyId },
+    request
+  );
+  if (property.ownerId !== payload.id) {
+    throw new UnauthorizedMutationRequestError();
+  }
+
+  return { property, payload };
+}
