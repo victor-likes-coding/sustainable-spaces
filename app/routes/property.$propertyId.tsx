@@ -3,8 +3,9 @@ import { useSwipeable } from "react-swipeable";
 
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import invariant from "invariant";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import PurchaseTag from "~/components/purchase-tag";
+import EditSVG from "~/components/svg/Edit";
 import Pill from "~/components/pill";
 import { DatabaseProperty, PropertyService } from "~/models/property";
 import { requireToken } from "~/utils/sessions.server";
@@ -29,6 +30,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 export default function Property() {
   const {
     databaseProperty: {
+      id,
       address: { streetAddress, city, state, zipcode },
       bedrooms,
       bathrooms,
@@ -87,11 +89,18 @@ export default function Property() {
         <div className="w-full px-4 pt-2 divide-y flex flex-col gap-3">
           <div className="padded-wrapper  flex flex-col gap-1 pb-2">
             <section
-              className="address-row text-md font-bold"
+              className="address-row text-md font-bold relative"
               data-testid="swipeableFocus"
               ref={focusRef}
             >
               {streetAddress}
+              {/* // edit button */}
+              <Link
+                to={`/properties/${id}/edit`}
+                className="absolute right-0 top-0"
+              >
+                <EditSVG size={1.5} />
+              </Link>
               <br />
               {city}, {state}, {zipcode}
             </section>
