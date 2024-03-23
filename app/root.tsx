@@ -30,7 +30,7 @@ export default function App() {
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
-          <footer className="bg-dark text-white p-4 text-[.6rem] px-8 relative z-100 bottom-0 left-0">
+          <footer className="bg-dark text-white p-4 text-[.6rem] px-8 relative z-100 bottom-0 left-0 xsmall:hidden">
             <nav className="flex justify-between flex-wrap">
               <div className="col-wrapper flex flex-col gap-2">
                 <div className="underline">Useful Links</div>
