@@ -68,7 +68,7 @@ export default function Property() {
       <div
         {...handler}
         className={`swipeable-container w-full relative z-30 bottom-0 left-0 transition-transform duration-300 transform pb-3 ${
-          showContent ? "-translate-y-0 h-full" : "translate-y-[34%] h-[34%] "
+          showContent ? "-translate-y-0 h-full" : "translate-y-[55vh] h-[34%] "
         }`}
       >
         <Pill showContent={showContent} />
