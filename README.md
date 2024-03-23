@@ -101,128 +101,152 @@ The initial MVP will have the following features:
 - Manage "Escrow" for property tax / Insurance
 - Withdrawal to bank
 
-Schedule:
+## Schedule:
 
-2/19: Rewrite ReadMe to include project details / MVP details / app mechanics ✅, create Property form/page (WIP)
+### 3/22:
 
-- Add Places API search input for address autocomplete
-- Create a way to scrape zillow data
-  - Implementation details:
-    - utilize the Fetch API to request a modified address string from the Places API in a way zillow recognizes. Receive the HTML string and search for a specific pattern to parse to JSON.
-  - Issues:
-    - CORS when sending a request from the client
-  - Fixes:
-    - Make a fetch call to another route that performs a server-side action.
+**TODOs::**
 
-2/20: continue creating Property Form/page
+- Fetch images to include in the properties page.
+- Add an edit route for specific properties owned by the user.
+- Create a view for user-owned properties.
+- Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok.
 
-- Refactor the code into separate helper functions to declutter event from Autocomplete component.
-- Added the form and various input elements as well as pulling zillow property data and placing them in the respective input/textarea elements.
-  - Issues:
-    - Zillow has rate limited me or blocked my IP
-  - Fixes:
-    - Requested access to zillow public data api
+**Changelog:**
 
-2/21: Continue Add property form
+**Issues:**
 
-- Goals:
-  - Use puppeteer to scrape property data
-- Actual:
-  - Utilize the original form of querying zillow via the ip address given by remix. Save address information locally into files for easier retrieval. Next steps are to save the data into the database. We've refactored our Property Model to reflect the information given from zillow. The add form needs a few more pieces of information to be complete and to then be added to database.
+### 3/21:
 
-2/22 - 2/25: Uber/Lyfting so no code progression.
-
-2/26: Did not code really, took an extra day to do wholesaling real estate
-
-2/27: Continue on Add Form
-
-Goals:
-
-- Work on puppeteer to extract data like the other method of fetching
-- Obtain HOA/Insurance/Tax information, add appropriate input fields
-- Add property into database, remove local file data
-
-Actual:
-
-- Got puppeteer to extract data like insurance information
-- Major refactor of the getZillowData route
-
-2/28: Continue the Add Form
-
-Goals:
-
-- Display modal on generic error message
-- Display errors on missing information from zillow scrape on inputs
-- Loading screen for fetching
-- Maybe add data to database?
-
-Actual:
-
-- I did not work on this today, worked on real estate whole saling.
-
-Today: Maybe work on Add Form
-
-Goals:
-
-- See Above (2/28)
-
-3/12:
-
-Resuming from 2/28.
-Accomplished Today:
-
-- Rework error messages / class
-- Install NextUI
-- Create a fallback on fetching zillow data when the first method doesn't work
-- Filter zillow data
-- Add Spinner for data fetching property information from zillow
-
-3/13:
-
-We have beaten Zillow's anti-fetching mechanisms. Created a fallback for when fetching gives a forbidden response via puppeteer.
-
-Accomplishments today:
-
-- Create fallback on zillow scraping.
-- Add Zod for validating data.
-- Add property into database
-- Fix an issue regarding sessions
-
-Next steps:
-
-- Validate/Verify true ownership of property (maybe later)
-- View/Manage property (/user/{id}/property)
-- Fix View Properties page (/property)
-- Delete local copy of data
-- UI updates / navigation bar at the bottom / quick menus
-
-3/14:
-
-What we've done today:
-
-- Fix the `/property` route to now show a more eloquent version of a card without a background. Will need multiple properties to check.
-- Fix the `/property/{id}` route to match database types and display appropriate information.
-- Update error handling for properties existing in the database. Redirects/Navigates to the page of existing property.
-- Remove local file management. Functions still exist but are basically deprecated.
-
-3/21:
-
-Changelog:
+**Changelog:**
 
 - Fix redirect in property creation action to refer to the correct object that holds property data.
 - Implement image upload for new properties.
-- Refactor Place API into it's own component
-- Hook a cloud storage provider to save images and save link to database
-- Refactor form into it's own component
-- Fetch images to include in property card
+- Refactor Place API into its own component.
+- Hook a cloud storage provider to save images and save link to database.
+- Refactor form into its own component.
+- Fetch images to include in property card.
 
-Known Issues:
+**Known Issues:**
 
-- Zillow will periodically ask for human to confirm if they're not a bot causing the property fetch mechanism to fail
+- Zillow will periodically ask for human confirmation to verify they're not a bot, causing the property fetch mechanism to fail.
 
-Things to Do:
+**Things to Do:**
 
-- Fetch images to include in the properties page
-- Add an edit route for specific properties owned by user
-- Create a view for user owned properties
-- Create a new Navbar (Home | Properties | Inbox | Profile) kind of like Tiktok
+- Fetch images to include in the properties page.
+- Add an edit route for specific properties owned by the user.
+- Create a view for user-owned properties.
+- Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok.
+
+### 3/14:
+
+**What we've done today:**
+
+- Fix the `/property` route to now show a more eloquent version of a card without a background. Will need multiple properties to check.
+- Fix the `/property/{id}` route to match database types and display appropriate information.
+- Update error handling for properties existing in the database. Redirects/Navigates to the page of the existing property.
+- Remove local file management. Functions still exist but are basically deprecated.
+
+### 3/13:
+
+**Accomplishments today:**
+
+- Beaten Zillow's anti-fetching mechanisms. Created a fallback for when fetching gives a forbidden response via puppeteer.
+- Create fallback on Zillow scraping.
+- Add Zod for validating data.
+- Add property into the database.
+- Fix an issue regarding sessions.
+
+**Next steps:**
+
+- Validate/Verify true ownership of the property (maybe later).
+- View/Manage property (/user/{id}/property).
+- Fix View Properties page (/property).
+- Delete local copy of data.
+- UI updates / navigation bar at the bottom / quick menus.
+
+### 3/12:
+
+**Accomplished Today:**
+
+- Rework error messages/class.
+- Install NextUI.
+- Create a fallback on fetching Zillow data when the first method doesn't work.
+- Filter Zillow data.
+- Add Spinner for data fetching property information from Zillow.
+
+### 2/28:
+
+**Continue the Add Form**
+
+**Goals:**
+
+- Display modal on generic error message.
+- Display errors on missing information from Zillow scrape on inputs.
+- Loading screen for fetching.
+- Maybe add data to database?
+
+**Actual:**
+
+- Did not work on this today, worked on real estate wholesaling.
+
+**Today:**
+
+- Goals: See Above (2/28).
+
+### 2/27:
+
+**Continue on Add Form**
+
+**Goals:**
+
+- Work on puppeteer to extract data like the other method of fetching.
+- Obtain HOA/Insurance/Tax information, add appropriate input fields.
+- Add property into the database, remove local file data.
+
+**Actual:**
+
+- Got puppeteer to extract data like insurance information.
+- Major refactor of the getZillowData route.
+
+### 2/26:
+
+- Did not code really, took an extra day to do wholesaling real estate.
+
+### 2/22 - 2/25:
+
+- Uber/Lyfting so no code progression.
+
+### 2/21:
+
+**Continue Add property form**
+
+- **Goals:**
+
+  - Use puppeteer to scrape property data.
+
+- **Actual:**
+  - Utilize the original form of querying Zillow via the IP address given by remix. Save address information locally into files for easier retrieval. Next steps are to save the data into the database. We've refactored our Property Model to reflect the information given from Zillow. The add form needs a few more pieces of information to be complete and then be added to the database.
+
+### 2/20:
+
+**continue creating Property Form/page**
+
+- Refactor the code into separate helper functions to declutter the event from the Autocomplete component.
+- Added the form and various input elements as well as pulling Zillow property data and placing them in the respective input/textarea elements.
+  - **Issues:**
+    - Zillow has rate limited me or blocked my IP.
+  - **Fixes:**
+    - Requested access to Zillow public data API.
+
+### 2/19:
+
+**Rewrite ReadMe to include project details / MVP details / app mechanics** ✅, **create Property form/page** (WIP)
+
+- Add Places API search input for address autocomplete.
+- Create a way to scrape Zillow data.
+  - **Implementation details:**
+    - Utilize the Fetch API to request a modified address string from the Places API in a way Zillow recognizes. Receive the HTML string and search for a specific pattern to parse it to JSON.
+  - **Issues:**
+    - CORS when sending a request from the client.
+  - **Fixes:**
