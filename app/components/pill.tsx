@@ -6,7 +6,7 @@ type Props = {
   handler?: SwipeableHandlers;
 };
 
-const Pill = ({ showContent, className, handler }: Props) => {
+const Pill = ({ showContent, className = "", handler }: Props) => {
   // ! TODO: Fix swipeable handlers to work on pill
   const customClassName =
     `relative border-t rounded-md transition-all duration-300 ease-in-out ${
