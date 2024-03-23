@@ -61,7 +61,7 @@ export default function Property() {
     <div className="w-screen h-auto bg-white relative z-10 top-0 left-0 overflow-y-scroll">
       <div
         className={`images-wrapper w-full transition-all duration-300 ease-in-out ${
-          showContent ? "h-0" : "h-[66%]"
+          showContent ? "h-0 hidden" : "h-[66%]"
         } relative z-20 top-0 left-0 scroll-smooth`}
       ></div>
 
