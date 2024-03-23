@@ -46,7 +46,7 @@ model Property {
   latitude Float
   description String
   homeType String
-  parcelId String
+  parcelId String @unique
   lotSize Int
   lotAreaUnits String
   livingArea Int
