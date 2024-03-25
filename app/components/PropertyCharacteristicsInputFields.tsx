@@ -1,5 +1,4 @@
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
-import { PurchaseMethod } from "@prisma/client";
 import { ChangeEvent } from "react";
 import { separateAndCapitalize } from "~/utils/helper";
 
