@@ -9,30 +9,34 @@ type Props = {
 };
 
 const AddressInputFields = ({ address, setProperty }: Props) => {
-  const inputs = (Object.keys(address) as Array<keyof AddressData>).map(
-    (value, index) => {
-      return (
-        <div
-          className={"input-row mb-4".concat(
-            value === "zipcode" || value === "state"
-              ? " flex-shrink w-[48%]"
-              : " w-[100%] flex-grow"
-          )}
-          key={`address-${index}`}
-        >
-          <Input
-            label={separateAndCapitalize(value)}
-            type="text"
-            name={value}
-            id={value}
-            value={address[value]}
-            className="rounded-sm  text-secondary"
-            onChange={(e) => setProperty(e)}
-          />
-        </div>
-      );
-    }
-  );
+  const orderOfInputs: Array<keyof AddressData> = [
+    "streetAddress",
+    "city",
+    "state",
+    "zipcode",
+  ];
+  const inputs = orderOfInputs.map((value, index) => {
+    return (
+      <div
+        className={"input-row mb-4".concat(
+          value === "zipcode" || value === "state"
+            ? " flex-shrink w-[48%]"
+            : " w-[100%] flex-grow"
+        )}
+        key={`address-${index}`}
+      >
+        <Input
+          label={separateAndCapitalize(value)}
+          type="text"
+          name={value}
+          id={value}
+          value={address[value]}
+          className="rounded-sm  text-secondary"
+          onChange={(e) => setProperty(e)}
+        />
+      </div>
+    );
+  });
 
   return <div className="flex flex-wrap justify-between">{inputs}</div>;
 };

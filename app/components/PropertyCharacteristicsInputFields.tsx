@@ -1,4 +1,5 @@
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
+import { PurchaseMethod } from "@prisma/client";
 import { ChangeEvent } from "react";
 import { separateAndCapitalize } from "~/utils/helper";
 
@@ -21,9 +22,17 @@ type Props = {
 };
 
 const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
-  const inputs = (
-    Object.keys(data) as Array<keyof PropertyCharacteristics>
-  ).map((value, index) => {
+  const orderOfInputs: Array<keyof PropertyCharacteristics> = [
+    "bedrooms",
+    "bathrooms",
+    "description",
+    "lotSize",
+    "livingArea",
+    "yearBuilt",
+    "purchaseMethod",
+    "price",
+  ];
+  const inputs = orderOfInputs.map((value, index) => {
     const { purchaseMethod } = data;
     const InputElement =
       value === "description" ? (
