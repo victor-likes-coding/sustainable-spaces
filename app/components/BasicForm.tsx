@@ -9,17 +9,12 @@ type Props = {
 };
 
 export default function BasicForm({
-  onSubmit,
   children,
   className = "",
   ...props
 }: Props) {
   return (
-    <Form
-      onSubmit={onSubmit}
-      className={``.concat(className).trim()}
-      {...props}
-    >
+    <Form className={``.concat(className).trim()} {...props}>
       {children}
     </Form>
   );
