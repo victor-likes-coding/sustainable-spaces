@@ -85,7 +85,7 @@ export default function Property() {
               {/* // edit button */}
               {ownerId === userId && (
                 <Link
-                  to={`/properties/${id}/edit`}
+                  to={`/property/${id}/edit`}
                   className="absolute right-0 top-0"
                 >
                   <EditSVG size={1.5} />
