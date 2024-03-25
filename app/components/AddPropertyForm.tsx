@@ -1,9 +1,12 @@
 import BasicForm from "./BasicForm";
-import { useState } from "react";
-import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
+import { ChangeEvent, useState } from "react";
+import { Button } from "@nextui-org/react";
 import Upload from "./Upload";
 import { useSubmit } from "@remix-run/react";
 import { FormDataType } from "~/routes/property.add._index";
+import AddressInputFields from "./AddressInputFields";
+import PropertyCharacteristicsInputFields from "./PropertyCharacteristicsInputFields";
+import HiddenPropertyFields, { HiddenFields } from "./HiddenPropertyFields";
 
 type Props = {
   className?: string;
@@ -37,312 +40,76 @@ export default function AddPropertyForm({
 
     submit(formData, { encType: "multipart/form-data", method: "post" });
   };
+
+  const handleAddressChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setProperty((prevProperty) => ({
+      ...prevProperty,
+      address: {
+        ...prevProperty.address,
+        [event.target.name]: event.target.value,
+      },
+    }));
+  };
+
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setProperty((prevProperty) => ({
+      ...prevProperty,
+      [event.target.name]:
+        event.target.tagName === "INPUT"
+          ? event.target.value
+          : (event.target.value as "rent" | "sell"),
+    }));
+  };
+
+  const {
+    bedrooms,
+    bathrooms,
+    description,
+    lotSize,
+    livingArea,
+    yearBuilt,
+    purchaseMethod,
+    price,
+    ...rest
+  } = property;
+
+  const { address, ...hidden } = rest;
+
+  const propertyCharacteristicsData = {
+    bedrooms,
+    bathrooms,
+    description,
+    lotSize,
+    livingArea,
+    yearBuilt,
+    purchaseMethod,
+    price,
+  };
+
   return (
     <BasicForm {...props} onSubmit={handleSubmit}>
-      <div className="input-group w-full flex flex-col">
-        <Input
-          label="Street Address"
-          id="streetAddress"
-          type="text"
-          name="streetAddress"
-          className="rounded-sm  text-secondary"
-          value={property?.address.streetAddress}
-          onChange={(e) => {
-            setProperty((prevProperty) => ({
-              ...prevProperty,
-              address: {
-                ...prevProperty.address,
-                streetAddress: e.target.value,
-              },
-            }));
-          }}
-        />
-      </div>
-      <div className="input-group flex flex-col w-full grow">
-        <Input
-          label="City"
-          type="text"
-          name="city"
-          id="city"
-          value={property?.address.city}
-          className="rounded-sm  text-secondary"
-          onChange={(e) =>
-            setProperty((prevProperty) => ({
-              ...prevProperty,
-              address: {
-                ...prevProperty.address,
-                city: e.target.value,
-              },
-            }))
-          }
-        />
-      </div>
-      <div className="flex justify-between">
-        <div className="input-group flex flex-col w-[34%]">
-          <Input
-            label="State"
-            type="text"
-            name="state"
-            id="state"
-            value={property?.address.state}
-            className="rounded-sm  text-secondary"
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                address: {
-                  ...prevProperty.address,
-                  state: e.target.value,
-                },
-              }))
-            }
-          />
-        </div>
+      <AddressInputFields address={address} setProperty={handleAddressChange} />
+      <PropertyCharacteristicsInputFields
+        data={propertyCharacteristicsData}
+        setProperty={handleChange}
+      />
 
-        <div className="input-group flex flex-col">
-          <Input
-            label="Zipcode"
-            type="text"
-            name="zipcode"
-            className="rounded-sm  text-secondary"
-            id="zipcode"
-            value={property?.address.zipcode}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                address: {
-                  ...prevProperty.address,
-                  zipcode: e.target.value,
-                },
-              }))
-            }
-          />
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <div className="input-group w-[48%] flex flex-col">
-          <Input
-            label="Bedrooms"
-            name="bedrooms"
-            className="rounded-sm  text-secondary"
-            id="bedrooms"
-            value={property?.bedrooms}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                bedrooms: e.target.value,
-              }))
-            }
-          />
-        </div>
-        <div className="input-group w-[48%] flex flex-col">
-          <Input
-            label="Bathrooms"
-            type="number"
-            name="bathrooms"
-            className="rounded-sm  text-secondary"
-            id="bathrooms"
-            value={property?.bathrooms}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                bathrooms: e.target.value,
-              }))
-            }
-          />
-        </div>
-      </div>
-      <div className="input-group w-full flex flex-col">
-        <Textarea
-          label="Description"
-          className="rounded-sm text-secondary text-xs"
-          aria-label="description"
-          rows={10}
-          name="description"
-          id="description"
-          value={property?.description}
-          onChange={(e) =>
-            setProperty((prevProperty) => ({
-              ...prevProperty,
-              description: e.target.value,
-            }))
-          }
-        />
-      </div>
-      <div className="flex justify-between">
-        <div className="input-group w-[48%] flex flex-col">
-          <Input
-            type="number"
-            name="lotSize"
-            label="Lot Size (sqft)"
-            className="rounded-sm  text-secondary"
-            id="lotSize"
-            value={property?.lotSize}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                lotSize: e.target.value,
-              }))
-            }
-          />
-        </div>
-        <div className="input-group w-[48%] flex flex-col">
-          <Input
-            label="Living Area (sqft)"
-            type="number"
-            name="livingArea"
-            className="rounded-sm  text-secondary"
-            id="livingArea"
-            value={property?.livingArea}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                livingArea: e.target.value,
-              }))
-            }
-          />
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <div className="input-group w-[48%] flex flex-col">
-          <Input
-            label="Year Built"
-            type="number"
-            name="yearBuilt"
-            className="rounded-sm  text-secondary"
-            id="yearBuilt"
-            value={property?.yearBuilt}
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                yearBuilt: e.target.value,
-              }))
-            }
-          />
-        </div>
-
-        <div className="input-group w-[48%] flex flex-col">
-          <Select
-            selectionMode="single"
-            placeholder="Select an option"
-            label="Purchase Method"
-            name="purchaseMethod"
-            defaultSelectedKeys={["sell"]}
-            className="rounded-sm pl-1 text-secondary"
-            id="purchaseMethod"
-            onChange={(e) =>
-              setProperty((prevProperty) => ({
-                ...prevProperty,
-                purchaseMethod: e.target.value as "rent" | "sell",
-              }))
-            }
-          >
-            <SelectItem value="rent" key="rent">
-              Rent
-            </SelectItem>
-            <SelectItem value="sell" key="sell">
-              Sell
-            </SelectItem>
-          </Select>
-        </div>
-      </div>
-      <div className="input-group w-full flex flex-col">
-        <Input
-          label={property.purchaseMethod === "rent" ? "Rent" : "Price"}
-          id="price"
-          name="price"
-          value={property?.price}
-          className="rounded-sm  text-secondary"
-          onChange={(e) => {
-            setProperty((prevProperty) => ({
-              ...prevProperty,
-              price: e.target.value,
-            }));
-          }}
-        />
-      </div>
-      <Input
-        type="number"
-        className="hidden"
-        name="zpid"
-        value={property?.zpid}
-        readOnly
+      <HiddenPropertyFields hiddenFields={hidden as HiddenFields} />
+      <Upload
+        files={fileData}
+        setFiles={setFileData}
+        style={{
+          upload: "mb-4",
+        }}
       />
-      <Input
-        type="text"
-        className="hidden"
-        name="homeType"
-        value={property?.homeType}
-        readOnly
-      />
-      <Input
-        type="number"
-        className="hidden"
-        name="latitude"
-        value={property?.latitude}
-        readOnly
-      />
-      <Input
-        type="number"
-        className="hidden"
-        name="longitude"
-        value={property?.longitude}
-        readOnly
-      />
-      <Input
-        type="text"
-        className="hidden"
-        name="livingAreaUnits"
-        value={property?.livingAreaUnits}
-        readOnly
-      />
-      <Input
-        type="text"
-        className="hidden"
-        name="lotAreaUnits"
-        value={property?.lotAreaUnits}
-        readOnly
-      />
-      <Input
-        type="number"
-        className="hidden"
-        name="tax"
-        value={property?.tax}
-        readOnly
-      />
-      <Input
-        type="number"
-        className="hidden"
-        name="annualHomeownersInsurance"
-        value={property?.annualHomeownersInsurance}
-        readOnly
-      />
-      <Input
-        type="text"
-        className="hidden"
-        name="zillowLink"
-        value={property?.zillowLink}
-        readOnly
-      />
-      <Input
-        type="number"
-        className="hidden"
-        value={property?.garage}
-        readOnly
-      />
-      <Input
-        type="text"
-        className="hidden"
-        name="parcelId"
-        value={property?.parcelId}
-        readOnly
-      />
-      <Upload files={fileData} setFiles={setFileData} />
-      <button
+      <Button
         type="submit"
-        className="rounded-sm bg-secondary py-2 text-xs font-bold text-white mt-2 mb-4"
+        className=" bg-secondary text-xs font-bold text-white mb-4"
       >
         Add
-      </button>
+      </Button>
     </BasicForm>
   );
 }
