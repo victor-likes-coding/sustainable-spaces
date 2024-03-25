@@ -103,16 +103,25 @@ The initial MVP will have the following features:
 
 ## Schedule:
 
+### 3/25:
+
+**Changelog:**
+
+- Refactor Add form to be separated into components
+- Work on edit route
+- Remove current navbar at the current xsmall screen
+
 ### 3/22:
 
-**TODOs::**
+**TODOs:**
 
-- Fetch images to include in the properties page.
 - Add an edit route for specific properties owned by the user.
 - Create a view for user-owned properties.
 - Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok.
 
 **Changelog:**
+
+- Fetch images to include in the properties page.
 
 **Issues:**
 
