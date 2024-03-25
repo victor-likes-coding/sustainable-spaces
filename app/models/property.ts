@@ -3,6 +3,7 @@ import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
 import { databaseImageFields, ImageSchema } from "./Image";
+import { FormDataType } from "~/routes/property.add._index";
 
 const createPropertyFields = {
   zpid: z.number({ coerce: true }),
@@ -94,6 +95,36 @@ export type PropertyDataStructure = z.infer<typeof propertySchema>; // use for p
 // it is not used for data that comes from the database
 
 export abstract class PropertyService {
+  static createEmptyProperty(): FormDataType {
+    return {
+      zpid: "0",
+      address: {
+        streetAddress: "",
+        city: "",
+        state: "",
+        zipcode: "",
+      },
+      bedrooms: "0",
+      bathrooms: "0",
+      description: "",
+      lotSize: "0",
+      livingArea: "0",
+      yearBuilt: "0",
+      purchaseMethod: "sell",
+      price: "0",
+      homeType: "",
+      latitude: "0",
+      longitude: "0",
+      livingAreaUnits: "",
+      lotAreaUnits: "",
+      tax: "0",
+      annualHomeownersInsurance: "0",
+      zillowLink: "",
+      garage: "0",
+      parcelId: "",
+    };
+  }
+
   static getProperties(): Promise<PropertyData[]> {
     return db.property.findMany({ include: { images: true } });
   }

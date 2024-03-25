@@ -118,34 +118,9 @@ export default function Index() {
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const navigate = useNavigate();
+  const emptyProperty: FormDataType = PropertyService.createEmptyProperty();
 
-  const [property, setProperty] = useState<FormDataType>({
-    zpid: "0",
-    address: {
-      streetAddress: "",
-      city: "",
-      state: "",
-      zipcode: "",
-    },
-    bedrooms: "0",
-    bathrooms: "0",
-    description: "",
-    lotSize: "0",
-    livingArea: "0",
-    yearBuilt: "0",
-    purchaseMethod: "sell",
-    price: "0",
-    homeType: "",
-    latitude: "0",
-    longitude: "0",
-    livingAreaUnits: "",
-    lotAreaUnits: "",
-    tax: "0",
-    annualHomeownersInsurance: "0",
-    zillowLink: "",
-    garage: "0",
-    parcelId: "",
-  });
+  const [property, setProperty] = useState<FormDataType>(emptyProperty);
 
   const [errors, setErrors] = useState({
     address: "",
@@ -235,7 +210,7 @@ export default function Index() {
               method="post"
               setProperty={setProperty}
               property={property}
-              className="flex flex-col gap-3 mt-4 text-black"
+              className="flex flex-col mt-4 text-black"
             />
           </div>
         </main>
