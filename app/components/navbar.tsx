@@ -9,7 +9,7 @@ type Props = {
 const Navbar = ({ className, isLoggedIn }: Props) => {
   return (
     <nav
-      className={`w-screen bg-primary sticky top-0 left-0 px-2 pr-4 border-b border-b-green-700 z-10 flex justify-between items-center ${
+      className={`xsmall:hidden w-screen bg-primary sticky top-0 left-0 px-2 pr-4 border-b border-b-green-700 z-30 flex justify-between items-center ${
         className ? className : ""
       }`.trim()}
     >
