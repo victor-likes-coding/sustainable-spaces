@@ -2,14 +2,17 @@ import { ChangeEvent } from "react";
 
 type Props = {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
 };
 
-export default function InputFileUpload({ onChange }: Props) {
+export default function InputFileUpload({ onChange, className = "" }: Props) {
   return (
     <>
       <button
         type="button"
-        className="flex w-full bg-sky-400 text-white p-2 justify-center text-sm py-4 rounded-lg"
+        className={"flex w-full bg-sky-400 text-white p-2 justify-center text-sm py-4 rounded-lg "
+          .concat(className)
+          .trim()}
         onClick={() => {
           const input = document.getElementById("file");
           input?.click();

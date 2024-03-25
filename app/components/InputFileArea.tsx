@@ -3,11 +3,20 @@ import TrashSVG from "./svg/Trash";
 type Props = {
   files: FileList | null;
   onRemove?: (index: number) => void;
+  className?: string;
 };
 
-export default function InputFileArea({ files, onRemove }: Props) {
+export default function InputFileArea({
+  files,
+  onRemove,
+  className = "",
+}: Props) {
   return files && files.length > 0 ? (
-    <div className="flex flex-col items-center justify-center w-full bg-gray-500 rounded-lg border-dashed border-3 border-gray-700 px-4 gap-2 py-2 text-white overflow-y-scroll">
+    <div
+      className={"flex flex-col items-center justify-center w-full bg-gray-500 rounded-lg border-dashed border-3 border-gray-700 px-4 gap-2 py-2 text-white overflow-y-scroll "
+        .concat(className)
+        .trim()}
+    >
       {Array.from(files).map((file, index) => (
         <div
           key={index}

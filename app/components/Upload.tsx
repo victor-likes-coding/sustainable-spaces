@@ -4,9 +4,13 @@ import InputFileUpload from "./InputFileUpload";
 type Props = {
   files: FileList | null;
   setFiles: (files: FileList | null) => void;
+  style: {
+    upload?: string;
+    uploadArea?: string;
+  };
 };
 
-export default function Upload({ files, setFiles }: Props) {
+export default function Upload({ files, setFiles, style }: Props) {
   const handleRemove = (index: number) => {
     if (files) {
       const newFiles = Array.from(files);
@@ -35,8 +39,12 @@ export default function Upload({ files, setFiles }: Props) {
 
   return (
     <>
-      <InputFileUpload onChange={handleChange} />
-      <InputFileArea onRemove={handleRemove} files={files} />
+      <InputFileUpload onChange={handleChange} className={style.upload} />
+      <InputFileArea
+        onRemove={handleRemove}
+        files={files}
+        className={style.uploadArea}
+      />
     </>
   );
 }
