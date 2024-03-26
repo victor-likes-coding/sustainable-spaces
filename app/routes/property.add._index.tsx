@@ -148,6 +148,7 @@ export default function Index() {
       propertyData?: any; // ! TODO: place proper data type
     };
     if (!place) return;
+
     try {
       setIsLoading(true);
       const serverResponse = await fetch("/getZillowData", {
@@ -158,13 +159,12 @@ export default function Index() {
         body: JSON.stringify({ url: createZillowUrl(place), address: place }),
       });
       jsonPayload = await serverResponse.json();
+      if (jsonPayload.error === "PropertyAlreadyExistsError")
+        throw new PropertyAlreadyExistsError();
+
       const { propertyData } = jsonPayload;
-      if (!propertyData) {
-        if (jsonPayload.error === "PropertyAlreadyExistsError") {
-          throw new PropertyAlreadyExistsError();
-        }
-        throw new PropertyNotFoundError();
-      }
+
+      if (!propertyData) throw new PropertyNotFoundError();
 
       setProperty((prevProperty) => ({
         ...prevProperty,
