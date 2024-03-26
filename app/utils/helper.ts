@@ -1,4 +1,4 @@
-import { Address, ZillowPropertyData } from "./../models/property.d";
+import { ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
 import { userAuthData } from "~/models/user";
@@ -9,15 +9,14 @@ import {
   UnauthorizedMutationRequestError,
 } from "./errors";
 import {
+  AddressData,
   DatabaseProperty,
-  PropertyData,
   PropertyDataStructure,
   PropertyService,
 } from "~/models/property";
 import { requireToken } from "./sessions.server";
 import { Params } from "@remix-run/react";
 import invariant from "invariant";
-import { Property } from "@prisma/client";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -166,8 +165,8 @@ function filterObject(obj: any): Partial<ZillowPropertyData> {
   for (const key of dataKeys) {
     if (keys.includes(key as string)) {
       if (addressKeys.includes(key as string)) {
-        filteredObject.address = filteredObject.address || ({} as Address);
-        filteredObject.address[key as keyof Address] = obj[key];
+        filteredObject.address = filteredObject.address || ({} as AddressData);
+        filteredObject.address[key as keyof AddressData] = obj[key];
       } else {
         filteredObject[key] = obj[key];
       }
@@ -258,4 +257,18 @@ export function separateAndCapitalize(str: string) {
 
   // Join all the words back together
   return capitalizedWords.join(" ");
+}
+
+export function prepareFormData<T>(data: T, fileData: FileList | null) {
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(data));
+
+  // append all files to the form data
+  if (fileData) {
+    for (let i = 0; i < fileData.length; i++) {
+      formData.append("files", fileData[i]);
+    }
+  }
+
+  return formData;
 }
