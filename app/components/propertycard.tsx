@@ -1,9 +1,10 @@
 import { Image } from "@nextui-org/react";
-import { Link } from "@remix-run/react";
+import { Link, useNavigation } from "@remix-run/react";
 import { PropertyDataStructure } from "~/models/property";
 import Loader from "./Loader";
 
 const PropertyCard = (property?: PropertyDataStructure) => {
+  const navigate = useNavigation();
   if (!property) {
     return null;
   }
