@@ -119,7 +119,7 @@ export default function Signup() {
   return (
     <>
       <Navbar />
-      <div className="w-full h-without-nav-fixed bg-primary text-white">
+      <div className="w-full h-without-nav-fixed bg-custom-primary text-white">
         <main className="px-4 h-full flex flex-col justify-center pb-32">
           <div className="w-full px-2">
             <h1

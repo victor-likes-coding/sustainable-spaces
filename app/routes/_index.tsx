@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, json } from "@remix-run/react";
 import Button from "~/components/button";
+import Footer from "~/components/Footer";
 import Navbar from "~/components/navbar";
 import { checkForToken } from "~/utils/sessions.server";
 
@@ -23,7 +24,7 @@ export default function Index() {
   return (
     <>
       <Navbar />
-      <div className="w-full h-without-nav-fixed bg-primary">
+      <div className="w-full h-without-nav-fixed bg-custom-primary">
         <main className="px-16 h-full flex justify-center align-middle flex-col text-center">
           <h1 className="text-3xl mb-5">
             Welcome to{" "}
@@ -33,6 +34,7 @@ export default function Index() {
           <Link to={"/about"} className="text-sm mt-2 underline">
             Learn more
           </Link>
+          <Footer isVisible />
         </main>
       </div>
     </>

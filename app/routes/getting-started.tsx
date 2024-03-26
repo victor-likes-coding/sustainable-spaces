@@ -22,7 +22,7 @@ export default function Index() {
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} />
-      <div className="w-full h-without-nav-auto bg-primary">
+      <div className="w-full h-screen bg-custom-primary">
         <main className="px-8 h-full flex align-middle flex-col text-center py-6">
           <h1 className="text-2xl font-bold text-white mb-4">I want to...</h1>
           <div className="services w-full flex gap-6 flex-col">

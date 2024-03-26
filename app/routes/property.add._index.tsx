@@ -199,7 +199,7 @@ export default function Index() {
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} />
-      <div className={`w-full h-without-nav-auto bg-primary text-white`}>
+      <div className={`w-full h-without-nav-auto bg-custom-primary text-white`}>
         <main className="h-full flex flex-col pt-6">
           <div className="w-full px-4">
             <PlacesSearch

@@ -32,7 +32,7 @@ export default function Property() {
   return (
     <>
       {/* <Navbar isLoggedIn={isLoggedIn} /> */}
-      <div className={`w-full ${size} bg-primary text-white`}>
+      <div className={`w-full ${size} bg-custom-primary text-white`}>
         <main className=" h-full flex flex-col pt-3">
           {/* property card container */}
           <div className="properties-list w-full flex flex-col gap-4 pb-4 px-3">

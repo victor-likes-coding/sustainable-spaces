@@ -2,20 +2,23 @@
 // import { Link } from "@remix-run/react";
 
 import Button from "~/components/button";
+import Footer from "~/components/Footer";
 import Navbar from "~/components/navbar";
 
 export default function About() {
   return (
     <>
       <Navbar />
-      <div className="w-full h-without-nav-auto bg-primary text-white">
-        <main className="px-8 h-full flex flex-col gap-4 pb-8">
+      <div className="w-full h-without-nav-auto bg-custom-primary text-white">
+        <main className="xsmall:px-6 small:px-8 h-full flex flex-col gap-4 pb-8">
           <h2 className="text-lg font-bold pt-6 text-center">
             Our Company Goal
           </h2>
           <p className="text-md">
             At{" "}
-            <span className="text-secondary font-bold">Sustainable Spaces</span>
+            <span className="text-custom-secondary font-bold">
+              Sustainable Spaces
+            </span>
             , we are dedicated to creating affordable rental solutions and
             connecting homeowners with those in need of housing. Our
             comprehensive approach simplifies real estate investing, offering
@@ -38,6 +41,7 @@ export default function About() {
           <Button text="Donate Today" className="mt-2" />
         </main>
       </div>
+      <Footer isVisible />
     </>
   );
 }
