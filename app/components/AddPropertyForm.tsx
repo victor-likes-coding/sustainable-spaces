@@ -7,6 +7,7 @@ import { FormDataType } from "~/routes/property.add._index";
 import AddressInputFields from "./AddressInputFields";
 import PropertyCharacteristicsInputFields from "./PropertyCharacteristicsInputFields";
 import HiddenPropertyFields, { HiddenFields } from "./HiddenPropertyFields";
+import { prepareFormData } from "~/utils/helper";
 
 type Props = {
   className?: string;
@@ -28,15 +29,7 @@ export default function AddPropertyForm({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("property", JSON.stringify(property));
-
-    // append all files to the form data
-    if (fileData) {
-      for (let i = 0; i < fileData.length; i++) {
-        formData.append("files", fileData[i]);
-      }
-    }
+    const formData = prepareFormData(property, fileData);
 
     submit(formData, { encType: "multipart/form-data", method: "post" });
   };
