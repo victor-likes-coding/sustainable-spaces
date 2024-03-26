@@ -160,8 +160,7 @@ export abstract class PropertyService {
     // validate we have all the required data
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { zillowLink: _, ...data } =
-        mutationSafePropertyData.parse(property); // will throw if failed
+      const data = mutationSafePropertyData.parse(property); // will throw if failed
 
       // lets tack on the other required properties to create a full property
       // get user from session
