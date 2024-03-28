@@ -35,7 +35,6 @@ const commonPropertyFields = {
   tenantId: z.number({ coerce: true }).optional().nullable(),
   likes: z.array(z.number()).optional(),
   likesCount: z.number().optional(),
-  timestamp: z.string().optional(),
 };
 
 const propertyFeeFields = {
@@ -47,12 +46,20 @@ const propertyFeeFields = {
 
 const propertyDataFields = {
   id: z.number(),
-  updated: z.string().datetime().or(z.date()),
-  created: z.string().datetime().or(z.date()),
+  updated: z
+    .string()
+    .datetime()
+    .or(z.date({ coerce: true })),
+  created: z
+    .string()
+    .datetime()
+    .or(z.date({ coerce: true })),
   images: z.array(z.object(databaseImageFields)).optional(),
   ...commonPropertyFields,
   ...createPropertyFields,
 };
+
+// parseable schemas
 
 export const databasePropertySchema = z.object({
   ...propertyDataFields,
@@ -77,15 +84,17 @@ const databaseSafePropertyData = z.object({
 });
 
 export const mutationSafePropertyData = z.object({
+  id: z.number({ coerce: true }),
   ...createPropertyFields,
   ...addressPropertyFields,
+  ...propertyFeeFields,
 });
 
 export type PropertyFeeData = z.infer<typeof propertyFeeSchema>;
 export type AddressData = z.infer<typeof addressPropertySchema>;
 
-export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // use for property data from frontend
-export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // use for property creation
+export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // When editing a property
+export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // When creating a property
 
 export type PropertyData = z.infer<typeof databasePropertySchema>; // from database
 export type PropertyDataStructure = z.infer<typeof propertySchema>; // use for property data from database
