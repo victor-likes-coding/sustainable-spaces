@@ -1,4 +1,4 @@
-import { AddressData } from "./property";
+import { AddressData } from "./property.zod";
 
 // props from zillow scrape
 export interface ZillowPropertyData {
