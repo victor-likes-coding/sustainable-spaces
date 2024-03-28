@@ -8,7 +8,6 @@ export type HiddenFields = {
   latitude: string;
   longitude: string;
   homeType: string;
-  timestamp: string;
   tax: string;
   annualHomeownersInsurance: string;
   zillowLink: string;
