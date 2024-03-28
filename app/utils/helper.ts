@@ -221,7 +221,7 @@ export async function validateAndRetrieveProperty(
   invariant(propertyId, "Property ID is required");
   const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
   const id = parseFloat(propertyId);
-  const property = await PropertyService.getPropertyWithImage(id);
+  const property = await PropertyService.getProperty(id);
 
   if (!property) {
     throw new PropertyNotFoundError();
