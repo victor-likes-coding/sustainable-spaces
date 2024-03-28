@@ -1,3 +1,4 @@
+import { Button } from "@nextui-org/react";
 import React from "react";
 
 type Props = {
@@ -11,8 +12,8 @@ type Props = {
 
 const CloseSVG = ({ style, onClick }: Props) => {
   return (
-    <button
-      className={"image-container__delete-button absolute top-1 right-1 bg-danger rounded-md "
+    <Button
+      className={"image-container__delete-button absolute top-1 right-1 bg-danger rounded-md p-1 min-w-0 h-unit-7 text-white font-extrabold"
         .concat(style?.button || "")
         .trim()}
       aria-label="Delete Image"
@@ -23,7 +24,7 @@ const CloseSVG = ({ style, onClick }: Props) => {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
-          className={style?.svg || "w-6 h-6"}
+          className={style?.svg || "w-5 h-5"}
         >
           <path
             fill="currentColor"
@@ -31,7 +32,7 @@ const CloseSVG = ({ style, onClick }: Props) => {
           />
         </svg>
       </div>
-    </button>
+    </Button>
   );
 };
 
