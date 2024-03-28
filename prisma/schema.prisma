@@ -92,7 +92,7 @@ model Payment {
   userId Int
   user User @relation(fields: [userId], references: [id])
   created DateTime @default(now())
-  updated DateTime @updatedAt
+  updated DateTime @updatedAt @default(now())
 
 }
 
@@ -102,5 +102,6 @@ model Image {
   propertyId Int
   property Property @relation(fields: [propertyId], references: [id])
   created DateTime @default(now())
-  updated DateTime @updatedAt
+  updated DateTime @updatedAt @default(now())
+  active Boolean @default(true)
 }
