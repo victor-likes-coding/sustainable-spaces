@@ -1,5 +1,6 @@
 import { Storage } from "@google-cloud/storage";
 import { invariant } from "framer-motion";
+import { compressImage, SupportedFileTypes } from "./compressImage";
 
 invariant(!!process.env.GCP_KEY_FILE, "GCP_KEY_FILE is required");
 invariant(!!process.env.GCP_STORAGE_BUCKET, "GCP_STORAGE_BUCKET is required");
@@ -39,4 +40,29 @@ export const uploadImage = async (
     });
     stream.end(imageBuffer);
   });
+};
+
+export const uploadImages = async (files: FormDataEntryValue[]) => {
+  let imageUrls: string[] = [];
+
+  if (files.length > 0) {
+    const uploadPromises = files.map(async (file) => {
+      if (file instanceof File) {
+        // Convert file to buffer
+        const originalBuffer = Buffer.from(await file.arrayBuffer());
+        // Compress the image
+        const compressedBuffer = await compressImage(originalBuffer, {
+          width: 800, // Example width, adjust as needed
+          format: file.type as SupportedFileTypes, // Or dynamically determine based on file.type
+          quality: 80, // Adjust quality as needed
+        });
+        return uploadImage(compressedBuffer, file.name, file.type);
+      }
+      return null;
+    });
+    imageUrls = (await Promise.all(uploadPromises)).filter(
+      (url) => url != null
+    );
+  }
+  return imageUrls;
 };
