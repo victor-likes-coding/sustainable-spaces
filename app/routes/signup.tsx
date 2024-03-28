@@ -13,6 +13,7 @@ import {
 } from "~/utils/errors";
 import { checkForToken, createUserSession } from "~/utils/sessions.server";
 import Loader from "~/components/Loader";
+import Footer from "~/components/Footer";
 
 // import Button from "~/components/button";
 
@@ -119,7 +120,7 @@ export default function Signup() {
   return (
     <>
       <Navbar />
-      <div className="w-full h-without-nav-fixed bg-custom-primary text-white">
+      <div className="w-full h-screen bg-custom-primary text-white">
         <main className="px-4 h-full flex flex-col justify-center pb-32">
           <div className="w-full px-2">
             <h1
@@ -154,7 +155,7 @@ export default function Signup() {
                   autoComplete="email"
                   aria-invalid={actionData?.errors?.email ? true : undefined}
                   aria-describedby="email-error"
-                  className="rounded-sm pl-2 text-secondary"
+                  className="rounded-sm pl-2 text-custom-secondary"
                 />
                 {actionData?.errors?.email ? (
                   <div className="pt-1 text-red-600" id="email-error">
@@ -176,7 +177,7 @@ export default function Signup() {
                   type="password"
                   id="password"
                   name="password"
-                  className="rounded-sm text-secondary pl-2"
+                  className="rounded-sm text-custom-secondary pl-2"
                 />
                 {actionData?.errors?.password ? (
                   <div className="pt-1 text-red-600" id="password-error">
@@ -187,7 +188,7 @@ export default function Signup() {
               <input
                 type="text"
                 name="adminCode"
-                className="hidden rounded-sm text-secondary pl-2"
+                className="hidden rounded-sm text-custom-secondary pl-2"
               />
               <input
                 type="hidden"
@@ -198,7 +199,7 @@ export default function Signup() {
               <div className="input-group w-full flex flex-col gap-1">
                 <button
                   type="submit"
-                  className="rounded-sm bg-secondary py-2 text-xs font-bold"
+                  className="rounded-sm bg-custom-secondary py-2 text-xs font-bold"
                 >
                   Sign up
                 </button>
@@ -206,12 +207,16 @@ export default function Signup() {
             </Form>
             <div className="login-redirect text-sm text-center">
               Already have an account?{" "}
-              <Link to="/login" className="text-secondary font-semibold ml-1">
+              <Link
+                to="/login"
+                className="text-custom-secondary font-semibold ml-1"
+              >
                 Sign in
               </Link>
             </div>
           </div>
         </main>
+        <Footer isVisible />
       </div>
       {isLoading ? (
         <Loader text="Creating account" color="success" labelColor="success" />

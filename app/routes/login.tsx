@@ -150,7 +150,7 @@ export default function Signup() {
                   autoComplete="email"
                   aria-invalid={actionData?.errors?.email ? true : undefined}
                   aria-describedby="email-error"
-                  className="rounded-sm pl-2 text-secondary"
+                  className="rounded-sm pl-2 text-custom-secondary"
                 />
                 {actionData?.errors?.email ? (
                   <div className="pt-1 text-red-600" id="email-error">
@@ -165,7 +165,7 @@ export default function Signup() {
                   </label>
                   <Link
                     to="forgot-password"
-                    className="font-semibold text-secondary"
+                    className="font-semibold text-custom-secondary"
                   >
                     Forgot password?
                   </Link>
@@ -200,7 +200,7 @@ export default function Signup() {
               <div className="input-group w-full flex flex-col gap-1">
                 <button
                   type="submit"
-                  className="rounded-sm bg-secondary py-2 text-xs font-bold"
+                  className="rounded-sm bg-custom-secondary py-2 text-xs font-bold"
                 >
                   Login
                 </button>
@@ -208,7 +208,10 @@ export default function Signup() {
             </Form>
             <div className="login-redirect text-sm text-center">
               Don&#39;t have an account?{" "}
-              <Link to="/signup" className="text-secondary font-semibold ml-1">
+              <Link
+                to="/signup"
+                className="text-custom-secondary font-semibold ml-1"
+              >
                 Sign up
               </Link>
             </div>
