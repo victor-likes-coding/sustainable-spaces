@@ -221,7 +221,7 @@ export async function validateAndRetrieveProperty(
   invariant(propertyId, "Property ID is required");
   const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
   const id = parseFloat(propertyId);
-  const property = await PropertyService.getProperty(id);
+  const property = await PropertyService.getPropertyWithImage(id);
 
   if (!property) {
     throw new PropertyNotFoundError();
@@ -271,4 +271,37 @@ export function prepareFormData<T>(data: T, fileData: FileList | null) {
   }
 
   return formData;
+}
+
+export function handleFileRemoval(
+  files: FileList | null,
+  index: number
+): DataTransfer | null {
+  if (files) {
+    const newFiles = Array.from(files);
+    const dataTransfer = new DataTransfer();
+    newFiles.splice(index, 1); // modifies the array directly
+    newFiles.forEach((file) => dataTransfer.items.add(file));
+    return dataTransfer;
+  }
+  return null;
+}
+
+export function handleFileUpload(
+  event: React.ChangeEvent<HTMLInputElement>,
+  files: FileList | null
+) {
+  const newFiles = event.target.files;
+  const dataTransfer = new DataTransfer();
+
+  // add existing files
+  if (files) {
+    Array.from(files).forEach((file) => dataTransfer.items.add(file));
+  }
+
+  if (newFiles) {
+    Array.from(newFiles).forEach((file) => dataTransfer.items.add(file));
+  }
+
+  return dataTransfer;
 }

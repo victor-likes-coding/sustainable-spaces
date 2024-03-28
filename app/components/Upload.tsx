@@ -1,3 +1,4 @@
+import { handleFileRemoval, handleFileUpload } from "~/utils/helper";
 import InputFileArea from "./InputFileArea";
 import InputFileUpload from "./InputFileUpload";
 
@@ -8,39 +9,36 @@ type Props = {
     upload?: string;
     uploadArea?: string;
   };
+  UploadComponent?: React.ElementType;
+  FileAreaComponent?: React.ElementType;
 };
 
-export default function Upload({ files, setFiles, style }: Props) {
+export default function Upload({
+  files,
+  setFiles,
+  style,
+  UploadComponent,
+  FileAreaComponent,
+}: Props) {
   const handleRemove = (index: number) => {
-    if (files) {
-      const newFiles = Array.from(files);
-      const dataTransfer = new DataTransfer();
-      newFiles.splice(index, 1); // modifies the array directly
-      newFiles.forEach((file) => dataTransfer.items.add(file));
+    const dataTransfer = handleFileRemoval(files, index);
+    if (dataTransfer !== null && dataTransfer?.files?.length > 0)
       setFiles(dataTransfer.files);
-    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = event.target.files;
-    const dataTransfer = new DataTransfer();
-
-    // add existing files
-    if (files) {
-      Array.from(files).forEach((file) => dataTransfer.items.add(file));
-    }
-
-    if (newFiles) {
-      Array.from(newFiles).forEach((file) => dataTransfer.items.add(file));
-    }
-
+    // ! TODO: check for image aspect ratio of square or horizontal orientation
+    const dataTransfer = handleFileUpload(event, files);
     setFiles(dataTransfer.files);
   };
 
+  const InputElement = UploadComponent || InputFileUpload;
+  const FileAreaElement = FileAreaComponent || InputFileArea;
+
   return (
     <>
-      <InputFileUpload onChange={handleChange} className={style.upload} />
-      <InputFileArea
+      <InputElement onChange={handleChange} className={style.upload} />
+      <FileAreaElement
         onRemove={handleRemove}
         files={files}
         className={style.uploadArea}
