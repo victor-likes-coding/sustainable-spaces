@@ -33,16 +33,12 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import Loader from "~/components/Loader";
-import {
-  MutationSafePropertyData,
-  PropertyFormData,
-  PropertyService,
-} from "~/models/property";
+import { PropertyFormData, PropertyService } from "~/models/property";
 import PlacesSearch from "~/components/PlacesSearch";
 import AddPropertyForm from "~/components/AddPropertyForm";
-import { uploadImage } from "~/utils/storage.server";
+import { uploadImages } from "~/utils/storage.server";
 import { ImageService } from "~/models/Image";
-import { compressImage, SupportedFileTypes } from "~/utils/compressImage";
+import { MutationSafePropertyData } from "~/models/property.zod";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -64,27 +60,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // get image files
   const files = formData.getAll("files");
-  let imageUrls: string[] = [];
+  const imageUrls: string[] = await uploadImages(files);
 
-  if (files.length > 0) {
-    const uploadPromises = files.map(async (file) => {
-      if (file instanceof File) {
-        // Convert file to buffer
-        const originalBuffer = Buffer.from(await file.arrayBuffer());
-        // Compress the image
-        const compressedBuffer = await compressImage(originalBuffer, {
-          width: 800, // Example width, adjust as needed
-          format: file.type as SupportedFileTypes, // Or dynamically determine based on file.type
-          quality: 80, // Adjust quality as needed
-        });
-        return uploadImage(compressedBuffer, file.name, file.type);
-      }
-      return null;
-    });
-    imageUrls = (await Promise.all(uploadPromises)).filter(
-      (url) => url != null
-    );
-  }
   const { property } = Object.fromEntries(formData);
   // property is a string, so we need to parse it
   const { address, ...rest }: Partial<ZillowPropertyData> = JSON.parse(
