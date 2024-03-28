@@ -11,6 +11,7 @@ export type PropertyCharacteristics = {
   yearBuilt: string | number;
   purchaseMethod: string;
   price: string | number;
+  garage: string | number;
 };
 
 type Props = {
@@ -30,6 +31,7 @@ const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
     "yearBuilt",
     "purchaseMethod",
     "price",
+    "garage",
   ];
   const inputs = orderOfInputs.map((value, index) => {
     const { purchaseMethod } = data;
@@ -51,7 +53,7 @@ const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
           placeholder="Select an option"
           label="Purchase Method"
           name="purchaseMethod"
-          defaultSelectedKeys={["sell"]}
+          defaultSelectedKeys={[purchaseMethod]}
           className="rounded-sm text-secondary"
           id="purchaseMethod"
           onChange={(e) => setProperty(e)}
@@ -75,7 +77,7 @@ const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
           type="text"
           name={value}
           id={value}
-          value={data[value]}
+          value={data[value] as string}
           className="rounded-sm  text-secondary"
           onChange={(e) => setProperty(e)}
         />
