@@ -87,8 +87,10 @@ const mutationSafePropertyData = z.object({
 
 export type PropertyFeeData = z.infer<typeof propertyFeeSchema>; //
 export type AddressData = z.infer<typeof addressPropertySchema>;
+
 export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // use for property data from frontend
 export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // use for property creation
+
 export type PropertyData = z.infer<typeof databasePropertySchema>; // from database
 export type PropertyDataStructure = z.infer<typeof propertySchema>; // use for property data from database
 // this class is used for the frontend creating a property
@@ -126,7 +128,9 @@ export abstract class PropertyService {
   }
 
   static getProperties(): Promise<PropertyData[]> {
-    return db.property.findMany({ include: { images: true } });
+    return db.property.findMany({
+      include: { images: { where: { active: true } } },
+    });
   }
 
   static getProperty(id: number): Promise<PropertyData | null> {
@@ -134,7 +138,13 @@ export abstract class PropertyService {
       where: {
         id,
       },
-      include: { images: true },
+      include: {
+        images: {
+          where: {
+            active: true,
+          },
+        },
+      },
     });
   }
 
@@ -176,6 +186,11 @@ export abstract class PropertyService {
     property: unknown
   ): Promise<DatabaseSafePropertyData | void>;
   abstract deleteProperty(id: number): Promise<void>;
+
+  static transformToPropertyData(property: string) {
+    const data = propertySchema.parse(JSON.parse(property as string));
+    return data;
+  }
 }
 
 // this class is used for representing a property from the database
