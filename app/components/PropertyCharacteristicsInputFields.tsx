@@ -3,14 +3,14 @@ import { ChangeEvent } from "react";
 import { separateAndCapitalize } from "~/utils/helper";
 
 export type PropertyCharacteristics = {
-  bedrooms: string;
-  bathrooms: string;
+  bedrooms: string | number;
+  bathrooms: string | number;
   description: string;
-  lotSize: string;
-  livingArea: string;
-  yearBuilt: string;
+  lotSize: string | number;
+  livingArea: string | number;
+  yearBuilt: string | number;
   purchaseMethod: string;
-  price: string;
+  price: string | number;
 };
 
 type Props = {
