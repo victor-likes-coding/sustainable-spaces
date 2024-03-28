@@ -7,6 +7,7 @@ export const databaseImageFields = {
   propertyId: z.number(),
   created: z.string().datetime().or(z.date()),
   updated: z.string().datetime().or(z.date()),
+  active: z.boolean(),
 };
 
 export const databaseImageSchema = z.object(databaseImageFields);
@@ -21,6 +22,22 @@ export abstract class ImageService {
     }));
     return db.image.createMany({
       data: images,
+    });
+  }
+
+  static async updateImage(id: number, data: Partial<ImageSchema>) {
+    return db.image.update({
+      where: { id },
+      data,
+    });
+  }
+
+  static async deactivateImages(images: ImageSchema[]) {
+    const ids = images.map((image) => image.id);
+    if (ids.length === 0) return;
+    return db.image.updateMany({
+      where: { id: { in: ids } },
+      data: { active: false },
     });
   }
 }
