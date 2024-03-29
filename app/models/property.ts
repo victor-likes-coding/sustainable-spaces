@@ -125,8 +125,8 @@ export class DatabaseProperty implements PropertyDataStructure {
   id: number;
   purchaseMethod: "rent" | "sell";
   tenantId: number | null | undefined;
-  likes: number[] | undefined;
-  likesCount: number | undefined;
+  likes: number[];
+  likesCount: number;
   timestamp: string | undefined;
   zpid: number;
   bedrooms: number;
@@ -144,14 +144,14 @@ export class DatabaseProperty implements PropertyDataStructure {
   tax: number;
   annualHomeownersInsurance: number;
   zillowLink: string | undefined | null;
-  garage: number | undefined;
+  garage: number;
   parcelId: string;
   ownerId: number;
   fees: {
-    hoa: number | null | undefined;
-    management: number | undefined;
-    capex: number | undefined;
-    vacancy: number | undefined;
+    hoa: number | undefined | null;
+    management: number;
+    capex: number;
+    vacancy: number;
   };
   address: {
     streetAddress: string;
@@ -161,14 +161,13 @@ export class DatabaseProperty implements PropertyDataStructure {
   };
   updated: Date | string;
   created: Date | string;
-  images?: ImageSchema[]; // Add the 'images' property
+  images: ImageSchema[]; // Add the 'images' property
   constructor(data: PropertyData) {
     this.id = data.id;
     this.purchaseMethod = data.purchaseMethod;
     this.tenantId = data.tenantId;
     this.likes = data.likes;
     this.likesCount = data.likesCount;
-    this.timestamp = data.timestamp;
     this.zpid = data.zpid;
     this.bedrooms = data.bedrooms;
     this.bathrooms = data.bathrooms;
