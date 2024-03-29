@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { databaseImageFields } from "./Image";
 
-const createPropertyFields = {
-  zpid: z.number({ coerce: true }),
+const updateablePropertyFields = {
   bedrooms: z.number({ coerce: true }),
   bathrooms: z.number({ coerce: true }),
   description: z.string(),
@@ -14,12 +13,17 @@ const createPropertyFields = {
   homeType: z.string(),
   latitude: z.number({ coerce: true }),
   longitude: z.number({ coerce: true }),
+  garage: z.number({ coerce: true }),
+  annualHomeownersInsurance: z.number({ coerce: true }),
+  tax: z.number({ coerce: true }),
+  zillowLink: z.string().optional().nullable(),
+};
+
+const nonUpdateablePropertyFields = {
+  zpid: z.number({ coerce: true }),
+  ...updateablePropertyFields,
   livingAreaUnits: z.string(),
   lotAreaUnits: z.string(),
-  tax: z.number({ coerce: true }),
-  annualHomeownersInsurance: z.number({ coerce: true }),
-  zillowLink: z.string().optional().nullable(),
-  garage: z.number({ coerce: true }).optional(),
   parcelId: z.string(),
   ownerId: z.number({ coerce: true }),
 };
@@ -33,18 +37,18 @@ const addressPropertyFields = {
 
 const commonPropertyFields = {
   tenantId: z.number({ coerce: true }).optional().nullable(),
-  likes: z.array(z.number()).optional(),
-  likesCount: z.number().optional(),
+  likes: z.array(z.number()),
+  likesCount: z.number(),
 };
 
 const propertyFeeFields = {
   hoa: z.number({ coerce: true }).optional().nullable(),
-  management: z.number({ coerce: true }).optional(),
-  capex: z.number({ coerce: true }).optional(),
-  vacancy: z.number({ coerce: true }).optional(),
+  management: z.number({ coerce: true }),
+  capex: z.number({ coerce: true }),
+  vacancy: z.number({ coerce: true }),
 };
 
-const propertyDataFields = {
+const generatedDataFields = {
   id: z.number(),
   updated: z
     .string()
@@ -54,9 +58,19 @@ const propertyDataFields = {
     .string()
     .datetime()
     .or(z.date({ coerce: true })),
-  images: z.array(z.object(databaseImageFields)).optional(),
+};
+
+const propertyDataFields = {
+  ...generatedDataFields,
+  images: z.array(z.object(databaseImageFields)).default([]),
   ...commonPropertyFields,
-  ...createPropertyFields,
+  ...nonUpdateablePropertyFields,
+};
+
+const editingPropertyFields = {
+  ...updateablePropertyFields,
+  ...addressPropertyFields,
+  ...propertyFeeFields,
 };
 
 // parseable schemas
@@ -79,13 +93,13 @@ export const addressPropertySchema = z.object(addressPropertyFields);
 const databaseSafePropertyData = z.object({
   ...commonPropertyFields,
   ...addressPropertyFields,
-  ...createPropertyFields,
+  ...nonUpdateablePropertyFields,
   ...propertyFeeFields,
 });
 
 export const mutationSafePropertyData = z.object({
   id: z.number({ coerce: true }),
-  ...createPropertyFields,
+  ...nonUpdateablePropertyFields,
   ...addressPropertyFields,
   ...propertyFeeFields,
 });
