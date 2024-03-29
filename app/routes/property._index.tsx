@@ -24,7 +24,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Property() {
-  const { properties } = useLoaderData<typeof loader>();
+  const { properties }: { properties: PropertyData[] } =
+    useLoaderData<typeof loader>();
   // const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
   const size =
     properties?.length >= 3 ? "h-without-nav-auto" : "h-without-nav-fixed";
