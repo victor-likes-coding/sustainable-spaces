@@ -78,6 +78,13 @@ export abstract class PropertyService {
           zipcode,
         },
       },
+      include: {
+        images: {
+          where: {
+            active: true,
+          },
+        },
+      },
     });
   }
 
