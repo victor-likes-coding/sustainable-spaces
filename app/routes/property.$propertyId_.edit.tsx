@@ -6,7 +6,16 @@ import { validatePropertyOwner } from "~/utils/helper";
 // import Button from "~/components/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  const { property } = await validatePropertyOwner(params, request);
+  try {
+    await validatePropertyOwner(params, request);
+  } catch (err) {
+    if (err instanceof UnauthorizedMutationRequestError) {
+      console.log("redirecting");
+      throw redirect(`/property/${params.propertyId}?error=unauthorized`);
+    }
+  }
+
+  const { property } = await validateAndRetrieveProperty(params, request);
 
   return json({
     property,
