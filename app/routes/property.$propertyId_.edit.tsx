@@ -17,9 +17,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const { property } = await validateAndRetrieveProperty(params, request);
 
-  return json({
-    property,
-  });
+  return json(property);
 };
 
 export default function Property() {
