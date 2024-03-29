@@ -83,7 +83,7 @@ export abstract class PropertyService {
 
   static async createProperty(
     property: MutationSafePropertyData
-  ): Promise<PropertyData> {
+  ): Promise<{ id: number }> {
     // validate we have all the required data
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -94,6 +94,9 @@ export abstract class PropertyService {
 
       return db.property.create({
         data,
+        select: {
+          id: true,
+        },
       });
     } catch (e) {
       throw new PropertyValidationError({});
