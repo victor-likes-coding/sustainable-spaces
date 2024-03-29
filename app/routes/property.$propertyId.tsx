@@ -10,10 +10,11 @@ import { validatePropertyOwner } from "~/utils/helper";
 // import Button from "~/components/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  const { property, payload } = await validateAndRetrieveProperty(
-    params,
-    request
-  );
+  const {
+    property,
+    payload,
+  }: { property: PropertyDataStructure; payload: TokenPayload } =
+    await validateAndRetrieveProperty(params, request);
   const error = new URL(request.url).searchParams.get("error");
 
   return json({ property, payload });
