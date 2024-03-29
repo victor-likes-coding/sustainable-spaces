@@ -32,12 +32,21 @@ export abstract class ImageService {
     });
   }
 
-  static async deactivateImages(images: ImageSchema[]) {
-    const ids = images.map((image) => image.id);
-    if (ids.length === 0) return;
-    return db.image.updateMany({
-      where: { id: { in: ids } },
-      data: { active: false },
-    });
+  static getInactiveImages(images: ImageSchema[]) {
+    return images?.filter((image) => !image.active) || [];
+  }
+
+  static async deactivateImages(images?: ImageSchema[]) {
+    if (!images) return;
+
+    const inactiveImages = this.getInactiveImages(images);
+    if (inactiveImages.length === 0 || !inactiveImages) return;
+
+    const ids = new Set(images.map((image) => image.id)); // remove duplicates for whatever reason
+    if (ids.size === 0) return;
+    // return db.image.updateMany({
+    //   where: { id: { in: Array.from(ids) } },
+    //   data: { active: false },
+    // });
   }
 }
