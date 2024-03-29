@@ -39,6 +39,7 @@ import AddPropertyForm from "~/components/AddPropertyForm";
 import { uploadImages } from "~/utils/storage.server";
 import { ImageService } from "~/models/Image";
 import { MutationSafePropertyData } from "~/models/property.zod";
+import useModal from "~/components/Modal";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -74,16 +75,15 @@ export async function action({ request }: ActionFunctionArgs) {
     ...rest,
   } as MutationSafePropertyData;
 
-  const newProperty = await PropertyService.createProperty({
+  const { id } = await PropertyService.createProperty({
     ...flatData,
     ownerId: payload.id,
   } as MutationSafePropertyData);
 
   // save image url to database with coinciding with property id
-  if (imageUrls.length > 0)
-    await ImageService.addImageUrls(newProperty.id, imageUrls);
+  if (imageUrls.length > 0) await ImageService.addImageUrls(id, imageUrls);
 
-  return redirect(`/property/${newProperty.id}`);
+  return redirect(`/property/${id}`);
 }
 
 export type FormDataType = PropertyFormData & AdditionalMutationData;
@@ -93,23 +93,23 @@ export default function Index() {
   const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
   const [isLoading, setIsLoading] = useState(false); // only meant for handlePlaceChanged
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { renderModal, onOpen, setErrors, setKey } = useModal({
+    errors: {
+      address: "",
+      bedrooms: "",
+      bathrooms: "",
+      description: "",
+      lotSize: "",
+      livingArea: "",
+      yearBuilt: "",
+      price: "",
+      generic: "",
+    },
+  });
   const navigate = useNavigate();
   const emptyProperty: FormDataType = PropertyService.createEmptyProperty();
 
   const [property, setProperty] = useState<FormDataType>(emptyProperty);
-
-  const [errors, setErrors] = useState({
-    address: "",
-    bedrooms: "",
-    bathrooms: "",
-    description: "",
-    lotSize: "",
-    livingArea: "",
-    yearBuilt: "",
-    price: "",
-    generic: "",
-  });
 
   useEffect(() => {
     return () => {
@@ -157,6 +157,8 @@ export default function Index() {
           ...prevErrors,
           generic: err.message,
         }));
+
+        setKey("generic");
       }
 
       onOpen(); // open modal
@@ -172,6 +174,8 @@ export default function Index() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const modal = renderModal();
 
   return (
     <>
@@ -199,25 +203,7 @@ export default function Index() {
           text="Looking up property"
         />
       )}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Ooops, Something went wrong!
-              </ModalHeader>
-              <ModalBody>
-                <p>{errors.generic}</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      {modal}
     </>
   );
 }
