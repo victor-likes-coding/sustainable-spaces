@@ -79,6 +79,7 @@ export default function AddPropertyForm({
     yearBuilt,
     purchaseMethod,
     price,
+    garage: 0,
   };
 
   return (
@@ -99,7 +100,7 @@ export default function AddPropertyForm({
       />
       <Button
         type="submit"
-        className=" bg-secondary text-xs font-bold text-white mb-4"
+        className=" bg-custom-secondary text-xs font-bold text-white mb-4"
       >
         Add
       </Button>
