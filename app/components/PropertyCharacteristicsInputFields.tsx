@@ -1,6 +1,6 @@
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
 import { ChangeEvent } from "react";
-import { separateAndCapitalize } from "~/utils/helper";
+import { separateAndCapitalize } from "~/utils/separateAndCapitalize";
 
 export type PropertyCharacteristics = {
   bedrooms: string | number;
@@ -12,6 +12,17 @@ export type PropertyCharacteristics = {
   purchaseMethod: string;
   price: string | number;
   garage: string | number;
+  longitude: string | number;
+  latitude: string | number;
+  homeType:
+    | "Single Family"
+    | "Multi Family"
+    | "Condo"
+    | "Townhouse"
+    | "Apartment"
+    | "Commercial"
+    | "Land"
+    | "Other";
 };
 
 type Props = {
@@ -19,20 +30,27 @@ type Props = {
   setProperty: (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
+  orderOfInputs?: Array<keyof PropertyCharacteristics>;
 };
 
-const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
-  const orderOfInputs: Array<keyof PropertyCharacteristics> = [
+const PropertyCharacteristicsInputFields = ({
+  data,
+  setProperty,
+  orderOfInputs = [
     "bedrooms",
     "bathrooms",
+    "purchaseMethod",
     "description",
     "lotSize",
     "livingArea",
     "yearBuilt",
-    "purchaseMethod",
-    "price",
     "garage",
-  ];
+    "price",
+    "longitude",
+    "latitude",
+    "homeType",
+  ],
+}: Props) => {
   const inputs = orderOfInputs.map((value, index) => {
     const { purchaseMethod } = data;
     const InputElement =
@@ -86,7 +104,10 @@ const PropertyCharacteristicsInputFields = ({ data, setProperty }: Props) => {
     return (
       <div
         className={"input-row mb-4".concat(
-          value === "description" || value === "price"
+          value === "description" ||
+            value === "price" ||
+            value === "purchaseMethod" ||
+            value === "homeType"
             ? " w-[100%] flex-grow"
             : " w-[48%] flex-shrink"
         )}
