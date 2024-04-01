@@ -1,3 +1,4 @@
+import { TokenPayload } from "./helper.d";
 import jwt from "jsonwebtoken";
 // app/sessions.ts
 import { createCookieSessionStorage, redirect } from "@remix-run/node"; // or cloudflare/deno
@@ -68,20 +69,32 @@ export async function getTokenPayload(request: Request) {
   const token = session.get("token");
   // verify token
   if (!token || typeof token !== "string") return null;
-  const payload = jwt.verify(token, process.env.REACT_JWT_SECRET as string); // throws if invalid otherwise decoded
+  const payload = jwt.verify(
+    token,
+    process.env.REACT_JWT_SECRET as string
+  ) as TokenPayload; // throws if invalid otherwise decoded
   return payload;
 }
 
 export async function requireToken(request: Request) {
   const payload = await getTokenPayload(request);
+  // check if using user in database
   if (!payload) return logout(request);
+
+  const { id } = payload;
+  try {
+    await UserService.getUserById(id);
+  } catch (e) {
+    return logout(request);
+  }
+
   return payload;
 }
 
 export async function getUser(request: Request) {
   const payload = await getTokenPayload(request);
   if (!payload) return null;
-  const { id } = payload as { id: string };
+  const { id } = payload;
   try {
     const user = await UserService.getUserById(id);
     return user;

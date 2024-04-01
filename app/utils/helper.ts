@@ -4,19 +4,17 @@ import validator from "validator";
 import { userAuthData } from "~/models/user";
 import {
   DataValidationEror,
-  DpgClientCache,
   PropertyNotFoundError,
   UnauthorizedMutationRequestError,
 } from "./errors";
-import {
-  AddressData,
-  DatabaseProperty,
-  PropertyDataStructure,
-  PropertyService,
-} from "~/models/property";
+import { DatabaseProperty, PropertyService } from "~/models/property";
 import { requireToken } from "./sessions.server";
 import { Params } from "@remix-run/react";
 import invariant from "invariant";
+import { Prisma } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
+import { filterObject } from "./filterObject";
+import { getObjectData } from "./getObjectData";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -53,18 +51,6 @@ export const validatePassword = (password: string) => {
   return validator.isStrongPassword(password);
 };
 
-export const getLoggedInStatus = (payload: TokenPayload) => {
-  if (
-    typeof payload === "object" &&
-    payload !== null &&
-    Object.hasOwn(payload, "email")
-  ) {
-    return true;
-  }
-
-  return false;
-};
-
 export const createZillowUrl = (address: string | undefined | null) => {
   // https://www.zillow.com/homes/6803-119th-Pl-Largo,-FL-33773_rb/
   // turn 6803 119th Place North, Largo, FL, USA into 6803-119th-Place-North-Largo,-FL-USA
@@ -82,99 +68,11 @@ export function getStartingIndex(html: string, pattern: string) {
   return html.indexOf(pattern) + pattern.length;
 }
 
-function findClosingBracket(text: string) {
-  let inQuotes = false;
-  let bracketCount = 0;
-  let closingIndex = -1;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "{" && !inQuotes) {
-      bracketCount++;
-    } else if (char === "}" && !inQuotes) {
-      bracketCount--;
-      if (bracketCount === 0) {
-        closingIndex = i;
-        break;
-      }
-    }
-  }
-
-  return closingIndex;
-}
-
-function getObjectData(html: string, startingIndex: number) {
-  const narrowedData = html.substring(startingIndex); // this starts our object
-  const closingIndex = findClosingBracket(narrowedData);
-  const stringifiedObjectData = narrowedData.substring(0, closingIndex + 1);
-  try {
-    const objectData = JSON.parse(stringifiedObjectData);
-    if (!objectData?.props?.pageProps?.componentProps?.gdpClientCache)
-      // this is a just in case there's no gdpClientCache
-      throw new DpgClientCache();
-    return objectData;
-  } catch (err) {
-    return;
-  }
-}
-
 type dCache = {
   [key: string]: {
     property: unknown;
   };
 };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function filterObject(obj: any): Partial<ZillowPropertyData> {
-  const filteredObject: Partial<ZillowPropertyData> = {
-    garage: 0,
-  };
-  const dataKeys = Object.keys(obj) as Array<keyof ZillowPropertyData>;
-  // filter keys based on zillowPropertyData type only
-  const keys = [
-    "zpid",
-    "yearBuilt",
-    "parcelId",
-    "lotSize",
-    "lotAreaUnits",
-    "livingArea",
-    "livingAreaUnits",
-    "latitude",
-    "longitude",
-    "homeType",
-    "description",
-    "bedrooms",
-    "bathrooms",
-    "timestamp",
-    "insurance",
-    "annualHomeownersInsurance",
-    "zillowLink",
-    "city",
-    "state",
-    "streetAddress",
-    "zipcode",
-    "price",
-    "garage",
-  ];
-
-  const addressKeys = ["city", "state", "streetAddress", "zipcode"];
-
-  for (const key of dataKeys) {
-    if (keys.includes(key as string)) {
-      if (addressKeys.includes(key as string)) {
-        filteredObject.address = filteredObject.address || ({} as AddressData);
-        filteredObject.address[key as keyof AddressData] = obj[key];
-      } else {
-        filteredObject[key] = obj[key];
-      }
-    }
-  }
-
-  return filteredObject;
-}
 
 interface AdditionalMutationData {
   purchaseMethod: "rent" | "sell";
@@ -216,12 +114,16 @@ export type {
 
 export async function validateAndRetrieveProperty(
   { propertyId }: Params<string>,
-  request: Request
-): Promise<{ property: PropertyDataStructure; payload: TokenPayload }> {
+  request: Request,
+  select: Prisma.PropertySelect<DefaultArgs>
+): Promise<{
+  property: DatabaseProperty;
+  payload: TokenPayload;
+}> {
   invariant(propertyId, "Property ID is required");
   const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
   const id = parseFloat(propertyId);
-  const property = await PropertyService.getProperty(id);
+  const property = await PropertyService.getProperty(id, select);
 
   if (!property) {
     throw new PropertyNotFoundError();
@@ -233,30 +135,19 @@ export async function validateAndRetrieveProperty(
 
 export async function validatePropertyOwner(
   { propertyId }: Params<string>,
-  request: Request
+  request: Request,
+  select: Prisma.PropertySelect<DefaultArgs>
 ) {
   const { property, payload } = await validateAndRetrieveProperty(
     { propertyId },
-    request
+    request,
+    select
   );
   if (property.ownerId !== payload.id) {
     throw new UnauthorizedMutationRequestError();
   }
 
   return { property, payload };
-}
-
-export function separateAndCapitalize(str: string) {
-  // Split the string at every capital letter
-  const words = str.split(/(?=[A-Z])/);
-
-  // Capitalize the first letter of each word and join them with a space
-  const capitalizedWords = words.map(
-    (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  );
-
-  // Join all the words back together
-  return capitalizedWords.join(" ");
 }
 
 export function prepareFormData<T>(data: T, fileData: FileList | null) {
