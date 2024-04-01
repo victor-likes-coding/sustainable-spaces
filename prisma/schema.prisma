@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -28,6 +29,16 @@ enum PurchaseMethod {
   sell
 }
 
+enum HomeType {
+  SINGLE_FAMILY
+  MULTI_FAMILY
+  CONDO
+  TOWNHOUSE
+  MOBILE_HOME
+  LAND
+  OTHER
+}
+
 model Property {
   id Int @id @default(autoincrement())
   
@@ -45,7 +56,7 @@ model Property {
   longitude Float
   latitude Float
   description String
-  homeType String
+  homeType HomeType
   parcelId String @unique
   lotSize Int
   lotAreaUnits String
