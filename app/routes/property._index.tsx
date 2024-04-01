@@ -4,11 +4,8 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 // import Navbar from "~/components/navbar";
 import PropertyCard from "~/components/propertycard";
-import {
-  DatabaseProperty,
-  PropertyData,
-  PropertyService,
-} from "~/models/property";
+import { DatabaseProperty, PropertyService } from "~/models/property";
+import { PropertyData } from "~/models/property.zod";
 // import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 

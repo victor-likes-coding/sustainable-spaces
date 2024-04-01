@@ -1,7 +1,7 @@
 import { Input } from "@nextui-org/react";
 import { ChangeEvent } from "react";
 import { AddressData } from "~/models/property.zod";
-import { separateAndCapitalize } from "~/utils/helper";
+import { separateAndCapitalize } from "~/utils/separateAndCapitalize";
 
 type Props = {
   address: AddressData;

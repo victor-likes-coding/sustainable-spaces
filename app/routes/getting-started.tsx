@@ -1,11 +1,12 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, json, useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
-import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
+import { TokenPayload } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import SearchImage from "../assets/images/undraw_house_searching_re_stk8.svg";
 import ManageImage from "../assets/images/undraw_add_information_j2wg.svg";
 import DonateImage from "../assets/images/undraw_transfer_money_re_6o1h.svg";
+import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // check and see if user is already logged in

@@ -13,7 +13,6 @@ import {
   TokenPayload,
   ZillowPropertyData,
   createZillowUrl,
-  getLoggedInStatus,
 } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import invariant from "invariant";
@@ -23,15 +22,6 @@ import {
   PropertyNotFoundError,
   ZillowCaptchaError,
 } from "~/utils/errors";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
-} from "@nextui-org/react";
 import Loader from "~/components/Loader";
 import { PropertyFormData, PropertyService } from "~/models/property";
 import PlacesSearch from "~/components/PlacesSearch";
@@ -40,6 +30,7 @@ import { uploadImages } from "~/utils/storage.server";
 import { ImageService } from "~/models/Image";
 import { MutationSafePropertyData } from "~/models/property.zod";
 import useModal from "~/components/Modal";
+import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -63,10 +54,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const files = formData.getAll("files");
   const imageUrls: string[] = await uploadImages(files);
 
-  const { property } = Object.fromEntries(formData);
+  const { data } = Object.fromEntries(formData);
   // property is a string, so we need to parse it
   const { address, ...rest }: Partial<ZillowPropertyData> = JSON.parse(
-    property as string
+    data as string
   );
 
   // shape into flat data
