@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   // redirect to properties
   try {
     const user = await UserService.login(data);
-    return createUserSession({ ...user }, data.redirectTo ?? "/property");
+    return await createUserSession({ ...user }, data.redirectTo ?? "/property");
   } catch (error) {
     // this catch should only be triggered if the auth data validation fails
 

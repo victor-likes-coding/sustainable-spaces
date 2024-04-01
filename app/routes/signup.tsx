@@ -41,7 +41,8 @@ export async function action({ request }: ActionFunctionArgs) {
   // redirect to properties
   try {
     const user = await UserService.register(data);
-    return createUserSession({ ...user }, data.redirectTo ?? "/property");
+
+    return await createUserSession({ ...user }, data.redirectTo ?? "/property");
   } catch (error) {
     // if the error is a PrismaClientInitializationError, the server is down
     if (
