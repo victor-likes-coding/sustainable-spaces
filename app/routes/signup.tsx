@@ -2,7 +2,6 @@ import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import { UserService, elevatedAuthData, userAuthData } from "~/models/user";
-import { authError } from "~/utils/helper";
 import { useEffect, useRef, useState } from "react";
 import {
   DataValidationEror,
@@ -58,11 +57,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // this catch should only be triggered if the auth data validation fails
     if (error instanceof DataValidationEror) {
-      const newErrors: authError = JSON.parse(error.message);
       return json({
         errors: {
           ...errors,
-          ...newErrors,
+          ...error.errs,
+          message: error.message,
         },
       });
     }
@@ -103,6 +102,7 @@ export default function Signup() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const actionData = useActionData<typeof action>(); // should only be the errors
+  console.log(actionData);
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -132,14 +132,14 @@ export default function Signup() {
               Sign up for an account
             </h1>
             {/* {actionData?.errors?.message ? ( */}
-            <div className="text-red-600 font-semibold text-center mb-4">
+            <div className="text-red-600 font-semibold text-center mb-4 text-xs">
               {actionData?.errors.message}
             </div>
             {/* ) : null} */}
             <Form
               onSubmit={() => setIsLoading(true)}
               method="post"
-              className="w-full h-auto flex flex-col gap-4 mb-2"
+              className="w-full h-auto flex flex-col gap-2 mb-2"
             >
               <div className="input-group w-full flex flex-col gap-1">
                 <label htmlFor="email" className="text-sm">
@@ -158,11 +158,12 @@ export default function Signup() {
                   aria-describedby="email-error"
                   className="rounded-sm pl-2 text-custom-secondary"
                 />
-                {actionData?.errors?.email ? (
-                  <div className="pt-1 text-red-600" id="email-error">
-                    {actionData.errors.email}
-                  </div>
-                ) : null}
+                <div
+                  className="pt-1 text-red-600 text-xs font-semibold"
+                  id="email-error"
+                >
+                  {actionData?.errors?.email}
+                </div>
               </div>
               <div className="input-group w-full flex flex-col gap-1">
                 <div className="password-row flex justify-between text-sm">
@@ -180,11 +181,12 @@ export default function Signup() {
                   name="password"
                   className="rounded-sm text-custom-secondary pl-2"
                 />
-                {actionData?.errors?.password ? (
-                  <div className="pt-1 text-red-600" id="password-error">
-                    {actionData.errors.password}
-                  </div>
-                ) : null}
+                <div
+                  className="pt-1 text-red-600 text-xs font-semibold"
+                  id="password-error"
+                >
+                  {actionData?.errors?.password}
+                </div>
               </div>
               <input
                 type="text"
