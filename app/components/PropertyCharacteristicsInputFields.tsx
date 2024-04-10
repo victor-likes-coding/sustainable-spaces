@@ -1,28 +1,50 @@
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
 import { ChangeEvent } from "react";
+import { HomeTypeEnum } from "~/models/property.zod";
 import { separateAndCapitalize } from "~/utils/separateAndCapitalize";
 
+export type HomeType =
+  | "Single Family"
+  | "Multi Family"
+  | "Condo"
+  | "Townhouse"
+  | "Mobile Home"
+  | "Land"
+  | "Other";
+
+const homeTypeMap = {
+  "Single Family": "SINGLE_FAMILY",
+  "Multi Family": "MULTI_FAMILY",
+  Condo: "CONDO",
+  Townhouse: "TOWNHOUSE",
+  "Mobile Home": "MOBILE_HOME",
+  Land: "LAND",
+  Other: "OTHER",
+};
+
+const reverseHomeTypeMap = {
+  SINGLE_FAMILY: "Single Family",
+  MULTI_FAMILY: "Multi Family",
+  CONDO: "Condo",
+  TOWNHOUSE: "Townhouse",
+  MOBILE_HOME: "Mobile Home",
+  LAND: "Land",
+  OTHER: "Other",
+};
+
 export type PropertyCharacteristics = {
-  bedrooms: string | number;
-  bathrooms: string | number;
+  bedrooms: number;
+  bathrooms: number;
   description: string;
-  lotSize: string | number;
-  livingArea: string | number;
-  yearBuilt: string | number;
+  lotSize: number;
+  livingArea: number;
+  yearBuilt: number;
   purchaseMethod: string;
-  price: string | number;
-  garage: string | number;
-  longitude: string | number;
-  latitude: string | number;
-  homeType:
-    | "Single Family"
-    | "Multi Family"
-    | "Condo"
-    | "Townhouse"
-    | "Apartment"
-    | "Commercial"
-    | "Land"
-    | "Other";
+  price: number;
+  garage: number;
+  longitude?: number;
+  latitude?: number;
+  homeType?: HomeTypeEnum;
 };
 
 type Props = {
