@@ -10,7 +10,15 @@ const updateablePropertyFields = {
   yearBuilt: z.number({ coerce: true }),
   purchaseMethod: z.enum(["rent", "sell"]),
   price: z.number({ coerce: true }),
-  homeType: z.string(),
+  homeType: z.enum([
+    "SINGLE_FAMILY",
+    "MULTI_FAMILY",
+    "CONDO",
+    "TOWNHOUSE",
+    "MOBILE_HOME",
+    "LAND",
+    "OTHER",
+  ]),
   latitude: z.number({ coerce: true }),
   longitude: z.number({ coerce: true }),
   garage: z.number({ coerce: true }),
@@ -21,7 +29,6 @@ const updateablePropertyFields = {
 
 const nonUpdateablePropertyFields = {
   zpid: z.number({ coerce: true }),
-  ...updateablePropertyFields,
   livingAreaUnits: z.string(),
   lotAreaUnits: z.string(),
   parcelId: z.string(),
@@ -37,7 +44,7 @@ const addressPropertyFields = {
 
 const commonPropertyFields = {
   tenantId: z.number({ coerce: true }).optional().nullable(),
-  likes: z.array(z.number()),
+  likes: z.array(z.number()).default([]),
   likesCount: z.number(),
 };
 
@@ -61,7 +68,8 @@ const generatedDataFields = {
 };
 
 const propertyDataFields = {
-  ...generatedDataFields,
+  id: z.number(),
+  ...updateablePropertyFields,
   images: z.array(z.object(databaseImageFields)).default([]),
   ...commonPropertyFields,
   ...nonUpdateablePropertyFields,
@@ -74,6 +82,8 @@ const editingPropertyFields = {
 };
 
 // parseable schemas
+
+export const editablePropertySchema = z.object(editingPropertyFields);
 
 export const databasePropertySchema = z.object({
   ...propertyDataFields,
@@ -98,16 +108,16 @@ const databaseSafePropertyData = z.object({
 });
 
 export const mutationSafePropertyData = z.object({
-  id: z.number({ coerce: true }),
   ...nonUpdateablePropertyFields,
   ...addressPropertyFields,
-  ...propertyFeeFields,
-});
+  ...updateablePropertyFields,
+}); // this is for creating a property as well
 
 export type PropertyFeeData = z.infer<typeof propertyFeeSchema>;
 export type AddressData = z.infer<typeof addressPropertySchema>;
 
-export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // When editing a property
+export type EditablePropertyData = z.infer<typeof editablePropertySchema>; // When editing a property
+export type MutationSafePropertyData = z.infer<typeof mutationSafePropertyData>; // When creating a property, parse will use this to coerce the types and validate the data
 export type DatabaseSafePropertyData = z.infer<typeof databaseSafePropertyData>; // When creating a property
 
 export type PropertyData = z.infer<typeof databasePropertySchema>; // from database
