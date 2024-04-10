@@ -16,6 +16,14 @@ import {
   IncorrectEmailOrPasswordError,
   UserNotFoundError,
 } from "~/utils/errors";
+import { z } from "zod";
+
+export const authObject = {
+  email: z.string().email().default(""),
+  password: z.string().min(8).default(""),
+};
+
+export const authSchema = z.object(authObject);
 
 export class User implements authUser {
   [key: string]: number | string | undefined;
@@ -32,12 +40,11 @@ export class User implements authUser {
 
 export abstract class UserService {
   public static async checkForExistingUser(email: string) {
-    const user = await db.user.findUnique({
+    return await db.user.findUnique({
       where: {
         email,
       },
     });
-    if (user) throw new ExistingUserError();
   }
 
   /**
@@ -53,7 +60,9 @@ export abstract class UserService {
     validateAuth(data); // this will throw an error or simply do nothing // should be caught when calling this function a try/catch where this method was called.
 
     // check if user already exists
-    await UserService.checkForExistingUser(data.email);
+    const existingUser = await UserService.checkForExistingUser(data.email);
+    if (existingUser) throw new ExistingUserError();
+
     const user = await UserService.createUser(data);
     return user;
   }
@@ -63,21 +72,17 @@ export abstract class UserService {
     validateAuth(data); // this will throw an error or simply do nothing // should be caught when calling this function a try/catch where this method was called.
 
     // check if user already exists
-    const user = await db.user.findUnique({
-      where: {
-        email: data.email,
-      },
-    });
-    if (!user) throw new UserNotFoundError();
+    const existingUser = await UserService.checkForExistingUser(data.email);
+    if (!existingUser) throw new UserNotFoundError();
 
     // check if password matches
     const match = await PasswordService.checkPassword({
       password: data.password,
-      hash: user.password,
+      hash: existingUser.password,
     });
     if (!match) throw new IncorrectEmailOrPasswordError();
 
-    return new User(user);
+    return new User(existingUser);
   }
 
   public static async getUserById(id: number | string) {
