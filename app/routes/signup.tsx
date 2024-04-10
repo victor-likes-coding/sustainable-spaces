@@ -102,7 +102,6 @@ export default function Signup() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const actionData = useActionData<typeof action>(); // should only be the errors
-  console.log(actionData);
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
