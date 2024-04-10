@@ -7,16 +7,21 @@ import PurchaseTag from "~/components/purchase-tag";
 import EditSVG from "~/components/svg/Edit";
 import Pill from "~/components/pill";
 import { TokenPayload, validateAndRetrieveProperty } from "~/utils/helper";
-import { PropertyDataStructure } from "~/models/property.zod";
 import useModal from "~/components/Modal";
+import { singlePropertyDefaultWithImage } from "~/types/property.select";
+import { DatabaseProperty } from "~/models/property";
 // import Button from "~/components/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const {
     property,
     payload,
-  }: { property: PropertyDataStructure; payload: TokenPayload } =
-    await validateAndRetrieveProperty(params, request);
+  }: { property: DatabaseProperty; payload: TokenPayload } =
+    await validateAndRetrieveProperty(
+      params,
+      request,
+      singlePropertyDefaultWithImage
+    );
   const error = new URL(request.url).searchParams.get("error");
 
   return json({ property, payload, error });
@@ -24,7 +29,21 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
 export default function Property() {
   const {
-    property,
+    property: {
+      id,
+      images,
+      address: { streetAddress, city, state, zipcode },
+      fees: { hoa },
+      bedrooms,
+      bathrooms,
+      livingArea,
+      price,
+      purchaseMethod,
+      description,
+      ownerId,
+      tax,
+      annualHomeownersInsurance,
+    },
     payload: { id: userId },
     error,
   } = useLoaderData<typeof loader>();
@@ -35,21 +54,6 @@ export default function Property() {
     },
   });
 
-  const {
-    id,
-    address: { streetAddress, city, state, zipcode },
-    bedrooms,
-    bathrooms,
-    livingArea,
-    price,
-    purchaseMethod,
-    description,
-    tax,
-    annualHomeownersInsurance,
-    fees: { hoa },
-    ownerId,
-    images,
-  } = property;
   const [showContent, setShowContent] = useState(false);
   const handler = useSwipeable({
     onSwipedUp: (eventData) => {
@@ -72,9 +76,6 @@ export default function Property() {
       onOpen();
     }
   }, [error, onOpen, setKey]);
-  // if (error) {
-  //   onOpen();
-  // }
 
   return (
     <>
@@ -132,12 +133,13 @@ export default function Property() {
                   {bedrooms} beds | {bathrooms} baths | {livingArea} sqft
                 </div>
                 <div className="font-bold">
-                  {price
-                    .toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })
-                    .replace(/\.\d+/, "")}
+                  {price ||
+                    (0)
+                      .toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })
+                      .replace(/\.\d+/, "")}
                 </div>
               </section>
               <section className="purchase-options-row flex gap-3">
@@ -159,7 +161,7 @@ export default function Property() {
                   <div className="flex justify-between">
                     <div>Property Tax</div>
                     <div className="font-bold">
-                      {(tax / 12)
+                      {((tax || 0) / 12)
                         .toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
@@ -171,7 +173,7 @@ export default function Property() {
                   <div className="flex justify-between">
                     <div>Home Insurance</div>
                     <div className="font-bold">
-                      {(annualHomeownersInsurance / 12)
+                      {((annualHomeownersInsurance || 0) / 12)
                         .toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
@@ -183,7 +185,7 @@ export default function Property() {
                   <div className="flex justify-between">
                     <div>HOA</div>
                     <div className="font-bold">
-                      {(hoa ? hoa / 12 : 0)
+                      {((hoa || 0) / 12)
                         .toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
