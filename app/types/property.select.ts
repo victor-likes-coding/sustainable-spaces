@@ -30,6 +30,9 @@ export const editPropertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
   management: true,
   capex: true,
   vacancy: true,
+  homeType: true,
+  latitude: true,
+  longitude: true,
 };
 
 export const editFormPermissionSelect: Prisma.PropertySelect<DefaultArgs> = {
