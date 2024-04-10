@@ -97,11 +97,13 @@ export class DatabaseCreationServiceError extends BaseError {
   }
 }
 
-export class DataValidationEror extends BaseError {
-  constructor(data: BaseErrorProps = {}) {
+export class DataValidationEror<T> extends BaseError {
+  errs: object;
+  constructor(data: BaseErrorProps & { errs?: T } = {}) {
     super(data);
     this.name = "DataValidationEror";
     this.message = this.errors["10001"];
+    this.errs = data.errs || {};
   }
 }
 
