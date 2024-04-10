@@ -1,6 +1,16 @@
 import { z } from "zod";
 import { databaseImageFields } from "./Image";
 
+const homeTypeEnum = z.enum([
+  "SINGLE_FAMILY",
+  "MULTI_FAMILY",
+  "CONDO",
+  "TOWNHOUSE",
+  "MOBILE_HOME",
+  "LAND",
+  "OTHER",
+]);
+
 const updateablePropertyFields = {
   bedrooms: z.number({ coerce: true }),
   bathrooms: z.number({ coerce: true }),
@@ -10,15 +20,7 @@ const updateablePropertyFields = {
   yearBuilt: z.number({ coerce: true }),
   purchaseMethod: z.enum(["rent", "sell"]),
   price: z.number({ coerce: true }),
-  homeType: z.enum([
-    "SINGLE_FAMILY",
-    "MULTI_FAMILY",
-    "CONDO",
-    "TOWNHOUSE",
-    "MOBILE_HOME",
-    "LAND",
-    "OTHER",
-  ]),
+  homeType: homeTypeEnum,
   latitude: z.number({ coerce: true }),
   longitude: z.number({ coerce: true }),
   garage: z.number({ coerce: true }),
@@ -112,6 +114,8 @@ export const mutationSafePropertyData = z.object({
   ...addressPropertyFields,
   ...updateablePropertyFields,
 }); // this is for creating a property as well
+
+export type HomeTypeEnum = z.infer<typeof homeTypeEnum>;
 
 export type PropertyFeeData = z.infer<typeof propertyFeeSchema>;
 export type AddressData = z.infer<typeof addressPropertySchema>;
