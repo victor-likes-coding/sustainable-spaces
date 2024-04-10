@@ -1,7 +1,7 @@
 import { ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
-import { userAuthData } from "~/models/user";
+import { authObject, authSchema, userAuthData } from "~/models/user";
 import {
   DataValidationEror,
   PropertyNotFoundError,
@@ -20,24 +20,36 @@ import { getObjectData } from "./getObjectData";
  * Validates a `Auth` object to contain an email and password
  * @param data - an object containing string properties `email` and `password`
  */
+type ErrorKeys = "email" | "password";
+
+type ErrorObject = Record<ErrorKeys, string>;
 
 export const validateAuth = ({ email, password }: userAuthData) => {
-  const errors = {
+  const errs: ErrorObject = {
     email: "",
     password: "",
   };
-  if (!email) errors.email = "Email is required";
 
-  if (!password) errors.password = "Password is required";
+  const data = authSchema.safeParse({ email, password });
 
-  if (!validateEmail(email)) errors.email = "Invalid email. Please try again.";
+  if (!data.success) {
+    const {
+      error: { errors },
+    } = data;
 
-  if (!validatePassword(password))
-    errors.password =
-      "Invalid password. Please try again. Password must be at least 8 characters long and contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol.";
+    for (const error of errors) {
+      const { message, path } = error;
+      if (path && path.length > 0 && typeof path[0] === "string") {
+        const key = path[0] as ErrorKeys;
+        errs[key] = message;
+      }
+    }
 
-  if (errors.email || errors.password)
-    throw new DataValidationEror({ message: JSON.stringify(errors) });
+    throw new DataValidationEror({
+      message: JSON.stringify(errs),
+      errs,
+    });
+  }
 
   return true;
 };
