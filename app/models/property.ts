@@ -6,12 +6,17 @@ import { FormDataType } from "~/routes/property.add._index";
 import {
   AddressData,
   DatabaseSafePropertyData,
+  EditablePropertyData,
+  editablePropertySchema,
   mutationSafePropertyData,
   MutationSafePropertyData,
   PropertyData,
   PropertyDataStructure,
+  PropertyFeeData,
   propertySchema,
 } from "./property.zod";
+import { Prisma } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 export abstract class PropertyService {
   static createEmptyProperty(): FormDataType {
@@ -50,17 +55,14 @@ export abstract class PropertyService {
     });
   }
 
-  static getProperty(id: number): Promise<PropertyData | null> {
+  static getProperty<T extends Prisma.PropertySelect<DefaultArgs>>(
+    id: number,
+    select: T
+  ): Promise<Partial<PropertyData> | null> {
     return db.property.findUnique({
+      select,
       where: {
         id,
-      },
-      include: {
-        images: {
-          where: {
-            active: true,
-          },
-        },
       },
     });
   }
@@ -109,99 +111,91 @@ export abstract class PropertyService {
       throw new PropertyValidationError({});
     }
   }
-  abstract updateProperty(
-    property: unknown
-  ): Promise<DatabaseSafePropertyData | void>;
+  static async updateProperty<T extends EditablePropertyData>(
+    property: T
+  ): Promise<DatabaseSafePropertyData | void> {
+    console.log("property", property);
+  }
   abstract deleteProperty(id: number): Promise<void>;
 
   static transformToPropertyData(property: string) {
-    const data = propertySchema.parse(JSON.parse(property as string));
+    const parsedJson = JSON.parse(property);
+    const { address, fees, images, ...rest } = parsedJson;
+
+    const propertyData = {
+      ...address,
+      ...fees,
+      ...rest,
+    };
+    const data = editablePropertySchema.parse(propertyData);
     return data;
   }
 }
 
-// this class is used for representing a property from the database
-export class DatabaseProperty implements PropertyDataStructure {
-  id: number;
-  purchaseMethod: "rent" | "sell";
-  tenantId: number | null | undefined;
-  likes: number[];
-  likesCount: number;
-  timestamp: string | undefined;
-  zpid: number;
-  bedrooms: number;
-  bathrooms: number;
-  description: string;
-  lotSize: number;
-  livingArea: number;
-  yearBuilt: number;
-  price: number;
-  homeType: string;
-  latitude: number;
-  longitude: number;
-  livingAreaUnits: string;
-  lotAreaUnits: string;
-  tax: number;
-  annualHomeownersInsurance: number;
-  zillowLink: string | undefined | null;
-  garage: number;
-  parcelId: string;
-  ownerId: number;
-  fees: {
-    hoa: number | undefined | null;
-    management: number;
-    capex: number;
-    vacancy: number;
-  };
-  address: {
-    streetAddress: string;
-    city: string;
-    state: string;
-    zipcode: string;
-  };
-  updated: Date | string;
-  created: Date | string;
-  images: ImageSchema[]; // Add the 'images' property
-  constructor(data: PropertyData) {
-    this.id = data.id;
-    this.purchaseMethod = data.purchaseMethod;
-    this.tenantId = data.tenantId;
-    this.likes = data.likes;
-    this.likesCount = data.likesCount;
-    this.zpid = data.zpid;
-    this.bedrooms = data.bedrooms;
-    this.bathrooms = data.bathrooms;
-    this.description = data.description;
-    this.lotSize = data.lotSize;
-    this.livingArea = data.livingArea;
-    this.yearBuilt = data.yearBuilt;
-    this.price = data.price;
-    this.homeType = data.homeType;
-    this.latitude = data.latitude;
-    this.longitude = data.longitude;
-    this.livingAreaUnits = data.livingAreaUnits;
-    this.lotAreaUnits = data.lotAreaUnits;
-    this.tax = data.tax;
-    this.annualHomeownersInsurance = data.annualHomeownersInsurance;
-    this.zillowLink = data.zillowLink;
-    this.garage = data.garage;
-    this.parcelId = data.parcelId;
-    this.ownerId = data.ownerId;
-    this.fees = {
-      hoa: data.hoa,
-      management: data.management,
-      capex: data.capex,
-      vacancy: data.vacancy,
-    };
+// this class takes in the database data object and converts it into a property object
+export class DatabaseProperty implements Partial<PropertyDataStructure> {
+  id: number | undefined;
+  address: AddressData;
+  bedrooms: number | undefined;
+  bathrooms: number | undefined;
+  description: string | undefined;
+  lotSize: number | undefined;
+  livingArea: number | undefined;
+  yearBuilt: number | undefined;
+  purchaseMethod: "sell" | "rent" | undefined;
+  price: number | undefined;
+  homeType: string | undefined;
+  latitude: number | undefined;
+  longitude: number | undefined;
+  livingAreaUnits: string | undefined;
+  lotAreaUnits: string | undefined;
+  tax: number | undefined;
+  annualHomeownersInsurance: number | undefined;
+  zillowLink: string | undefined;
+  garage: number | undefined;
+  parcelId: string | undefined;
+  images: ImageSchema[];
+  ownerId: number | undefined;
+  likes: number[] | undefined;
+  likesCount: number | undefined;
+  fees: PropertyFeeData;
+
+  constructor(private property: Partial<PropertyData>) {
+    this.id = property.id;
     this.address = {
-      streetAddress: data.streetAddress,
-      city: data.city,
-      state: data.state,
-      zipcode: data.zipcode,
+      streetAddress: property.streetAddress || "",
+      city: property.city || "",
+      state: property.state || "",
+      zipcode: property.zipcode || "",
     };
-    this.updated = new Date(data.updated);
-    this.created = new Date(data.created);
-    this.images = data.images; // Assign the 'images' property
+    this.bedrooms = property.bedrooms;
+    this.bathrooms = property.bathrooms;
+    this.description = property.description;
+    this.lotSize = property.lotSize;
+    this.livingArea = property.livingArea;
+    this.yearBuilt = property.yearBuilt;
+    this.purchaseMethod = property.purchaseMethod;
+    this.price = property.price;
+    this.homeType = property.homeType;
+    this.latitude = property.latitude;
+    this.longitude = property.longitude;
+    this.livingAreaUnits = property.livingAreaUnits;
+    this.lotAreaUnits = property.lotAreaUnits;
+    this.tax = property.tax;
+    this.annualHomeownersInsurance = property.annualHomeownersInsurance;
+    this.zillowLink = property.zillowLink || "";
+    this.garage = property.garage;
+    this.parcelId = property.parcelId;
+    this.images = property.images || [];
+    this.ownerId = property.ownerId;
+    this.likes = property.likes || [];
+    this.likesCount = property.likesCount;
+    this.fees = {
+      hoa: property.hoa,
+      management: property.management || 0,
+      capex: property.capex || 0,
+      vacancy: property.vacancy || 0,
+    };
   }
 }
 
