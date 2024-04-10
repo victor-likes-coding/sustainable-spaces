@@ -47,6 +47,7 @@ model Property {
   city String
   state String
   zipcode String
+  // add a unique full address line
 
   // property information
   bedrooms Int
