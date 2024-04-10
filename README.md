@@ -3,7 +3,7 @@
 The goal of this app is as follows:
 
 - to allow users, renters and homeowners a way to effortless buy (both renters and homeowners), rent (renters), sell (homeowners) homes. The app offers renters a way to earn free rent in exchange for helping the effort to crowdfund the purchase of homes via a lottery.
-- to provide rent stabilization through crowdfunding. we hope to be able to reduce the cost of owning a house, thus having less expenses that would require a higher rent to achieve some sort of cash flow.
+- to provide rent stabilization through crowdfunding. We hope to be able to reduce the cost of owning a house, thus having less expenses that would require a higher rent to achieve some sort of cash flow.
 - to provide homeowners with the tools to efficiently check a renters background, collect payment, schedule cleanings and other services like handyman work.
 
 ### The "Free Housing Sweepstakes" Mechanic -- Deemed illegal in Florida under Gambling laws -- unless under a charitable organization according to the [law](http://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&URL=0800-0899/0849/Sections/0849.0935.html)
@@ -21,7 +21,7 @@ You'll be notified of a move-in date if you reside in the state/city the home wa
 
 ### Rent Caps
 
-In the event we acqiure homes through crowdfunding, we will make rent equal to PITI (principal, interest, taxes, insurance) \* ~1.28 (capex, management, vacancy, other fees\* AKA Essential Fees) + 15%. For example:
+In the event we acqiure homes through crowdfunding, we will make rent equal to PITI (principal, interest, taxes, insurance) \* ~1.28 (capex, management, vacancy, other fees\* AKA Essential Fees, **Disclaimer:** subject to change due to payment processors and etc that we have no control over) + 15%. For example:
 PITI | Essential Fees | Flat Rate | Total
 |----|----|----|----|
 Base | 1.28% | 15% | varies
@@ -86,7 +86,7 @@ The initial MVP will have the following features:
 /privacy - Privacy ✅
 /property/ - Root Property (show all properties, requires auth) ✅
 /property/add - Add Form for adding properties (requires auth) ✅
-/property/$id         - View single Property (requires auth) ❌
+/property/$id         - View single Property (requires auth) ✅
 /property/$id/edit - Edit single property (requires auth + owner) ❌
 /property/$id/delete  - Removes property / mark as inactive (requires auth + owner) ❌
 /user/                - nothing ✅
@@ -103,6 +103,30 @@ The initial MVP will have the following features:
 
 ## Schedule:
 
+### **TODOs:**
+
+- Add an edit route for specific properties owned by the user. (WIP)
+- Create a view for user-owned properties. (Not started)
+- Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
+
+### 4/9:
+
+**Changelog:**
+
+- Update login/sign up to not break the application/render an error boundary when user puts invalid auth credentials (missing credentials).
+- Add build to remix.config.js to allow for project to be built for production.
+
+### 3/26 - 3/29:
+
+**Changelog:**
+
+- Refactor Modal to be a hook
+- Edit form is being worked on
+  - Images are being displayed correctly
+  - At the end or if there's lack of images, there's an input that serves to upload images
+  - Images can be previewed
+  - Removed images are "removed", but not finalized until the submission of form.
+
 ### 3/25:
 
 **Changelog:**
@@ -113,17 +137,9 @@ The initial MVP will have the following features:
 
 ### 3/22:
 
-**TODOs:**
-
-- Add an edit route for specific properties owned by the user.
-- Create a view for user-owned properties.
-- Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok.
-
 **Changelog:**
 
 - Fetch images to include in the properties page.
-
-**Issues:**
 
 ### 3/21:
 
