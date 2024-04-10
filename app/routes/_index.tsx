@@ -34,8 +34,8 @@ export default function Index() {
           <Link to={"/about"} className="text-sm mt-2 underline">
             Learn more
           </Link>
-          <Footer isVisible />
         </main>
+        <Footer isVisible />
       </div>
     </>
   );
