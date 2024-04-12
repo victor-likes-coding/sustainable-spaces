@@ -1,7 +1,7 @@
 import { ZillowPropertyData } from "./../models/property.d";
 import { TokenPayload, authError } from "./helper.d";
 import validator from "validator";
-import { authObject, authSchema, userAuthData } from "~/models/user";
+import { authSchema, userAuthData } from "~/models/user";
 import {
   DataValidationEror,
   PropertyNotFoundError,
@@ -15,6 +15,10 @@ import { Prisma } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 import { filterObject } from "./filterObject";
 import { getObjectData } from "./getObjectData";
+import {
+  DpgClientCache,
+  RequiredZillowPropertyWithOtherData,
+} from "~/types/Zillow";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -80,27 +84,22 @@ export function getStartingIndex(html: string, pattern: string) {
   return html.indexOf(pattern) + pattern.length;
 }
 
-type dCache = {
-  [key: string]: {
-    property: unknown;
-  };
-};
-
-interface AdditionalMutationData {
-  purchaseMethod: "rent" | "sell";
-}
 function getPropertyData(
-  dpgClientCache: dCache
-): ZillowPropertyData | undefined {
+  dpgClientCache: DpgClientCache
+): RequiredZillowPropertyWithOtherData | undefined {
   if (!dpgClientCache || typeof dpgClientCache !== "object") return;
 
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
+
   const propertyData = filterObject(property);
-  return propertyData as ZillowPropertyData;
+  return propertyData;
 }
 
-export function getZillowDataFromHtml(html: string, pattern: string) {
+export function getZillowDataFromHtml(
+  html: string,
+  pattern: string
+): undefined | RequiredZillowPropertyWithOtherData {
   const startIndex = getStartingIndex(html, pattern);
 
   // reduce the string so we're only looking at the start of the json object
@@ -112,17 +111,12 @@ export function getZillowDataFromHtml(html: string, pattern: string) {
     return undefined; // very important we have the dpgClientCache
   const dpgClientCache =
     objectData?.props?.pageProps?.componentProps?.gdpClientCache;
-  const zillowData = JSON.parse(dpgClientCache);
+  const zillowData: DpgClientCache = JSON.parse(dpgClientCache);
 
   return getPropertyData(zillowData);
 }
 
-export type {
-  authError,
-  TokenPayload,
-  ZillowPropertyData,
-  AdditionalMutationData,
-};
+export type { authError, TokenPayload, ZillowPropertyData };
 
 export async function validateAndRetrieveProperty(
   { propertyId }: Params<string>,
