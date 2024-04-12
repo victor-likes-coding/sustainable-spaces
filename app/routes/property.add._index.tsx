@@ -8,12 +8,7 @@ import {
 } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import Navbar from "~/components/navbar";
-import {
-  AdditionalMutationData,
-  TokenPayload,
-  ZillowPropertyData,
-  createZillowUrl,
-} from "~/utils/helper";
+import { TokenPayload, createZillowUrl } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import invariant from "invariant";
 import { useCallback, useEffect, useState } from "react";
@@ -23,14 +18,14 @@ import {
   ZillowCaptchaError,
 } from "~/utils/errors";
 import Loader from "~/components/Loader";
-import { PropertyFormData, PropertyService } from "~/models/property";
 import PlacesSearch from "~/components/PlacesSearch";
 import AddPropertyForm from "~/components/AddPropertyForm";
 import { uploadImages } from "~/utils/storage.server";
 import { ImageService } from "~/models/Image";
-import { MutationSafePropertyData } from "~/models/property.zod";
 import useModal from "~/components/Modal";
 import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
+import { PropertyServiceNew } from "~/types/property.new";
+import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -56,28 +51,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { data } = Object.fromEntries(formData);
   // property is a string, so we need to parse it
-  const { address, ...rest }: Partial<ZillowPropertyData> = JSON.parse(
-    data as string
-  );
+  const parsed = JSON.parse(data as string);
+  // ! TODO: Need a try/catch 3x
 
-  // shape into flat data
-  const flatData = {
-    ...address,
-    ...rest,
-  } as MutationSafePropertyData;
-
-  const { id } = await PropertyService.createProperty({
-    ...flatData,
+  // PrismaClientKnownRequestError
+  // Unique constraint failed on the fields: (`parcelId`)
+  // code = 'P2002'
+  // meta.target = `parcelId`
+  const { id } = await PropertyServiceNew.createProperty({
+    ...parsed,
     ownerId: payload.id,
-  } as MutationSafePropertyData);
+  });
 
   // save image url to database with coinciding with property id
   if (imageUrls.length > 0) await ImageService.addImageUrls(id, imageUrls);
 
   return redirect(`/property/${id}`);
 }
-
-export type FormDataType = PropertyFormData & AdditionalMutationData;
 
 export default function Index() {
   const { payload, apiKey } = useLoaderData<typeof loader>();
@@ -98,9 +88,9 @@ export default function Index() {
     },
   });
   const navigate = useNavigate();
-  const emptyProperty: FormDataType = PropertyService.createEmptyProperty();
+  const emptyProperty = PropertyServiceNew.generateEmptyProperty();
 
-  const [property, setProperty] = useState<FormDataType>(emptyProperty);
+  const [property, setProperty] = useState(emptyProperty);
 
   useEffect(() => {
     return () => {
@@ -113,7 +103,7 @@ export default function Index() {
       error?: string;
       propertyId?: number;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      propertyData?: any; // ! TODO: place proper data type
+      propertyData?: RequiredZillowPropertyWithOtherData; // ! TODO: place proper data type
     };
     if (!place) return;
 
