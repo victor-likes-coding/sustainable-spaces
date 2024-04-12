@@ -35,9 +35,13 @@ export const editPropertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
   longitude: true,
 };
 
+export const propertyOwnerSelect: Prisma.PropertySelect<DefaultArgs> = {
+  ownerId: true,
+};
+
 export const editFormPermissionSelect: Prisma.PropertySelect<DefaultArgs> = {
   ...editPropertyFormSelect,
-  ownerId: true,
+  ...propertyOwnerSelect,
 };
 
 export const singlePropertyDefaultSelect: Prisma.PropertySelect<DefaultArgs> = {
