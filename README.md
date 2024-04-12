@@ -105,16 +105,26 @@ The initial MVP will have the following features:
 
 ### **TODOs:**
 
+- Revamp types and zod types. They seem overly complicated right now and causes issues on some things. (WIP)
 - Add an edit route for specific properties owned by the user. (WIP)
 - Create a view for user-owned properties. (Not started)
 - Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
 
-### 4/9:
+### 4/8-4/12:
 
 **Changelog:**
 
 - Update login/sign up to not break the application/render an error boundary when user puts invalid auth credentials (missing credentials).
 - Add build to remix.config.js to allow for project to be built for production.
+- Implement way to update property data. Includes adding photos.
+- Revamp types in the Add Form / Add Property Route.
+- Revamp getZillow route / helpers to extract data from html.
+- Create new types for zillow data parsing.
+
+**Issues:**
+
+- Uploading the same filename causes an error due to the retention policy set forth.
+- When editing photos, the added photo is not included in the slider of images.
 
 ### 3/26 - 3/29:
 
