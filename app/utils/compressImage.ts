@@ -1,7 +1,12 @@
 import { Buffer } from "buffer";
 import sharp from "sharp";
 
-export type SupportedFileTypes = "jpeg" | "png" | "webp" | "tiff" | "avif";
+export type SupportedFileTypes =
+  | "image/jpeg"
+  | "image/png"
+  | "image/webp"
+  | "image/tiff"
+  | "image/avif";
 
 interface CompressionOptions {
   width?: number;
@@ -24,29 +29,28 @@ export const compressImage: CompressImage = async (imageBuffer, options) => {
 
   // Default format settings
   const defaultQuality = options.quality ?? 80; // Default quality if not specified
-
   switch (options.format) {
-    case "jpeg":
+    case "image/jpeg":
       sharpInstance = sharpInstance.jpeg({
         quality: options.quality ?? defaultQuality,
       });
       break;
-    case "png":
+    case "image/png":
       sharpInstance = sharpInstance.png({
         quality: options.quality ?? defaultQuality,
       });
       break;
-    case "webp":
+    case "image/webp":
       sharpInstance = sharpInstance.webp({
         quality: options.quality ?? defaultQuality,
       });
       break;
-    case "tiff":
+    case "image/tiff":
       sharpInstance = sharpInstance.tiff({
         quality: options.quality ?? defaultQuality,
       });
       break;
-    case "avif":
+    case "image/avif":
       sharpInstance = sharpInstance.avif({
         quality: options.quality ?? defaultQuality,
       });
