@@ -1,50 +1,41 @@
-import { AddressData } from "~/models/property.zod";
-import { ZillowPropertyData } from "../models/property.d";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function filterObject(obj: any): Partial<ZillowPropertyData> {
-  const filteredObject: Partial<ZillowPropertyData> = {
-    garage: 0,
-  };
-  const dataKeys = Object.keys(obj) as Array<keyof ZillowPropertyData>;
-  // filter keys based on zillowPropertyData type only
-  const keys = [
+
+import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
+
+export function filterObject<Type extends RequiredZillowPropertyWithOtherData>(
+  obj: Type
+): RequiredZillowPropertyWithOtherData {
+  const propertyKeys: Array<keyof Type> = [
     "zpid",
-    "yearBuilt",
-    "parcelId",
-    "lotSize",
-    "lotAreaUnits",
-    "livingArea",
-    "livingAreaUnits",
-    "latitude",
-    "longitude",
-    "homeType",
-    "description",
-    "bedrooms",
-    "bathrooms",
-    "timestamp",
-    "insurance",
-    "annualHomeownersInsurance",
-    "zillowLink",
     "city",
     "state",
+    "bedrooms",
+    "bathrooms",
+    "price",
+    "yearBuilt",
     "streetAddress",
     "zipcode",
-    "price",
-    "garage",
+    "monthlyHoaFee",
+    "parcelId",
+    "description",
+    "latitude",
+    "longitude",
+    "propertyTaxRate",
+    "livingAreaUnits",
+    "lotSize",
+    "lotAreaValue",
+    "lotAreaUnits",
+    "annualHomeownersInsurance",
+    "livingArea",
+    "homeType",
   ];
 
-  const addressKeys = ["city", "state", "streetAddress", "zipcode"];
+  const filteredObject: Type = {
+    garage: 0,
+  } as Type;
 
-  for (const key of dataKeys) {
-    if (keys.includes(key as string)) {
-      if (addressKeys.includes(key as string)) {
-        filteredObject.address = filteredObject.address || ({} as AddressData);
-        filteredObject.address[key as keyof AddressData] = obj[key];
-      } else {
-        filteredObject[key] = obj[key];
-      }
-    }
+  for (const key of propertyKeys) {
+    filteredObject[key] = obj[key];
   }
 
   return filteredObject;
