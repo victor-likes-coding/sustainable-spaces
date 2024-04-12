@@ -8,7 +8,6 @@ import {
 import { writeFile, readFile, access, mkdir } from "fs/promises";
 import { dirname, join } from "path";
 import {
-  AdditionalMutationData,
   ZillowPropertyData,
   getZillowDataFromHtml,
   modifyAddress,
@@ -17,8 +16,9 @@ import {
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
-import { LaunchOptions, Page } from "puppeteer";
-import { PropertyData, PropertyService } from "~/models/property";
+import { LaunchOptions, Page, PuppeteerLaunchOptions } from "puppeteer";
+import { PropertyServiceNew } from "~/types/property.new";
+import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
 
 // based on 2 letter state, get tax rate
 type State = "FL"; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
@@ -79,10 +79,7 @@ export async function getLocalPropertyData(
   }
 }
 
-export async function getPropertyData(
-  url: string,
-  address: string
-): Promise<PropertyData | ZillowPropertyData | undefined | null> {
+export async function getPropertyData(url: string, address: string) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [streetAddress, city, stateZip, ..._] = address.split(", ");
   const [state, zipcode] = stateZip.split(" ");
@@ -94,59 +91,41 @@ export async function getPropertyData(
     zipcode,
   };
 
-  let propertyData: PropertyData | ZillowPropertyData | undefined | null;
+  const property = await PropertyServiceNew.getPropertyByAddress(searchData);
+  if (property)
+    throw new PropertyAlreadyExistsError({ propertyId: property.id });
 
-  propertyData = await PropertyService.getPropertyByAddress(searchData);
-  if (propertyData)
-    throw new PropertyAlreadyExistsError({ propertyId: propertyData.id });
-  propertyData = await fetchPropertyDataFromZillow(url);
+  const propertyData = await fetchPropertyDataFromZillow(url);
   addTaxData(propertyData);
 
   return propertyData;
 }
 
-function addTaxData(
-  propertyData: ZillowPropertyData & Partial<AdditionalMutationData>
-): void {
-  if (propertyData.tax) return;
-
+function addTaxData(data: RequiredZillowPropertyWithOtherData): void {
+  console.log(data);
   // get state tax rate
   // get purchase price
   // calculate tax
   // add tax to propertyData
+  const { price, propertyTaxRate } = data;
+  const tax = (price * propertyTaxRate) / 100;
 
-  const {
-    address: { state },
-    price,
-  } = propertyData;
-
-  const taxRate = taxes[state as State];
-  if (!taxRate || !price) return; // we don't have tax data for this state yet or a purchase price
-
-  const tax = Number(price) * taxRate;
-  propertyData.tax = tax; // yearly tax rate
+  data.tax = tax; // yearly tax rate
 }
 
 async function fetchPropertyDataFromZillow(
   url: string
-): Promise<ZillowPropertyData> {
+): Promise<RequiredZillowPropertyWithOtherData> {
   let html: string;
-  let propertyData:
-    | ZillowPropertyData
-    | Partial<ZillowPropertyData>
-    | undefined = {};
+  let propertyData: RequiredZillowPropertyWithOtherData | undefined | null =
+    null;
   try {
-    html = await getPropertyDataFromZillow(url);
+    html = await getPropertyDataFromZillow(url); // this will almost 100% fail
     const pattern = `</script></div></div><div id="__NEXT_SCRIPTS_DEV__"></div><script id="__NEXT_DATA__" type="application/json">`;
 
     propertyData = getZillowDataFromHtml(html, pattern);
-
-    if (!propertyData) {
-      propertyData = await fetchPropertyDataWithPuppeteer(url); // first fallback
-    }
   } catch (err) {
     if (err instanceof ZillowResponseError) {
-      // Manually scrape the data we need from Zillow
       propertyData = await scrapePropertyDataFromZillow(url); // second fallback (really works)
     }
 
@@ -159,7 +138,7 @@ async function fetchPropertyDataFromZillow(
   }
 
   if (propertyData) {
-    return propertyData as ZillowPropertyData;
+    return propertyData;
   } else {
     // Handle the case when propertyData is still undefined or null
     throw new PropertyNotFoundError();
@@ -169,15 +148,17 @@ async function fetchPropertyDataFromZillow(
 async function scrapePropertyDataFromZillow(
   url: string,
   config?: LaunchOptions
-): Promise<ZillowPropertyData> {
+) {
   const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
   await page.goto(url);
   const propertyData = await extractPropertyDataFromPage(page);
-  if (propertyData) {
-    propertyData.zillowLink = url;
+  if (!propertyData) {
+    throw new PropertyNotFoundError();
   }
-  return propertyData as ZillowPropertyData;
+  propertyData.zillowLink = url;
+  await browser.close();
+  return propertyData;
   // finally {
   //   await browser.close();
   // }
@@ -185,7 +166,7 @@ async function scrapePropertyDataFromZillow(
 
 async function extractPropertyDataFromPage(
   page: Page
-): Promise<ZillowPropertyData | undefined> {
+): Promise<RequiredZillowPropertyWithOtherData | undefined> {
   const newPattern = `</div><script id="__NEXT_DATA__" type="application/json">`;
   const newHTML = await page.content();
 
@@ -195,27 +176,31 @@ async function extractPropertyDataFromPage(
 
 async function fetchPropertyDataWithPuppeteer(
   url: string,
-  config?: LaunchOptions
+  config?: PuppeteerLaunchOptions
 ): Promise<ZillowPropertyData> {
   const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
 
   try {
+    console.log("going to", url);
     await page.goto(url);
 
     // check and see if there's an iframe with the title="Human verification challenge"
     // get a p that has the text "Press & Hold"
     // if it exists, we need to solve the captcha
+    console.log("finding captcha");
     const captcha = await page.$(
       "iframe[title='Human verification challenge']"
     );
     if (captcha) {
+      console.log("captcha found");
       // Wait for the iframe to load
       await page.waitForSelector(
         'iframe[title="Human verification challenge"]'
       );
 
       // Switch to the iframe context
+      console.log("switching to frame");
       const frames = page.frames();
       const captchaFrame = frames.find(
         async (frame) =>
@@ -223,6 +208,7 @@ async function fetchPropertyDataWithPuppeteer(
       );
 
       // Ensure the frame was found
+      console.log("verify frame is found");
       if (captchaFrame) {
         // Wait for the text and button to be visible inside the iframe
         const buttonSelector = 'p:contains("Press & Hold")'; // Adjust if necessary
@@ -250,6 +236,7 @@ async function fetchPropertyDataWithPuppeteer(
         }, 7000); // Adjust time as necessary based on CAPTCHA requirements
       }
     }
+    console.log("looking for bpd-property-card");
     const anchor = await page.waitForSelector(
       `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
     );
