@@ -3,16 +3,21 @@ import { ChangeEvent, useState } from "react";
 import { Button } from "@nextui-org/react";
 import Upload from "./Upload";
 import { useSubmit } from "@remix-run/react";
-import { FormDataType } from "~/routes/property.add._index";
 import AddressInputFields from "./AddressInputFields";
 import PropertyCharacteristicsInputFields from "./PropertyCharacteristicsInputFields";
-import HiddenPropertyFields, { HiddenFields } from "./HiddenPropertyFields";
 import { prepareFormData } from "~/utils/helper";
+import {
+  AddablePropertyData,
+  PurchaseMethod,
+  RequiredHiddenPropertyData,
+} from "~/types/property.new";
+import HiddenPropertyFields from "./HiddenPropertyFields";
 
+type PropertyData = AddablePropertyData & RequiredHiddenPropertyData;
 type Props = {
   className?: string;
-  property: FormDataType;
-  setProperty: React.Dispatch<React.SetStateAction<FormDataType>>;
+  property: PropertyData;
+  setProperty: React.Dispatch<React.SetStateAction<PropertyData>>;
   method: "post" | "get" | "put" | "delete";
   action?: string;
 };
@@ -37,10 +42,7 @@ export default function AddPropertyForm({
   const handleAddressChange = (event: ChangeEvent<HTMLInputElement>) => {
     setProperty((prevProperty) => ({
       ...prevProperty,
-      address: {
-        ...prevProperty.address,
-        [event.target.name]: event.target.value,
-      },
+      [event.target.name]: event.target.value,
     }));
   };
 
@@ -52,11 +54,15 @@ export default function AddPropertyForm({
       [event.target.name]:
         event.target.tagName === "INPUT"
           ? event.target.value
-          : (event.target.value as "rent" | "sell"),
+          : (event.target.value as PurchaseMethod),
     }));
   };
 
   const {
+    streetAddress,
+    city,
+    state,
+    zipcode,
     bedrooms,
     bathrooms,
     description,
@@ -65,11 +71,11 @@ export default function AddPropertyForm({
     yearBuilt,
     purchaseMethod,
     price,
-    ...rest
+    garage,
+    ...hidden
   } = property;
 
-  const { address, ...hidden } = rest;
-
+  const address = { streetAddress, city, state, zipcode };
   const propertyCharacteristicsData = {
     bedrooms,
     bathrooms,
@@ -79,7 +85,7 @@ export default function AddPropertyForm({
     yearBuilt,
     purchaseMethod,
     price,
-    garage: 0,
+    garage: garage || 0,
   };
 
   return (
@@ -87,10 +93,23 @@ export default function AddPropertyForm({
       <AddressInputFields address={address} setProperty={handleAddressChange} />
       <PropertyCharacteristicsInputFields
         data={propertyCharacteristicsData}
+        orderOfInputs={[
+          "bedrooms",
+          "bathrooms",
+          "purchaseMethod",
+          "description",
+          "lotSize",
+          "livingArea",
+          "yearBuilt",
+          "garage",
+          "price",
+        ]}
         setProperty={handleChange}
       />
+      <HiddenPropertyFields
+        hiddenFields={hidden as RequiredHiddenPropertyData}
+      />
 
-      <HiddenPropertyFields hiddenFields={hidden as HiddenFields} />
       <Upload
         files={fileData}
         setFiles={setFileData}

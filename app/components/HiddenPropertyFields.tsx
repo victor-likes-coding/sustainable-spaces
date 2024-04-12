@@ -1,38 +1,26 @@
 import { Input } from "@nextui-org/react";
-
-export type HiddenFields = {
-  zpid: string;
-  parcelId: string;
-  lotAreaUnits: string;
-  livingAreaUnits: string;
-  latitude: string;
-  longitude: string;
-  homeType: string;
-  tax: string;
-  annualHomeownersInsurance: string;
-  zillowLink: string;
-  garage: string;
-};
+import { RequiredHiddenPropertyData } from "~/types/property.new";
 
 type Props = {
-  hiddenFields: HiddenFields;
+  hiddenFields: RequiredHiddenPropertyData;
 };
 
 const HiddenPropertyFields = ({ hiddenFields }: Props) => {
+  console.log(hiddenFields);
   return (
     <>
-      {(Object.keys(hiddenFields) as Array<keyof HiddenFields>).map(
-        (value, index) => (
-          <Input
-            key={`hidden-${index}`}
-            type="text"
-            className="hidden"
-            name={value}
-            value={hiddenFields[value]}
-            readOnly
-          />
-        )
-      )}
+      {(
+        Object.keys(hiddenFields) as Array<keyof RequiredHiddenPropertyData>
+      ).map((value, index) => (
+        <Input
+          key={`hidden-${index}`}
+          type="text"
+          className="hidden"
+          name={value}
+          value={hiddenFields[value]?.toString()} // Convert the value to string
+          readOnly
+        />
+      ))}
     </>
   );
 };
