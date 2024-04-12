@@ -75,10 +75,12 @@ model Property {
   purchaseMethod PurchaseMethod
 
   // fees
+  propertyTaxRate Float
+  taxRate Float @default(0.0072)
   tax Float
   capex Float @default(0.10)
   vacancy Float @default(0.05)
-  hoa Float? @default(0)
+  monthlyHoaFee Float?
   management Float @default(0.10)
   annualHomeownersInsurance Float
 
