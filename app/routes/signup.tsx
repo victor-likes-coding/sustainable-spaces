@@ -13,12 +13,12 @@ import {
 import { checkForToken, createUserSession } from "~/utils/sessions.server";
 import Loader from "~/components/Loader";
 import Footer from "~/components/Footer";
+import { getFormData } from "~/utils/getFormData";
 
 // import Button from "~/components/button";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const clonedRequest = request.clone(); // fixes locking up the readable stream for the request object
-  const formData = await clonedRequest.formData();
+  const formData = await getFormData(request);
   const errors = {
     message: "",
     email: "",

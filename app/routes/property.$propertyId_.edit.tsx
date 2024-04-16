@@ -20,14 +20,13 @@ import { PropertyService } from "~/models/property";
 import { PropertyDataStructure } from "~/models/property.zod";
 import { editFormPermissionSelect } from "~/types/property.select";
 import { UnauthorizedMutationRequestError } from "~/utils/errors";
+import { getFormData } from "~/utils/getFormData";
 import { validatePropertyOwner } from "~/utils/helper";
 
 // import Button from "~/components/button";
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  // await validatePropertyOwner(params, request); // validates the property owner
-  const req = request.clone();
-  const formData = await req.formData();
+  const formData = await getFormData(request);
 
   const files = formData.getAll("file"); // these are the new images to upload
 

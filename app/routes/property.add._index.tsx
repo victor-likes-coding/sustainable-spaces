@@ -26,6 +26,7 @@ import useModal from "~/components/Modal";
 import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
 import { PropertyServiceNew } from "~/types/property.new";
 import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
+import { getFormData } from "~/utils/getFormData";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
@@ -42,8 +43,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export async function action({ request }: ActionFunctionArgs) {
   const payload = (await requireToken(request)) as TokenPayload;
-  const clonedRequest = request.clone(); // fixes locking up the readable stream for the request object
-  const formData = await clonedRequest.formData();
+  const formData = await getFormData(request);
 
   // get image files
   const files = formData.getAll("files");
