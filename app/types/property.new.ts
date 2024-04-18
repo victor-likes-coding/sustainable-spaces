@@ -2,25 +2,26 @@ import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
 import { Address } from "./Address";
-import { Image, Property as PrismaProperty } from "@prisma/client";
+import { Image, Prisma, Property as PrismaProperty } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
-const addSchema = z.object({
-  streetAddress: z.string({ coerce: true }),
-  city: z.string({ coerce: true }),
-  state: z.string({ coerce: true }),
-  zipcode: z.string({ coerce: true }),
-  bedrooms: z.number({ coerce: true }),
-  bathrooms: z.number({ coerce: true }),
-  purchaseMethod: z.union([z.literal("rent"), z.literal("sell")]),
-  description: z.string({ coerce: true }),
-  lotSize: z.number({ coerce: true }),
-  livingArea: z.number({ coerce: true }),
-  yearBuilt: z.number({ coerce: true }),
-  garage: z.number({ coerce: true }),
-  price: z.number({ coerce: true }),
+const commonFields = {
+  streetAddress: z.string({ coerce: true }), //
+  city: z.string({ coerce: true }), //
+  state: z.string({ coerce: true }), //
+  zipcode: z.string({ coerce: true }), //
+  bedrooms: z.number({ coerce: true }), //
+  bathrooms: z.number({ coerce: true }), //
+  purchaseMethod: z.union([z.literal("rent"), z.literal("sell")]), //
+  description: z.string({ coerce: true }), //
+  lotSize: z.number({ coerce: true }), //
+  livingArea: z.number({ coerce: true }), //
+  yearBuilt: z.number({ coerce: true }), //
+  garage: z.number({ coerce: true }), //
+  price: z.number({ coerce: true }), //
   // add the required hidden fields
-  longitude: z.number({ coerce: true }),
-  latitude: z.number({ coerce: true }),
+  longitude: z.number({ coerce: true }), //
+  latitude: z.number({ coerce: true }), //
   homeType: z.union([
     z.literal("SINGLE_FAMILY"),
     z.literal("MULTI_FAMILY"),
@@ -29,20 +30,32 @@ const addSchema = z.object({
     z.literal("MOBILE_HOME"),
     z.literal("LAND"),
     z.literal("OTHER"),
-  ]),
+  ]), //
+  tax: z.number({ coerce: true }), //
+  annualHomeownersInsurance: z.number({ coerce: true }), //
+  monthlyHoaFee: z.number({ coerce: true }).default(0), //
+};
+
+const addSchema = z.object({
+  ...commonFields,
   parcelId: z.string({ coerce: true }),
   lotAreaUnits: z.string({ coerce: true }),
   livingAreaUnits: z.string({ coerce: true }),
   zpid: z.number({ coerce: true }),
-  tax: z.number({ coerce: true }),
-  annualHomeownersInsurance: z.number({ coerce: true }),
   ownerId: z.number({ coerce: true }),
   zillowLink: z.string({ coerce: true }),
-  monthlyHoaFee: z.number({ coerce: true }).default(0),
   propertyTaxRate: z.number({ coerce: true }),
 });
 
+export const editSchema = z.object({
+  ...commonFields,
+  capex: z.number({ coerce: true }),
+  management: z.number({ coerce: true }),
+  vacancy: z.number({ coerce: true }),
+});
+
 type ZodAddParsedSchema = z.infer<typeof addSchema>;
+export type ZodEditParsedSchema = z.infer<typeof editSchema>;
 
 export type PurchaseMethod = "rent" | "sell";
 export type HomeType =
@@ -95,7 +108,7 @@ export interface CreatePropertyData
 interface EditablePropertyData {
   longitude: number;
   latitude: number;
-  hometype: HomeType;
+  homeType: HomeType;
   tax: number;
   annualHomeownersInsurance: number;
   capex: number;
@@ -217,5 +230,37 @@ export abstract class PropertyServiceNew {
     return db.property.findMany({
       include: { images: { where: { active: true } } },
     });
+  }
+
+  static getPropertById<T extends Prisma.PropertySelect<DefaultArgs>>(
+    id: number,
+    select: T
+  ) {
+    return db.property.findUnique({
+      select,
+      where: {
+        id,
+      },
+    });
+  }
+
+  static async updateProperty<T extends EditablePropertyData & { id: number }>(
+    property: T
+  ) {
+    const { id, ...data } = property;
+    return db.property.update({
+      where: { id },
+      data,
+    });
+  }
+
+  static transformToPropertyData(property: string) {
+    const parsedJson = JSON.parse(property) as ZodEditParsedSchema & {
+      images: Image[];
+    };
+    const { images, ...rest } = parsedJson;
+
+    const data = editSchema.parse(rest);
+    return { images, ...data };
   }
 }
