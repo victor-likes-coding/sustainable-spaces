@@ -44,9 +44,9 @@ export abstract class ImageService {
 
     const ids = new Set(images.map((image) => image.id)); // remove duplicates for whatever reason
     if (ids.size === 0) return;
-    // return db.image.updateMany({
-    //   where: { id: { in: Array.from(ids) } },
-    //   data: { active: false },
-    // });
+    return db.image.updateMany({
+      where: { id: { in: Array.from(ids) } },
+      data: { active: false },
+    });
   }
 }
