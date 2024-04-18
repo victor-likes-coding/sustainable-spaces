@@ -106,6 +106,7 @@ The initial MVP will have the following features:
 
 ### **TODOs:**
 
+- Deploy application (WIP)
 - Create the delete route for properties (WIP).
 - Create a view for user-owned properties. (Not started).
 - Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
