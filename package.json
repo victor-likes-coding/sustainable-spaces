@@ -7,8 +7,8 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "scripts": {
-    "build": "prisma generate && remix build",
-    "postinstall": "prisma generate",
+    "build": "npx prisma generate && remix build",
+    "postinstall": "npx prisma generate",
     "dev": "remix dev --manual",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/index.js",
