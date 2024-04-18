@@ -2,6 +2,7 @@ import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { PropertyValidationError } from "~/utils/errors";
 import { Address } from "./Address";
+import { Image, Property as PrismaProperty } from "@prisma/client";
 
 const addSchema = z.object({
   streetAddress: z.string({ coerce: true }),
@@ -120,6 +121,8 @@ interface NonAddablePropertyData extends EditablePropertyData {
   // payments: [] // add later
 }
 
+export type PropertyWithImages = PrismaProperty & { images: Image[] };
+
 export class Property
   implements Partial<AddablePropertyData>, Partial<NonAddablePropertyData>
 {
@@ -192,7 +195,7 @@ export abstract class PropertyServiceNew {
     });
   }
 
-  static createProperty(data: CreatePropertyData): Promise<{ id: number }> {
+  static createProperty(data: CreatePropertyData) {
     // Add logic here
     // allow zod to parse the data
     let parsedData: ZodAddParsedSchema;
@@ -207,6 +210,12 @@ export abstract class PropertyServiceNew {
       select: {
         id: true,
       },
+    });
+  }
+
+  static getProperties() {
+    return db.property.findMany({
+      include: { images: { where: { active: true } } },
     });
   }
 }
