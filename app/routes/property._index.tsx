@@ -1,11 +1,9 @@
 // import { Form, Link } from "@remix-run/react";
-
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 // import Navbar from "~/components/navbar";
 import PropertyCard from "~/components/propertycard";
-import { DatabaseProperty, PropertyService } from "~/models/property";
-import { PropertyData } from "~/models/property.zod";
+import { PropertyServiceNew, PropertyWithImages } from "~/types/property.new";
 // import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 
@@ -13,19 +11,18 @@ import { requireToken } from "~/utils/sessions.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const payload = await requireToken(request);
-  const properties: PropertyData[] = await PropertyService.getProperties();
+  const properties = await PropertyServiceNew.getProperties();
+
   return json({
     properties,
     payload,
   });
 };
 
-export default function Property() {
-  const { properties }: { properties: PropertyData[] } =
-    useLoaderData<typeof loader>();
+export default function PropertyIndex() {
+  const { properties } = useLoaderData<typeof loader>();
   // const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
-  const size =
-    properties?.length >= 3 ? "h-without-nav-auto" : "h-without-nav-fixed";
+  const size = properties?.length >= 3 ? "h-without-nav-auto" : "h-screen";
 
   return (
     <>
@@ -35,8 +32,13 @@ export default function Property() {
           {/* property card container */}
           <div className="properties-list w-full flex flex-col gap-4 pb-4 px-3">
             {properties?.map((property) => {
-              const currentProperty = new DatabaseProperty(property);
-              return <PropertyCard key={property?.id} {...currentProperty} />;
+              return (
+                <PropertyCard
+                  key={property.id}
+                  property={property as unknown as PropertyWithImages}
+                  // ! TODO - FIX unknown conversion / figure out JsonifyObject<T>
+                />
+              );
             })}
             {properties?.length === 0 && (
               <div className="text-center text-xl font-bold">
