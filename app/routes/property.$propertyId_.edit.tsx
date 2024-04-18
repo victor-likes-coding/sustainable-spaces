@@ -1,5 +1,4 @@
 // import { Form, Link } from "@remix-run/react";
-
 import {
   ActionFunctionArgs,
   json,
@@ -13,24 +12,59 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
+import invariant from "invariant";
 import { useState } from "react";
 import EditPropertyForm from "~/components/EditPropertyForm";
 import { ImageService } from "~/models/Image";
-import { PropertyService } from "~/models/property";
-import { PropertyDataStructure } from "~/models/property.zod";
-import { editFormPermissionSelect } from "~/types/property.select";
+import { PropertyServiceNew, PropertyWithImages } from "~/types/property.new";
+import {
+  editFormPermissionSelect,
+  withPropertyOwnerSelect,
+} from "~/types/property.select";
 import { UnauthorizedMutationRequestError } from "~/utils/errors";
 import { getFormData } from "~/utils/getFormData";
 import { validatePropertyOwner } from "~/utils/helper";
+import { uploadImages } from "~/utils/storage.server";
 
 // import Button from "~/components/button";
 
+interface RetentionErrors {
+  message: string;
+  domain: string;
+  reason: string;
+}
+
+interface RetentionPolicyError {
+  code: number;
+  message: string;
+  errors: RetentionErrors[];
+}
+
 export const action = async ({ request, params }: ActionFunctionArgs) => {
+  invariant(params.propertyId, "No property id found in params");
+  await validatePropertyOwner(params, request, withPropertyOwnerSelect); // validates the property owner
   const formData = await getFormData(request);
+  let errors = "";
 
-  const files = formData.getAll("file"); // these are the new images to upload
+  const files = formData.getAll("files"); // these are the new images to upload
 
-  // const imageUrls = await uploadImages(files);
+  if (files?.length > 0) {
+    try {
+      const imageUrls = await uploadImages(files);
+      ImageService.addImageUrls(parseInt(params.propertyId), imageUrls);
+    } catch (e) {
+      const error = e as RetentionPolicyError;
+      if (
+        error.code === 304 &&
+        error.errors.some((err) => err.reason === "retentionPolicyNotMet")
+      ) {
+        errors += `duplicateImageError=retentionPolicyNotMet`;
+      } else {
+        console.error(e);
+        errors += `error=uploadError`;
+      }
+    }
+  }
 
   const data = formData.get("data");
 
@@ -38,41 +72,47 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     throw Error("No data found in form");
   }
 
-  const parsedData = PropertyService.transformToPropertyData(data as string);
-  // validate data
-  // flatten the data
-
-  const property = await PropertyService.updateProperty(propertyData);
+  const { images, ...parsedData } = PropertyServiceNew.transformToPropertyData(
+    data as string
+  );
   ImageService.deactivateImages(images);
 
-  return "";
+  const propertyData = {
+    id: parseInt(params.propertyId),
+    ...parsedData,
+  };
+  try {
+    await PropertyServiceNew.updateProperty(propertyData);
+    return redirect(`/property/${params.propertyId}?${errors}`);
+  } catch (e) {
+    throw Error("Failed to update property");
+  }
 };
-76;
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  let property: Partial<PropertyDataStructure> = {};
   try {
-    const { property: validatedProperty } = await validatePropertyOwner(
+    const { property } = await validatePropertyOwner(
       params,
       request,
       editFormPermissionSelect
     );
-    property = validatedProperty;
+    return json(property);
   } catch (err) {
     if (err instanceof UnauthorizedMutationRequestError) {
-      throw redirect(`/property/${params.propertyId}?error=unauthorized`);
+      return redirect(`/property/${params.propertyId}?error=unauthorized`);
     }
-  }
 
-  return json(property);
+    throw err;
+  }
 };
 
-export default function Property() {
-  const property: PropertyDataStructure = useLoaderData<typeof loader>();
+export default function EditProperty() {
+  const property = useLoaderData<typeof loader>();
   // remove tenantId, zpid, likes, likesCount, updated, created,
 
-  const [propertyData, setPropertyData] =
-    useState<PropertyDataStructure>(property);
+  const [propertyData, setPropertyData] = useState(
+    property as unknown as PropertyWithImages
+  );
 
   // show images
   // show button next to it to add photos
