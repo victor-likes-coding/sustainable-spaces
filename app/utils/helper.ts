@@ -7,7 +7,6 @@ import {
   PropertyNotFoundError,
   UnauthorizedMutationRequestError,
 } from "./errors";
-import { DatabaseProperty, PropertyService } from "~/models/property";
 import { requireToken } from "./sessions.server";
 import { Params } from "@remix-run/react";
 import invariant from "invariant";
@@ -19,6 +18,7 @@ import {
   DpgClientCache,
   RequiredZillowPropertyWithOtherData,
 } from "~/types/Zillow";
+import { PropertyServiceNew } from "~/types/property.new";
 
 /**
  * Validates a `Auth` object to contain an email and password
@@ -122,21 +122,16 @@ export async function validateAndRetrieveProperty(
   { propertyId }: Params<string>,
   request: Request,
   select: Prisma.PropertySelect<DefaultArgs>
-): Promise<{
-  property: DatabaseProperty;
-  payload: TokenPayload;
-}> {
+) {
   invariant(propertyId, "Property ID is required");
   const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
   const id = parseFloat(propertyId);
-  const property = await PropertyService.getProperty(id, select);
+  const property = await PropertyServiceNew.getPropertById(id, select);
 
   if (!property) {
     throw new PropertyNotFoundError();
   }
-
-  const databaseProperty = new DatabaseProperty(property);
-  return { property: databaseProperty, payload };
+  return { property, payload };
 }
 
 export async function validatePropertyOwner(
