@@ -11,12 +11,13 @@ import {
 } from "~/utils/helper";
 import CloseSVG from "./svg/Close";
 import PlusSVG from "./svg/Plus";
-import { PropertyDataStructure } from "~/models/property.zod";
+import FinancialInputFields from "./svg/FinancialInputFields";
+import { PropertyWithImages } from "~/types/property.new";
 
 type Props = {
   className?: string;
-  property: PropertyDataStructure;
-  setProperty: React.Dispatch<React.SetStateAction<PropertyDataStructure>>;
+  property: PropertyWithImages;
+  setProperty: React.Dispatch<React.SetStateAction<PropertyWithImages>>;
   method: "post" | "get" | "put" | "delete";
   action?: string;
 };
@@ -41,10 +42,7 @@ export default function EditPropertyForm({
   const handleAddressChange = (event: ChangeEvent<HTMLInputElement>) => {
     setProperty((prevProperty) => ({
       ...prevProperty,
-      address: {
-        ...prevProperty.address,
-        [event.target.name]: event.target.value,
-      },
+      [event.target.name]: event.target.value ?? "",
     }));
   };
 
@@ -82,7 +80,7 @@ export default function EditPropertyForm({
 
     setProperty((prevProperty) => ({
       ...prevProperty,
-      images: [...prevProperty.images, image],
+      images: [...(prevProperty.images ?? []), image],
     }));
   };
 
@@ -97,21 +95,39 @@ export default function EditPropertyForm({
     price,
     images,
     garage,
+    streetAddress,
+    city,
+    state,
+    zipcode,
     ...rest
   } = property;
 
+  const address = {
+    streetAddress,
+    city,
+    state,
+    zipcode,
+  };
+
   const {
-    address,
-    fees,
     longitude,
     latitude,
     homeType,
-    tax,
     annualHomeownersInsurance,
+    tax,
+    vacancy,
+    capex,
+    management,
+    monthlyHoaFee,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ...hidden
   } = rest;
+
   const feeFields = {
-    ...fees,
+    vacancy,
+    capex,
+    management,
+    monthlyHoaFee,
     tax,
     annualHomeownersInsurance,
   };
@@ -130,6 +146,8 @@ export default function EditPropertyForm({
     latitude,
     homeType,
   };
+
+  console.log(images);
 
   const imagesAreDefined =
     images && images.filter((image) => image.active).length > 0;
@@ -224,10 +242,25 @@ export default function EditPropertyForm({
       <PropertyCharacteristicsInputFields
         data={propertyCharacteristicsData}
         setProperty={handleChange}
+        orderOfInputs={[
+          "bedrooms",
+          "bathrooms",
+          "purchaseMethod",
+          "description",
+          "lotSize",
+          "livingArea",
+          "yearBuilt",
+          "garage",
+          "price",
+          "latitude",
+          "longitude",
+          "homeType",
+        ]}
       />
+      <FinancialInputFields data={feeFields} setProperty={handleChange} />
       <Button
         type="submit"
-        className=" bg-custom-secondary text-xs font-bold text-white mb-4"
+        className=" bg-custom-secondary text-xs font-bold text-white mb-4 w-full"
       >
         Update
       </Button>
