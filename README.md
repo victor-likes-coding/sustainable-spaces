@@ -74,8 +74,9 @@ The initial MVP will have the following features:
   - Properties (view all) ✅
   - Properties (view owned)
   - Property (view single) ✅
-  - Property (edit owned)
+  - Property (edit owned) ✅
   - Property (add/create) ✅
+  - Property (delete/deactivate)
   - Inbox (view rent requests)
 
 ## File Routing
@@ -87,7 +88,7 @@ The initial MVP will have the following features:
 /property/ - Root Property (show all properties, requires auth) ✅
 /property/add - Add Form for adding properties (requires auth) ✅
 /property/$id         - View single Property (requires auth) ✅
-/property/$id/edit - Edit single property (requires auth + owner) ❌
+/property/$id/edit - Edit single property (requires auth + owner) ✅
 /property/$id/delete  - Removes property / mark as inactive (requires auth + owner) ❌
 /user/                - nothing ✅
 /user/$id - The user by $id (requires auth) ❌
@@ -105,10 +106,18 @@ The initial MVP will have the following features:
 
 ### **TODOs:**
 
-- Revamp types and zod types. They seem overly complicated right now and causes issues on some things. (WIP)
-- Add an edit route for specific properties owned by the user. (WIP)
-- Create a view for user-owned properties. (Not started)
+- Create the delete route for properties (WIP).
+- Create a view for user-owned properties. (Not started).
 - Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
+- Create the Inbox class / mechanism to submit bids for properties (Not started)
+- Create the donations page / hook up to a payment processor (Not started)
+- Optimize the way photos are shown on property page. (Not started)
+
+### 4/14-4/18:
+
+- Complete the edit route for properties 🎉
+  - Users can edit the image for property, removing images, adding images.
+- Refactor the PropertyService class to use Prisma types / remove a lot of explicit typing unless necessary to cast.
 
 ### 4/8-4/12:
 
