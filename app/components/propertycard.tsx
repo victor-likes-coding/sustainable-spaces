@@ -1,21 +1,26 @@
 import { Image } from "@nextui-org/react";
 import { Link, useNavigation } from "@remix-run/react";
-import { PropertyDataStructure } from "~/models/property";
 import Loader from "./Loader";
+import { PropertyWithImages } from "~/types/property.new";
 
-const PropertyCard = (property?: PropertyDataStructure) => {
+type Props = {
+  property: PropertyWithImages | null;
+};
+
+const PropertyCard = ({ property }: Props) => {
   const navigate = useNavigation();
   if (!property) {
     return null;
   }
 
   const {
-    address: { streetAddress, state },
+    id,
+    streetAddress,
+    state,
     price,
     bedrooms,
     bathrooms,
     livingArea,
-    id,
     images,
   } = property;
 
@@ -65,8 +70,8 @@ const PropertyCard = (property?: PropertyDataStructure) => {
       </Link>
       {navigate.state === "loading" && (
         <Loader
-          labelColor="primary"
-          color="primary"
+          labelColor="success"
+          color="success"
           text="Navigating to property"
         />
       )}
