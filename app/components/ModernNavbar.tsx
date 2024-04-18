@@ -28,7 +28,7 @@ const ModernNavbar = ({ isLoggedIn }: Props) => {
   return (
     <>
       {isLoggedIn && (
-        <nav className="fixed z-50 h-12 w-screen bottom-0 right-0 bg-custom-primary border-t-1 border-custom-secondary text-white font-bold">
+        <nav className="sticky z-50 h-12 w-screen bottom-0 right-0 bg-custom-primary border-t-1 border-custom-secondary text-white font-bold">
           <div className="flex-wrapper flex h-full">
             <NavBox text="Home" to="/" />
             <NavBox text="Properties" to="property" />
