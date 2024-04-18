@@ -102,7 +102,6 @@ export async function getPropertyData(url: string, address: string) {
 }
 
 function addTaxData(data: RequiredZillowPropertyWithOtherData): void {
-  console.log(data);
   // get state tax rate
   // get purchase price
   // calculate tax
@@ -182,25 +181,21 @@ async function fetchPropertyDataWithPuppeteer(
   const page = await browser.newPage();
 
   try {
-    console.log("going to", url);
     await page.goto(url);
 
     // check and see if there's an iframe with the title="Human verification challenge"
     // get a p that has the text "Press & Hold"
     // if it exists, we need to solve the captcha
-    console.log("finding captcha");
     const captcha = await page.$(
       "iframe[title='Human verification challenge']"
     );
     if (captcha) {
-      console.log("captcha found");
       // Wait for the iframe to load
       await page.waitForSelector(
         'iframe[title="Human verification challenge"]'
       );
 
       // Switch to the iframe context
-      console.log("switching to frame");
       const frames = page.frames();
       const captchaFrame = frames.find(
         async (frame) =>
@@ -208,7 +203,6 @@ async function fetchPropertyDataWithPuppeteer(
       );
 
       // Ensure the frame was found
-      console.log("verify frame is found");
       if (captchaFrame) {
         // Wait for the text and button to be visible inside the iframe
         const buttonSelector = 'p:contains("Press & Hold")'; // Adjust if necessary
@@ -236,7 +230,6 @@ async function fetchPropertyDataWithPuppeteer(
         }, 7000); // Adjust time as necessary based on CAPTCHA requirements
       }
     }
-    console.log("looking for bpd-property-card");
     const anchor = await page.waitForSelector(
       `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
     );
