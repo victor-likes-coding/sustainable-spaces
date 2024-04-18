@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { useSwipeable } from "react-swipeable";
-
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import PurchaseTag from "~/components/purchase-tag";
@@ -9,14 +8,14 @@ import Pill from "~/components/pill";
 import { TokenPayload, validateAndRetrieveProperty } from "~/utils/helper";
 import useModal from "~/components/Modal";
 import { singlePropertyDefaultWithImage } from "~/types/property.select";
-import { DatabaseProperty } from "~/models/property";
+import { PropertyWithImages } from "~/types/property.new";
 // import Button from "~/components/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const {
     property,
     payload,
-  }: { property: DatabaseProperty; payload: TokenPayload } =
+  }: { property: PropertyWithImages; payload: TokenPayload } =
     await validateAndRetrieveProperty(
       params,
       request,
@@ -32,8 +31,11 @@ export default function Property() {
     property: {
       id,
       images,
-      address: { streetAddress, city, state, zipcode },
-      fees: { hoa },
+      streetAddress,
+      city,
+      state,
+      zipcode,
+      monthlyHoaFee,
       bedrooms,
       bathrooms,
       livingArea,
@@ -78,7 +80,7 @@ export default function Property() {
   }, [error, onOpen, setKey]);
 
   const height = (
-    (images.length >= 0 && images.length < 4 ? images.length || 1 : 3) * 200
+    (images.length >= 0 && images.length < 3 ? images.length || 1 : 2) * 200
   )
     .toString()
     .concat("px");
@@ -88,7 +90,7 @@ export default function Property() {
       <div className="w-screen h-screen bg-white relative z-10 top-0 left-0 overflow-y-scroll">
         {
           <div
-            className={`images-wrapper w-full transition-all duration-300 ease-in-out max-h-[600px] ${
+            className={`images-wrapper w-full transition-all duration-300 ease-in-out max-h-[400px] ${
               showContent ? "h-0 hidden" : ` h-[${height}]`
             } relative z-20 top-0 left-0 scroll-smooth overflow-y-scroll`}
           >
@@ -190,7 +192,7 @@ export default function Property() {
                   <div className="flex justify-between">
                     <div>HOA</div>
                     <div className="font-bold">
-                      {((hoa || 0) / 12)
+                      {((monthlyHoaFee || 0) / 12)
                         .toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
