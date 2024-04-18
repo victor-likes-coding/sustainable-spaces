@@ -1,11 +1,36 @@
 import { Prisma } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 
-export const commonSelectFields: Prisma.PropertySelect<DefaultArgs> = {
+const withActiveImageSelect: Prisma.PropertySelect<DefaultArgs> = {
+  images: {
+    where: {
+      active: true,
+    },
+  },
+};
+
+export const withPropertyOwnerSelect: Prisma.PropertySelect<DefaultArgs> = {
+  ownerId: true,
+};
+
+const withAddressSelect: Prisma.PropertySelect<DefaultArgs> = {
   streetAddress: true,
   city: true,
   state: true,
   zipcode: true,
+};
+
+const withFinancialsSelect: Prisma.PropertySelect<DefaultArgs> = {
+  tax: true,
+  annualHomeownersInsurance: true,
+  monthlyHoaFee: true,
+  management: true,
+  capex: true,
+  vacancy: true,
+};
+
+const commonSelectFields: Prisma.PropertySelect<DefaultArgs> = {
+  ...withAddressSelect,
   bedrooms: true,
   bathrooms: true,
   livingArea: true,
@@ -14,7 +39,7 @@ export const commonSelectFields: Prisma.PropertySelect<DefaultArgs> = {
   description: true,
 };
 // select the fields that are required for the property form
-export const propertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
+const propertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
   ...commonSelectFields,
   lotSize: true,
   garage: true,
@@ -22,33 +47,25 @@ export const propertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
 };
 
 // select the fields that are required for the edit form
-export const editPropertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
+const editPropertyFormSelect: Prisma.PropertySelect<DefaultArgs> = {
   ...propertyFormSelect,
-  tax: true,
-  annualHomeownersInsurance: true,
-  hoa: true,
-  management: true,
-  capex: true,
-  vacancy: true,
+  ...withFinancialsSelect,
   homeType: true,
   latitude: true,
   longitude: true,
 };
 
-export const propertyOwnerSelect: Prisma.PropertySelect<DefaultArgs> = {
-  ownerId: true,
-};
-
 export const editFormPermissionSelect: Prisma.PropertySelect<DefaultArgs> = {
   ...editPropertyFormSelect,
-  ...propertyOwnerSelect,
+  ...withPropertyOwnerSelect,
+  ...withActiveImageSelect,
 };
 
 export const singlePropertyDefaultSelect: Prisma.PropertySelect<DefaultArgs> = {
   id: true,
   tax: true,
   annualHomeownersInsurance: true,
-  ownerId: true,
+  ...withPropertyOwnerSelect,
   ...commonSelectFields,
 };
 
