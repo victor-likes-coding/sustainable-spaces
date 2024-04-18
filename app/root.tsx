@@ -1,39 +1,78 @@
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import tailwindStyles from "./tailwind.css";
 import {
-  Link,
+  json,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   useRouteError,
 } from "@remix-run/react";
 import { NextUIProvider } from "@nextui-org/react";
+import ModernNavbar from "./components/ModernNavbar";
+import { getTokenPayload } from "./utils/sessions.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyles },
 ];
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const payload = await getTokenPayload(request);
+  return json({ isLoggedIn: !!payload });
+};
+
 export default function App() {
+  const { isLoggedIn } = useLoaderData<typeof loader>();
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body className="font-default">
+    <Document title="Sustainable Spaces">
+      <Layout isLoggedIn={isLoggedIn}>
         <NextUIProvider>
           <Outlet />
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
         </NextUIProvider>
-      </body>
+      </Layout>
+    </Document>
+  );
+}
+
+export function Document({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {title ? <title>{title}</title> : null}
+        <Meta />
+        <Links />
+      </head>
+      <body className="font-default">{children}</body>
     </html>
+  );
+}
+
+export function Layout({
+  children,
+  isLoggedIn,
+}: {
+  children: React.ReactNode;
+  isLoggedIn?: boolean;
+}) {
+  return (
+    <>
+      {children}
+      <ModernNavbar isLoggedIn={isLoggedIn} />
+    </>
   );
 }
 
