@@ -77,14 +77,20 @@ export default function Property() {
     }
   }, [error, onOpen, setKey]);
 
+  const height = (
+    (images.length >= 0 && images.length < 4 ? images.length || 1 : 3) * 200
+  )
+    .toString()
+    .concat("px");
+
   return (
     <>
-      <div className="w-screen h-auto bg-white relative z-10 top-0 left-0 overflow-y-scroll">
+      <div className="w-screen h-screen bg-white relative z-10 top-0 left-0 overflow-y-scroll">
         {
           <div
-            className={`images-wrapper w-full transition-all duration-300 ease-in-out ${
-              showContent ? "h-0 hidden" : "h-[66%]"
-            } relative z-20 top-0 left-0 scroll-smooth`}
+            className={`images-wrapper w-full transition-all duration-300 ease-in-out max-h-[600px] ${
+              showContent ? "h-0 hidden" : ` h-[${height}]`
+            } relative z-20 top-0 left-0 scroll-smooth overflow-y-scroll`}
           >
             {images &&
               images.length > 0 &&
@@ -104,7 +110,7 @@ export default function Property() {
           className={`swipeable-container w-full relative z-30 bottom-0 left-0 transition-transform duration-300 transform pb-3 ${
             showContent
               ? "-translate-y-0 h-full"
-              : "translate-y-[55vh] h-[34%] "
+              : `translate-y-[${height}] h-auto `
           }`}
         >
           <Pill showContent={showContent} />
@@ -133,13 +139,12 @@ export default function Property() {
                   {bedrooms} beds | {bathrooms} baths | {livingArea} sqft
                 </div>
                 <div className="font-bold">
-                  {price ||
-                    (0)
-                      .toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })
-                      .replace(/\.\d+/, "")}
+                  {(price || 0)
+                    ?.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })
+                    .replace(/\.\d+/, "")}
                 </div>
               </section>
               <section className="purchase-options-row flex gap-3">
