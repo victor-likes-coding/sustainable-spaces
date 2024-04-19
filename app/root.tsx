@@ -14,6 +14,8 @@ import {
 import { NextUIProvider } from "@nextui-org/react";
 import ModernNavbar from "./components/ModernNavbar";
 import { getTokenPayload } from "./utils/sessions.server";
+import Sidebar from "./components/Sidebar";
+import { useState } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyles },
@@ -26,10 +28,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function App() {
   const { isLoggedIn } = useLoaderData<typeof loader>();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <Document title="Sustainable Spaces">
-      <Layout isLoggedIn={isLoggedIn}>
+      <Layout
+        isLoggedIn={isLoggedIn}
+        isSidebarOpen={isSidebarOpen}
+        changeSidebarState={setIsSidebarOpen}
+      >
         <NextUIProvider>
+          <Sidebar isOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
           <Outlet />
           <ScrollRestoration />
           <Scripts />
@@ -64,14 +72,22 @@ export function Document({
 export function Layout({
   children,
   isLoggedIn,
+  changeSidebarState,
+  isSidebarOpen,
 }: {
   children: React.ReactNode;
   isLoggedIn?: boolean;
+  changeSidebarState: React.Dispatch<React.SetStateAction<boolean>>;
+  isSidebarOpen?: boolean;
 }) {
   return (
     <>
       {children}
-      <ModernNavbar isLoggedIn={isLoggedIn} />
+      <ModernNavbar
+        isSideBarOpen={isSidebarOpen}
+        onClick={() => changeSidebarState((prev) => !prev)}
+        isLoggedIn={isLoggedIn}
+      />
     </>
   );
 }
