@@ -1,16 +1,29 @@
 import { NavLink } from "@remix-run/react";
+import { GgProfile } from "./svg/Profile";
+import { IcRoundHome } from "./svg/Home";
+import { MdiHomeGroup } from "./svg/Properties";
+import { CharmMenuHamburger } from "./svg/Hamburger";
 
-type NavBoxProps = {
-  text: string;
+interface WithIconProps {
+  icon: React.ReactNode;
+}
+
+interface WithOnClickProps {
+  onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+}
+
+interface NavPopupProps extends WithIconProps, WithOnClickProps {}
+
+interface NavBoxProps extends WithIconProps {
   to: string;
-};
+}
 type Props = {
   isLoggedIn?: boolean;
 };
 
 // Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
 
-const NavBox = ({ text, to }: NavBoxProps) => {
+const NavBox = ({ icon, to }: NavBoxProps) => {
   return (
     <NavLink
       to={to}
@@ -18,22 +31,44 @@ const NavBox = ({ text, to }: NavBoxProps) => {
     >
       <div>
         {/* replace with icons */}
-        {text}
+        {icon}
       </div>
     </NavLink>
   );
 };
 
+const NavPopUp = ({ icon, onClick }: NavPopupProps) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-[25%] flex justify-center items-center h-full border-l-1 text-xs border-custom-secondary outline-none"
+    >
+      {icon}
+    </button>
+  );
+};
+
 const ModernNavbar = ({ isLoggedIn }: Props) => {
+  const size = {
+    height: "2rem",
+    width: "2rem",
+  };
   return (
     <>
       {isLoggedIn && (
         <nav className="sticky z-50 h-12 w-screen bottom-0 right-0 bg-custom-primary border-t-1 border-custom-secondary text-white font-bold">
           <div className="flex-wrapper flex h-full">
-            <NavBox text="Home" to="/" />
-            <NavBox text="Properties" to="property" />
-            <NavBox text="Inbox" to="inbox" />
-            <NavBox text="Profile" to="profile" />
+            <NavBox icon={<IcRoundHome {...size} />} to="/" />
+            <NavBox icon={<MdiHomeGroup {...size} />} to="property" />
+            <NavBox icon={<GgProfile {...size} />} to="profile" />
+            <NavPopUp
+              icon={<CharmMenuHamburger {...size} />}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("clicked");
+              }}
+            />
           </div>
         </nav>
       )}
