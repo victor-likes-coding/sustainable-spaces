@@ -106,10 +106,8 @@ The initial MVP will have the following features:
 
 ### **TODOs:**
 
-- Deploy application (WIP)
 - Create the delete route for properties (WIP).
 - Create a view for user-owned properties. (Not started).
-- Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
 - Create the Inbox class / mechanism to submit bids for properties (Not started)
 - Create the donations page / hook up to a payment processor (Not started)
 - Optimize the way photos are shown on property page. (Not started)
@@ -119,6 +117,9 @@ The initial MVP will have the following features:
 - Complete the edit route for properties 🎉
   - Users can edit the image for property, removing images, adding images.
 - Refactor the PropertyService class to use Prisma types / remove a lot of explicit typing unless necessary to cast.
+- Create a new Navbar (Home | Properties | Profile | More Settings) similar to TikTok. ✅
+- Deploy application ✅
+- Create a sidebar that appears when clicking more settings hamburger.
 
 ### 4/8-4/12:
 
