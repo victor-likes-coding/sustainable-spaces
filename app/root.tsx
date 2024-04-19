@@ -37,7 +37,7 @@ export default function App() {
         changeSidebarState={setIsSidebarOpen}
       >
         <NextUIProvider>
-          <Sidebar isOpen={isSidebarOpen} />
+          <Sidebar isOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
           <Outlet />
           <ScrollRestoration />
           <Scripts />
