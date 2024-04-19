@@ -19,6 +19,10 @@ interface NavBoxProps extends WithIconProps {
 }
 type Props = {
   isLoggedIn?: boolean;
+  size?: {
+    height: string;
+    width: string;
+  };
 };
 
 // Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
@@ -49,11 +53,13 @@ const NavPopUp = ({ icon, onClick }: NavPopupProps) => {
   );
 };
 
-const ModernNavbar = ({ isLoggedIn }: Props) => {
-  const size = {
-    height: "2rem",
-    width: "2rem",
-  };
+const ModernNavbar = ({
+  isLoggedIn,
+  size = {
+    height: "1.75rem",
+    width: "1.75rem",
+  },
+}: Props) => {
   return (
     <>
       {isLoggedIn && (
