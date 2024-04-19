@@ -13,18 +13,24 @@ interface WithOnClickProps {
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-interface NavPopupProps extends WithIconProps, WithOnClickProps {}
+interface WithSideBarVisibilityStatus {
+  isSideBarOpen?: boolean;
+}
+
+interface NavPopupProps
+  extends WithIconProps,
+    WithOnClickProps,
+    WithSideBarVisibilityStatus {}
 
 interface NavBoxProps extends WithIconProps {
   to: string;
 }
-interface Props extends WithOnClickProps {
+interface Props extends WithOnClickProps, WithSideBarVisibilityStatus {
   isLoggedIn?: boolean;
   size?: {
     height: string;
     width: string;
   };
-  isSideBarOpen?: boolean;
 }
 
 // Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
@@ -43,12 +49,14 @@ const NavBox = ({ icon, to }: NavBoxProps) => {
   );
 };
 
-const NavPopUp = ({ icon, onClick }: NavPopupProps) => {
+const NavPopUp = ({ icon, onClick, isSideBarOpen }: NavPopupProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-[25%] flex justify-center items-center h-full border-l-1 text-xs border-custom-secondary outline-none"
+      className={`w-[25%] flex justify-center items-center h-full border-l-1 text-xs border-custom-secondary outline-none ${
+        isSideBarOpen ? "bg-red-600" : ""
+      }`}
     >
       {icon}
     </button>
@@ -58,8 +66,8 @@ const NavPopUp = ({ icon, onClick }: NavPopupProps) => {
 const ModernNavbar = ({
   isLoggedIn = false,
   size = {
-    height: "1.75rem",
-    width: "1.75rem",
+    height: "1.50rem",
+    width: "1.50rem",
   },
   onClick,
   isSideBarOpen = false,
@@ -73,6 +81,7 @@ const ModernNavbar = ({
             <NavBox icon={<MdiHomeGroup {...size} />} to="property" />
             <NavBox icon={<GgProfile {...size} />} to="profile" />
             <NavPopUp
+              isSideBarOpen={isSideBarOpen}
               icon={
                 isSideBarOpen ? (
                   <FxemojiCancellationx {...size} colorFill="#ffffff" />
