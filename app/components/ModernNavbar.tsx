@@ -17,13 +17,13 @@ interface NavPopupProps extends WithIconProps, WithOnClickProps {}
 interface NavBoxProps extends WithIconProps {
   to: string;
 }
-type Props = {
+interface Props extends WithOnClickProps {
   isLoggedIn?: boolean;
   size?: {
     height: string;
     width: string;
   };
-};
+}
 
 // Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
 
@@ -59,6 +59,7 @@ const ModernNavbar = ({
     height: "1.75rem",
     width: "1.75rem",
   },
+  onClick,
 }: Props) => {
   return (
     <>
@@ -70,10 +71,7 @@ const ModernNavbar = ({
             <NavBox icon={<GgProfile {...size} />} to="profile" />
             <NavPopUp
               icon={<CharmMenuHamburger {...size} />}
-              onClick={(e) => {
-                e.preventDefault();
-                console.log("clicked");
-              }}
+              onClick={onClick}
             />
           </div>
         </nav>
