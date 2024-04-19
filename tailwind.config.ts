@@ -8,6 +8,20 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        "slide-up": "slide-up .4s forwards",
+        "slide-down": "slide-down .4s forwards",
+      },
+      keyframes: {
+        "slide-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        "slide-down": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+      },
       colors: {
         "custom-primary": "#79abaf",
         "custom-secondary": "#246835",
