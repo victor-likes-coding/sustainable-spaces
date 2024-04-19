@@ -3,6 +3,7 @@ import { GgProfile } from "./svg/Profile";
 import { IcRoundHome } from "./svg/Home";
 import { MdiHomeGroup } from "./svg/Properties";
 import { CharmMenuHamburger } from "./svg/Hamburger";
+import { FxemojiCancellationx } from "./svg/Cancel";
 
 interface WithIconProps {
   icon: React.ReactNode;
@@ -23,6 +24,7 @@ interface Props extends WithOnClickProps {
     height: string;
     width: string;
   };
+  isSideBarOpen?: boolean;
 }
 
 // Create a new Navbar (Home | Properties | Inbox | Profile) similar to TikTok. (Not started)
@@ -54,12 +56,13 @@ const NavPopUp = ({ icon, onClick }: NavPopupProps) => {
 };
 
 const ModernNavbar = ({
-  isLoggedIn,
+  isLoggedIn = false,
   size = {
     height: "1.75rem",
     width: "1.75rem",
   },
   onClick,
+  isSideBarOpen = false,
 }: Props) => {
   return (
     <>
@@ -70,7 +73,13 @@ const ModernNavbar = ({
             <NavBox icon={<MdiHomeGroup {...size} />} to="property" />
             <NavBox icon={<GgProfile {...size} />} to="profile" />
             <NavPopUp
-              icon={<CharmMenuHamburger {...size} />}
+              icon={
+                isSideBarOpen ? (
+                  <FxemojiCancellationx {...size} colorFill="#ffffff" />
+                ) : (
+                  <CharmMenuHamburger {...size} />
+                )
+              }
               onClick={onClick}
             />
           </div>
