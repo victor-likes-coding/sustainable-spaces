@@ -1,4 +1,4 @@
-# Project - Sustainable Spaces
+# Project - Sustainable Spaces - We are [Live](https://sustainable-spaces.vercel.app/) (Please view on a phone as the desktop/tablet view has not been completed yet)
 
 The goal of this app is as follows:
 
