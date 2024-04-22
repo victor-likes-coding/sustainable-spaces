@@ -16,7 +16,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function Page() {
   return (
-    <div className="w-full h-full min-h-screen">
+    <div className="w-full h-full min-h-screen pt-4">
       <Outlet />
     </div>
   );
