@@ -115,6 +115,8 @@ The initial MVP will have the following features:
 
 - Create a view for user-owned properties.
 - Update bid button to also reflect "edit" if they're the owner of the property.
+- Fix a visual bug that appears on mobile apps when looking at the add/edit forms.
+- Add a button to create a listing (finally).
 
 ### 4/14-4/18:
 
