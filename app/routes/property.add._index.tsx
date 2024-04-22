@@ -22,7 +22,7 @@ import PlacesSearch from "~/components/PlacesSearch";
 import AddPropertyForm from "~/components/AddPropertyForm";
 import { uploadImages } from "~/utils/storage.server";
 import { ImageService } from "~/models/Image";
-import useModal from "~/components/Modal";
+import useModal from "~/components/ErrorModal";
 import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
 import { PropertyServiceNew } from "~/types/property.new";
 import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";

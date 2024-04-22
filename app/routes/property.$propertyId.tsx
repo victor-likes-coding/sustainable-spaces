@@ -6,7 +6,7 @@ import PurchaseTag from "~/components/purchase-tag";
 import EditSVG from "~/components/svg/Edit";
 import Pill from "~/components/pill";
 import { TokenPayload, validateAndRetrieveProperty } from "~/utils/helper";
-import useModal from "~/components/Modal";
+import useModal from "~/components/ErrorModal";
 import { singlePropertyDefaultWithImage } from "~/types/property.select";
 import { PropertyWithImages } from "~/types/property.new";
 // import Button from "~/components/button";
