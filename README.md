@@ -107,10 +107,14 @@ The initial MVP will have the following features:
 ### **TODOs:**
 
 - Create the delete route for properties (WIP).
-- Create a view for user-owned properties. (Not started).
 - Create the Inbox class / mechanism to submit bids for properties (Not started)
 - Create the donations page / hook up to a payment processor (Not started)
 - Optimize the way photos are shown on property page. (Not started)
+
+### 4/21-4/25:
+
+- Create a view for user-owned properties.
+- Update bid button to also reflect "edit" if they're the owner of the property.
 
 ### 4/14-4/18:
 
