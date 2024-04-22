@@ -3,10 +3,11 @@ import { PropertyWithImages } from "~/types/property.new";
 
 interface Props {
   properties: PropertyWithImages[];
-  editable: boolean;
+  editable?: boolean;
+  ownerId?: number;
 }
 
-export function PropertyCards({ properties, editable }: Props) {
+export function PropertyCards({ properties, editable, ownerId }: Props) {
   return (
     <div className="properties-list w-full flex flex-col gap-4 pb-4 px-3">
       {properties?.map((property) => {
@@ -14,6 +15,7 @@ export function PropertyCards({ properties, editable }: Props) {
           <PropertyCard
             editable={editable}
             key={property.id}
+            isOwner={property.ownerId === ownerId}
             property={property as unknown as PropertyWithImages}
           />
         );
