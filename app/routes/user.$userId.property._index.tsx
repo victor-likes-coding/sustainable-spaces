@@ -1,7 +1,8 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "invariant";
-import { PropertyServiceNew } from "~/types/property.new";
+import { PropertyCards } from "~/components/PropertyCards";
+import { PropertyServiceNew, PropertyWithImages } from "~/types/property.new";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   // this portion of the route handles fetching the the properties owned by user
@@ -24,5 +25,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function Index() {
   const { properties } = useLoaderData<typeof loader>();
-  return <></>;
+  return (
+    <PropertyCards
+      editable
+      properties={properties as unknown as PropertyWithImages[]}
+    />
+  );
 }

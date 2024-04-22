@@ -5,9 +5,10 @@ import { PropertyWithImages } from "~/types/property.new";
 
 type Props = {
   property: PropertyWithImages | null;
+  editable?: boolean;
 };
 
-const PropertyCard = ({ property }: Props) => {
+const PropertyCard = ({ property, editable }: Props) => {
   const navigate = useNavigation();
   if (!property) {
     return null;
@@ -61,10 +62,10 @@ const PropertyCard = ({ property }: Props) => {
           </div>
           <Link
             onClick={(e) => e.stopPropagation()}
-            to={{ pathname: `/property/${id}/bid` }}
+            to={{ pathname: `/property/${id}/${editable ? "edit" : "bid"}` }}
             className="absolute bottom-2 right-2 px-8 bg-green-700 text-white rounded-md"
           >
-            Bid
+            {editable ? "Edit" : "Bid"}
           </Link>
         </div>
       </Link>
