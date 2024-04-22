@@ -38,7 +38,9 @@ export default function App() {
       >
         <NextUIProvider>
           <Sidebar isOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-          <Outlet />
+          <div className="container-wrapper w-screen min-h-screen h-auto bg-custom-primary">
+            <Outlet />
+          </div>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
