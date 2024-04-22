@@ -226,7 +226,7 @@ export default function EditPropertyForm({
             />
             <input
               type="file"
-              className="hidden-input"
+              className="hidden-input hidden"
               id="file"
               name="file"
               multiple
