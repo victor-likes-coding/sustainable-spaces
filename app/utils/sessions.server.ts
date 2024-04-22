@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { createCookieSessionStorage, redirect } from "@remix-run/node"; // or cloudflare/deno
 import invariant from "invariant";
 import { User, UserService } from "~/models/user";
+import { Params } from "@remix-run/react";
+import { UserNotFoundError } from "./errors";
 invariant(process.env.REACT_SESSION_SECRET, "REACT_SESSION_SECRET is required");
 invariant(process.env.REACT_JWT_SECRET, "REACT_JWT_SECRET is required");
 
@@ -115,4 +117,25 @@ export async function logout(request: Request) {
 export async function checkForToken(request: Request) {
   const payload = await getTokenPayload(request);
   if (payload) throw redirect("/getting-started");
+}
+
+export async function validateUser(request: Request, params: Params<string>) {
+  invariant(params.userId, "No user id found in params");
+  let payload;
+  try {
+    payload = await getTokenPayload(request);
+    if (!payload) return null;
+    const { id } = payload;
+    await UserService.getUserById(id); // throws UserNotFoundError
+
+    if (params.userId && params.userId !== id.toString()) {
+      throw new Error("Unauthorized access");
+    }
+  } catch (e) {
+    if (e instanceof UserNotFoundError) return logout(request);
+    if (e instanceof Error) {
+      throw redirect("/getting-started?error=unauthorized");
+    }
+  }
+  return payload;
 }
