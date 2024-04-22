@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, json, useLoaderData } from "@remix-run/react";
+import { json, useLoaderData } from "@remix-run/react";
 import Navbar from "~/components/navbar";
 import { TokenPayload } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
