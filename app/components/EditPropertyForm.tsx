@@ -203,7 +203,7 @@ export default function EditPropertyForm({
         {/* this is where the upload component will appear */}
         <div
           className={
-            "image-container__upload flex-shrink-0 flex-grow-0 basis-72 relative bg-slate-600 flex items-center justify-center"
+            "image-container__upload flex-shrink-0 flex-grow-0 w-full relative bg-slate-600 flex items-center justify-center"
           }
         >
           <button
