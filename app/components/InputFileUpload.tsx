@@ -39,7 +39,7 @@ export default function InputFileUpload({ onChange, className = "" }: Props) {
           id="file"
           multiple
           accept="image/*"
-          className="hidden-input"
+          className="hidden-input hidden"
           onChange={onChange}
         />
       </button>
