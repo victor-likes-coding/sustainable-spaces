@@ -20,7 +20,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function PropertyIndex() {
-  const { properties } = useLoaderData<typeof loader>();
+  const { properties, payload } = useLoaderData<typeof loader>();
   // const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
   const size = properties?.length >= 3 ? "h-without-nav-auto" : "h-screen";
 
@@ -31,6 +31,7 @@ export default function PropertyIndex() {
           {/* property card container */}
           {
             <PropertyCards
+              ownerId={payload?.id}
               properties={properties as unknown as PropertyWithImages[]}
             />
           }
