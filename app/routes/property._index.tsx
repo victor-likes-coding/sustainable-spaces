@@ -6,6 +6,7 @@ import { PropertyServiceNew, PropertyWithImages } from "~/types/property.new";
 // import { TokenPayload, getLoggedInStatus } from "~/utils/helper";
 import { requireToken } from "~/utils/sessions.server";
 import { PropertyCards } from "../components/PropertyCards";
+import useModal from "~/components/BidModal";
 
 // import Button from "~/components/button";
 
@@ -23,6 +24,8 @@ export default function PropertyIndex() {
   const { properties, payload } = useLoaderData<typeof loader>();
   // const isLoggedIn: boolean = getLoggedInStatus(payload as TokenPayload);
   const size = properties?.length >= 3 ? "h-without-nav-auto" : "h-screen";
+  const { setInfo, onOpen, renderModal } = useModal();
+  const modal = renderModal();
 
   return (
     <>
@@ -31,12 +34,15 @@ export default function PropertyIndex() {
           {/* property card container */}
           {
             <PropertyCards
+              setInfo={setInfo}
+              onBidClick={onOpen}
               ownerId={payload?.id}
               properties={properties as unknown as PropertyWithImages[]}
             />
           }
         </main>
       </div>
+      {modal}
     </>
   );
 }
