@@ -8,14 +8,15 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
-import { Form } from "@remix-run/react";
-import { useState } from "react";
+import { Form, useNavigate, useSearchParams } from "@remix-run/react";
+import { useEffect, useState } from "react";
 
 export interface InfoObject {
   address: string;
   price: number;
   propertyId: number;
   bid: number;
+  ownerId: number;
 }
 
 interface ModalObject {
@@ -27,13 +28,29 @@ interface ModalObject {
 }
 
 function useModal(): ModalObject {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
   const [info, setInfo] = useState({
     address: "",
     price: 0,
     propertyId: 0,
     bid: 0,
   });
+
+  const success = searchParams.get("success");
+
+  useEffect(() => {
+    // Check if the modal should close based on query parameters
+    if (success === "true") {
+      onClose(); // Assuming onOpenChange toggles the modal when called with false
+      // change url back to /property
+      navigate(".", {
+        replace: true,
+      });
+    }
+  }, [success, onClose, navigate]);
 
   // Function to render the modal, can be called in the component where the hook is used
   const renderModal = () => (
