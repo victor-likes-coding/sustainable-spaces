@@ -1,14 +1,28 @@
 import { Image } from "@nextui-org/react";
-import { Link, useNavigation } from "@remix-run/react";
+import { Link, useNavigate, useNavigation } from "@remix-run/react";
 import Loader from "./Loader";
 import { PropertyWithImages } from "~/types/property.new";
+import { InfoObject } from "./BidModal";
 
 type Props = {
+  ownerId: number;
   property: PropertyWithImages | null;
+  editable?: boolean;
+  isOwner?: boolean;
+  onBidClick: () => void;
+  setInfo: (info: InfoObject) => void;
 };
 
-const PropertyCard = ({ property }: Props) => {
+const PropertyCard = ({
+  ownerId,
+  property,
+  editable,
+  isOwner,
+  onBidClick,
+  setInfo,
+}: Props) => {
   const navigate = useNavigation();
+  const navigateTo = useNavigate();
   if (!property) {
     return null;
   }
@@ -59,13 +73,27 @@ const PropertyCard = ({ property }: Props) => {
               {bedrooms} beds • {bathrooms} baths • {livingArea} sqft
             </div>
           </div>
-          <Link
-            onClick={(e) => e.stopPropagation()}
-            to={{ pathname: `/property/${id}/bid` }}
+          <button
+            onClick={(e) => {
+              if (editable || isOwner) {
+                navigateTo(`/property/${id}/edit`);
+              }
+
+              onBidClick();
+              setInfo({
+                address: `${streetAddress}`,
+                price,
+                propertyId: id,
+                bid: 0,
+                ownerId,
+              });
+              e.stopPropagation();
+              e.preventDefault();
+            }}
             className="absolute bottom-2 right-2 px-8 bg-green-700 text-white rounded-md"
           >
-            Bid
-          </Link>
+            {editable || isOwner ? "Edit" : "Bid"}
+          </button>
         </div>
       </Link>
       {navigate.state === "loading" && (

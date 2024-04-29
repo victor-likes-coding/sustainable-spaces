@@ -1,7 +1,7 @@
 import BasicForm from "./BasicForm";
 import { ChangeEvent, useState } from "react";
 import { Button } from "@nextui-org/react";
-import { useSubmit } from "@remix-run/react";
+import { useNavigate, useSubmit } from "@remix-run/react";
 import AddressInputFields from "./AddressInputFields";
 import PropertyCharacteristicsInputFields from "./PropertyCharacteristicsInputFields";
 import {
@@ -28,6 +28,7 @@ export default function EditPropertyForm({
   ...props
 }: Props) {
   const submit = useSubmit();
+  const navigate = useNavigate();
 
   const [fileData, setFileData] = useState<FileList | null>(null);
 
@@ -147,8 +148,6 @@ export default function EditPropertyForm({
     homeType,
   };
 
-  console.log(images);
-
   const imagesAreDefined =
     images && images.filter((image) => image.active).length > 0;
   const fileDataIsDefined = fileData && fileData.length > 0;
@@ -204,7 +203,7 @@ export default function EditPropertyForm({
         {/* this is where the upload component will appear */}
         <div
           className={
-            "image-container__upload flex-shrink-0 flex-grow-0 basis-72 relative bg-slate-600 flex items-center justify-center"
+            "image-container__upload flex-shrink-0 flex-grow-0 w-full relative bg-slate-600 flex items-center justify-center"
           }
         >
           <button
@@ -227,7 +226,7 @@ export default function EditPropertyForm({
             />
             <input
               type="file"
-              className="hidden-input"
+              className="hidden-input hidden"
               id="file"
               name="file"
               multiple
@@ -263,6 +262,16 @@ export default function EditPropertyForm({
         className=" bg-custom-secondary text-xs font-bold text-white mb-4 w-full"
       >
         Update
+      </Button>
+      <Button
+        type="button"
+        color="danger"
+        onClick={() => {
+          navigate(-1);
+        }}
+        className="text-xs font-bold text-white mb-4 w-full"
+      >
+        Cancel
       </Button>
     </BasicForm>
   );

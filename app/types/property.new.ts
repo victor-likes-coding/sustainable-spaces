@@ -232,6 +232,13 @@ export abstract class PropertyServiceNew {
     });
   }
 
+  static getPropertiesByOwnerId(ownerId: number) {
+    return db.property.findMany({
+      where: { ownerId },
+      include: { images: { where: { active: true } } },
+    });
+  }
+
   static getPropertById<T extends Prisma.PropertySelect<DefaultArgs>>(
     id: number,
     select: T
