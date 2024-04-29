@@ -29,7 +29,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // create the bid
   const { id } = await BidService.create(data);
 
-  if (!id) return redirect("/property?error=true");
+  if (!id) return redirect("/property?success=false");
 
   return redirect("/property?success=true");
 }
