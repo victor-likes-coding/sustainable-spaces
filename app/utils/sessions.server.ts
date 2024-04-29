@@ -6,8 +6,8 @@ import invariant from "invariant";
 import { User, UserService } from "~/models/user";
 import { Params } from "@remix-run/react";
 import { UserNotFoundError } from "./errors";
-invariant(process.env.REACT_SESSION_SECRET, "REACT_SESSION_SECRET is required");
-invariant(process.env.REACT_JWT_SECRET, "REACT_JWT_SECRET is required");
+invariant(process.env.SESSION_SECRET, "SESSION_SECRET is required");
+invariant(process.env.JWT_SECRET, "JWT_SECRET is required");
 
 type SessionData = {
   token: string;
@@ -35,7 +35,7 @@ export const sessionStorage = createCookieSessionStorage<
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
     sameSite: "lax",
-    secrets: [process.env.REACT_SESSION_SECRET],
+    secrets: [process.env.SESSION_SECRET],
     secure: process.env.ENV === "production",
   },
 });
@@ -45,13 +45,9 @@ export async function createUserSession(
   { email, id }: User,
   redirectTo: string
 ) {
-  const token = jwt.sign(
-    { email, id },
-    process.env.REACT_JWT_SECRET as string,
-    {
-      expiresIn: 60 * 60 * 24 * 30,
-    }
-  );
+  const token = jwt.sign({ email, id }, process.env.JWT_SECRET as string, {
+    expiresIn: 60 * 60 * 24 * 30,
+  });
   const session = await getSession();
   session.set("token", token);
   return redirect(redirectTo, {
@@ -73,7 +69,7 @@ export async function getTokenPayload(request: Request) {
   if (!token || typeof token !== "string") return null;
   const payload = jwt.verify(
     token,
-    process.env.REACT_JWT_SECRET as string
+    process.env.JWT_SECRET as string
   ) as TokenPayload; // throws if invalid otherwise decoded
   return payload;
 }
@@ -138,4 +134,8 @@ export async function validateUser(request: Request, params: Params<string>) {
     }
   }
   return payload;
+}
+
+export function checkInvariant(params: Params<string>, key: string) {
+  invariant(params[key], `No ${key} found in params`);
 }
