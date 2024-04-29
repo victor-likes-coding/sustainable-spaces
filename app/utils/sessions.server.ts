@@ -135,3 +135,7 @@ export async function validateUser(request: Request, params: Params<string>) {
   }
   return payload;
 }
+
+export function checkInvariant(params: Params<string>, key: string) {
+  invariant(params[key], `No ${key} found in params`);
+}
