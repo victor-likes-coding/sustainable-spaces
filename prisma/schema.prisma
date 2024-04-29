@@ -132,7 +132,7 @@ model Bid {
   id Int @id @default(autoincrement())
   amount Float
   propertyId Int
-  status BidStatus
+  status BidStatus @default(PENDING)
   property Property @relation(fields: [propertyId], references: [id])
   userId Int
   user User @relation(fields: [userId], references: [id])
