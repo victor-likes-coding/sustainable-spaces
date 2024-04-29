@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 import { z } from "zod";
 import { db } from "~/utils/db.server";
 
@@ -20,6 +22,8 @@ export interface Bid {
   updated: Date;
   status: BidStatus;
 }
+
+type BidSelect = Prisma.BidSelect<DefaultArgs>;
 
 export abstract class BidService {
   static async create(bid: BidSchema) {
@@ -48,16 +52,17 @@ export abstract class BidService {
     return BidSchema.safeParse(bid);
   }
 
-  static async checkForExistingBid(bid: BidSchema) {
+  static async checkForExistingBid(
+    bid: BidSchema,
+    select: BidSelect = { id: true }
+  ) {
     const data = await db.bid.findFirst({
       where: {
         userId: bid.userId,
         propertyId: bid.propertyId,
         status: "PENDING",
       },
-      select: {
-        id: true,
-      },
+      select,
     });
 
     if (!data) return false;
