@@ -1,0 +1,22 @@
+-- CreateEnum
+CREATE TYPE "BidStatus" AS ENUM ('ACCEPTED', 'REJECTED', 'PENDING');
+
+-- CreateTable
+CREATE TABLE "Bid" (
+    "id" SERIAL NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "propertyId" INTEGER NOT NULL,
+    "status" "BidStatus" NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "Bid_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "Bid" ADD CONSTRAINT "Bid_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "Property"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Bid" ADD CONSTRAINT "Bid_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
