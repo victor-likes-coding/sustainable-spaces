@@ -93,7 +93,7 @@ The initial MVP will have the following features:
 /user/                - nothing ✅
 /user/$id - The user by $id (requires auth) ❌
 /user/$id/edit - Edit user information (requires auth, and authed should be that user) ❌
-/user/$id/property - View all properties belonging to user ❌
+/user/$id/property - View all properties belonging to user ✅
 
 ## Roadmap (future features)
 
@@ -107,9 +107,18 @@ The initial MVP will have the following features:
 ### **TODOs:**
 
 - Create the delete route for properties (WIP).
-- Create the Inbox class / mechanism to submit bids for properties (Not started)
+- Create the Inbox class / mechanism to submit bids for properties (WIP)
 - Create the donations page / hook up to a payment processor (Not started)
 - Optimize the way photos are shown on property page. (Not started)
+
+### 4/28-5/2:
+
+#### **Changelog:**
+
+- implement bid submission. 🎉
+  - Next steps:
+    - get the current highest bid
+    - allow owners to view bid submissions and accept or reject
 
 ### 4/21-4/25:
 
