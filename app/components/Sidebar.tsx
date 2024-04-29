@@ -32,10 +32,14 @@ const Sidebar = ({
                 key={index}
               >
                 {item === "logout" ? (
-                  <Form method="post" action="/logout">
+                  <Form method="POST" action="/logout">
                     <button
                       className="text-white flex justify-center items-center gap-2 bg-red-600 p-2 rounded-md mt-auto"
-                      type="button"
+                      type="submit"
+                      onClick={(e) => {
+                        setIsSidebarOpen((prev) => !prev);
+                        e.stopPropagation();
+                      }}
                     >
                       <MingcuteExitFill /> <div>{displayName}</div>
                     </button>
