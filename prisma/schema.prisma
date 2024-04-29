@@ -22,6 +22,7 @@ model User {
   active Boolean @default(true)
   token  String?
   payment Payment[]
+  bids Bid[]
 }
 
 enum PurchaseMethod {
@@ -37,6 +38,12 @@ enum HomeType {
   MOBILE_HOME
   LAND
   OTHER
+}
+
+enum BidStatus {
+  ACCEPTED
+  REJECTED
+  PENDING
 }
 
 model Property {
@@ -90,6 +97,7 @@ model Property {
   owner User @relation(fields: [ownerId], references: [id], name: "Properties")
   ownerId Int 
   payments Payment[]
+  bids Bid[]
 
   // other
   likesCount Int @default(0)
@@ -115,6 +123,19 @@ model Image {
   url String
   propertyId Int
   property Property @relation(fields: [propertyId], references: [id])
+  created DateTime @default(now())
+  updated DateTime @updatedAt @default(now())
+  active Boolean @default(true)
+}
+
+model Bid {
+  id Int @id @default(autoincrement())
+  amount Float
+  propertyId Int
+  status BidStatus @default(PENDING)
+  property Property @relation(fields: [propertyId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
   created DateTime @default(now())
   updated DateTime @updatedAt @default(now())
   active Boolean @default(true)
