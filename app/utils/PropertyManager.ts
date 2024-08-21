@@ -7,6 +7,11 @@ type Address = {
   country: string;
 };
 
+type RequestBody = {
+  address: Address;
+  zillowUrl: string;
+};
+
 export abstract class PropertyManager {
   static address: Address;
   static zillowUrl: string;
@@ -26,6 +31,12 @@ export abstract class PropertyManager {
     };
 
     this.zillowUrl = url;
+  }
 
+  static provideRequestBody(): RequestBody {
+    return {
+      address: this.address,
+      zillowUrl: this.zillowUrl,
+    };
   }
 }
