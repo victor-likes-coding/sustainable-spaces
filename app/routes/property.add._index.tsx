@@ -5,33 +5,34 @@ import {
   LoaderFunctionArgs,
   json,
   redirect,
-} from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import Navbar from "~/components/navbar";
-import { TokenPayload, createZillowUrl } from "~/utils/helper";
-import { requireToken } from "~/utils/sessions.server";
-import invariant from "invariant";
-import { useCallback, useEffect, useState } from "react";
+} from '@remix-run/node';
+import { useLoaderData, useNavigate } from '@remix-run/react';
+import Navbar from '~/components/navbar';
+import { TokenPayload, createZillowUrl } from '~/utils/helper';
+import { requireToken } from '~/utils/sessions.server';
+import invariant from 'invariant';
+import { useCallback, useEffect, useState } from 'react';
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
   ZillowCaptchaError,
-} from "~/utils/errors";
-import Loader from "~/components/Loader";
-import PlacesSearch from "~/components/PlacesSearch";
-import AddPropertyForm from "~/components/AddPropertyForm";
-import { uploadImages } from "~/utils/storage.server";
-import { ImageService } from "~/models/Image";
-import useModal from "~/components/ErrorModal";
-import { getLoggedInStatus } from "~/utils/getLoggedInStatus";
-import { PropertyServiceNew } from "~/types/property.new";
-import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
-import { getFormData } from "~/utils/getFormData";
+} from '~/utils/errors';
+import Loader from '~/components/Loader';
+import PlacesSearch from '~/components/PlacesSearch';
+import AddPropertyForm from '~/components/AddPropertyForm';
+import { uploadImages } from '~/utils/storage.server';
+import { ImageService } from '~/models/Image';
+import useModal from '~/components/ErrorModal';
+import { getLoggedInStatus } from '~/utils/getLoggedInStatus';
+import { PropertyServiceNew } from '~/types/property.new';
+import { RequiredZillowPropertyWithOtherData } from '~/types/Zillow';
+import { getFormData } from '~/utils/getFormData';
+import { PropertyManager } from '~/utils/PropertyManager';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   invariant(
     process.env.REACT_APP_GOOGLE_MAPS_API,
-    "REACT_APP_GOOGLE_MAPS_API is not defined"
+    'REACT_APP_GOOGLE_MAPS_API is not defined',
   );
   const payload = await requireToken(request);
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API;
@@ -46,7 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await getFormData(request);
 
   // get image files
-  const files = formData.getAll("files");
+  const files = formData.getAll('files');
   const imageUrls: string[] = await uploadImages(files);
 
   const { data } = Object.fromEntries(formData);
@@ -76,15 +77,15 @@ export default function Index() {
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout>();
   const { renderModal, onOpen, setErrors, setKey } = useModal({
     errors: {
-      address: "",
-      bedrooms: "",
-      bathrooms: "",
-      description: "",
-      lotSize: "",
-      livingArea: "",
-      yearBuilt: "",
-      price: "",
-      generic: "",
+      address: '',
+      bedrooms: '',
+      bathrooms: '',
+      description: '',
+      lotSize: '',
+      livingArea: '',
+      yearBuilt: '',
+      price: '',
+      generic: '',
     },
   });
   const navigate = useNavigate();
@@ -99,61 +100,23 @@ export default function Index() {
   }, [redirectTimer]);
 
   const handlePlaceChanged = useCallback(async (place: string | undefined) => {
-    let jsonPayload: {
-      error?: string;
-      propertyId?: number;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      propertyData?: RequiredZillowPropertyWithOtherData; // ! TODO: place proper data type
-    };
-    if (!place) return;
+    // let jsonPayload: {
+    //   error?: string;
+    //   propertyId?: number;
+    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //   propertyData?: RequiredZillowPropertyWithOtherData; // ! TODO: place proper data type
+    // };
+    // if (!place) return;
 
-    try {
-      setIsLoading(true);
-      const serverResponse = await fetch("/getZillowData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: createZillowUrl(place), address: place }),
-      });
-      jsonPayload = await serverResponse.json();
-      if (jsonPayload.error === "PropertyAlreadyExistsError")
-        throw new PropertyAlreadyExistsError();
+    PropertyManager.updatePlace(place);
 
-      const { propertyData } = jsonPayload;
+    // send to backend
 
-      if (!propertyData) throw new PropertyNotFoundError();
-
-      setProperty((prevProperty) => ({
-        ...prevProperty,
-        ...propertyData,
-      }));
-    } catch (err) {
-      if (
-        err instanceof PropertyNotFoundError ||
-        err instanceof PropertyAlreadyExistsError ||
-        err instanceof ZillowCaptchaError
-      ) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          generic: err.message,
-        }));
-
-        setKey("generic");
-      }
-
-      onOpen(); // open modal
-      if (err instanceof PropertyAlreadyExistsError) {
-        const timeoutId = setTimeout(() => {
-          navigate(`/property/${jsonPayload.propertyId}`);
-        }, 3000);
-        setRedirectTimer(timeoutId);
-      }
-      return;
-    } finally {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetch('/getPropertyData', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(PropertyManager.provideRequestBody()),
+    });
   }, []);
 
   const modal = renderModal();
