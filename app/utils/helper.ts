@@ -1,37 +1,37 @@
-import { ZillowPropertyData } from "./../models/property.d";
-import { TokenPayload, authError } from "./helper.d";
-import validator from "validator";
-import { authSchema, userAuthData } from "~/models/user";
+import { ZillowPropertyData } from './../models/property.d';
+import { TokenPayload, authError } from './helper.d';
+import validator from 'validator';
+import { authSchema, userAuthData } from '~/models/user';
 import {
   DataValidationEror,
   PropertyNotFoundError,
   UnauthorizedMutationRequestError,
-} from "./errors";
-import { requireToken } from "./sessions.server";
-import { Params } from "@remix-run/react";
-import invariant from "invariant";
-import { Prisma } from "@prisma/client";
-import { DefaultArgs } from "@prisma/client/runtime/library";
-import { filterObject } from "./filterObject";
-import { getObjectData } from "./getObjectData";
+} from './errors';
+import { requireToken } from './sessions.server';
+import { Params } from '@remix-run/react';
+import invariant from 'invariant';
+import { Prisma } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
+import { filterObject } from './filterObject';
+import { getObjectData } from './getObjectData';
 import {
   DpgClientCache,
   RequiredZillowPropertyWithOtherData,
-} from "~/types/Zillow";
-import { PropertyServiceNew } from "~/types/property.new";
+} from '~/types/Zillow';
+import { PropertyServiceNew } from '~/types/property.new';
 
 /**
  * Validates a `Auth` object to contain an email and password
  * @param data - an object containing string properties `email` and `password`
  */
-type ErrorKeys = "email" | "password";
+type ErrorKeys = 'email' | 'password';
 
 type ErrorObject = Record<ErrorKeys, string>;
 
 export const validateAuth = ({ email, password }: userAuthData) => {
   const errs: ErrorObject = {
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   };
 
   const data = authSchema.safeParse({ email, password });
@@ -43,7 +43,7 @@ export const validateAuth = ({ email, password }: userAuthData) => {
 
     for (const error of errors) {
       const { message, path } = error;
-      if (path && path.length > 0 && typeof path[0] === "string") {
+      if (path && path.length > 0 && typeof path[0] === 'string') {
         const key = path[0] as ErrorKeys;
         errs[key] = message;
       }
@@ -59,7 +59,7 @@ export const validateAuth = ({ email, password }: userAuthData) => {
 };
 
 export const validateEmail = (email: string) => {
-  const [name] = email.split("@");
+  const [name] = email.split('@');
   return name.length > 2 && validator.isEmail(email);
 };
 
@@ -67,27 +67,14 @@ export const validatePassword = (password: string) => {
   return validator.isStrongPassword(password);
 };
 
-export const createZillowUrl = (address: string | undefined | null) => {
-  // https://www.zillow.com/homes/6803-119th-Pl-Largo,-FL-33773_rb/
-  // turn 6803 119th Place North, Largo, FL, USA into 6803-119th-Place-North-Largo,-FL-USA
-  if (!address) return;
-  const modifiedAddress = modifyAddress(address);
-  const url = `https://www.zillow.com/homes/${modifiedAddress}_rb/`;
-  return url;
-};
-
-export const modifyAddress = (address: string) => {
-  return address.split(" ").join("-");
-};
-
 export function getStartingIndex(html: string, pattern: string) {
   return html.indexOf(pattern) + pattern.length;
 }
 
 function getPropertyData(
-  dpgClientCache: DpgClientCache
+  dpgClientCache: DpgClientCache,
 ): RequiredZillowPropertyWithOtherData | undefined {
-  if (!dpgClientCache || typeof dpgClientCache !== "object") return;
+  if (!dpgClientCache || typeof dpgClientCache !== 'object') return;
 
   const dynamicKey = Object.keys(dpgClientCache)[0];
   const { property } = dpgClientCache[dynamicKey];
@@ -98,7 +85,7 @@ function getPropertyData(
 
 export function getZillowDataFromHtml(
   html: string,
-  pattern: string
+  pattern: string,
 ): undefined | RequiredZillowPropertyWithOtherData {
   const startIndex = getStartingIndex(html, pattern);
 
@@ -121,9 +108,9 @@ export type { authError, TokenPayload, ZillowPropertyData };
 export async function validateAndRetrieveProperty(
   { propertyId }: Params<string>,
   request: Request,
-  select: Prisma.PropertySelect<DefaultArgs>
+  select: Prisma.PropertySelect<DefaultArgs>,
 ) {
-  invariant(propertyId, "Property ID is required");
+  invariant(propertyId, 'Property ID is required');
   const payload: TokenPayload = (await requireToken(request)) as TokenPayload;
   const id = parseFloat(propertyId);
   const property = await PropertyServiceNew.getPropertById(id, select);
@@ -137,12 +124,12 @@ export async function validateAndRetrieveProperty(
 export async function validatePropertyOwner(
   { propertyId }: Params<string>,
   request: Request,
-  select: Prisma.PropertySelect<DefaultArgs>
+  select: Prisma.PropertySelect<DefaultArgs>,
 ) {
   const { property, payload } = await validateAndRetrieveProperty(
     { propertyId },
     request,
-    select
+    select,
   );
   if (property.ownerId !== payload.id) {
     throw new UnauthorizedMutationRequestError();
@@ -153,12 +140,12 @@ export async function validatePropertyOwner(
 
 export function prepareFormData<T>(data: T, fileData: FileList | null) {
   const formData = new FormData();
-  formData.append("data", JSON.stringify(data));
+  formData.append('data', JSON.stringify(data));
 
   // append all files to the form data
   if (fileData) {
     for (let i = 0; i < fileData.length; i++) {
-      formData.append("files", fileData[i]);
+      formData.append('files', fileData[i]);
     }
   }
 
@@ -167,7 +154,7 @@ export function prepareFormData<T>(data: T, fileData: FileList | null) {
 
 export function handleFileRemoval(
   files: FileList | null,
-  index: number
+  index: number,
 ): DataTransfer | null {
   if (files) {
     const newFiles = Array.from(files);
@@ -181,7 +168,7 @@ export function handleFileRemoval(
 
 export function handleFileUpload(
   event: React.ChangeEvent<HTMLInputElement>,
-  files: FileList | null
+  files: FileList | null,
 ) {
   const newFiles = event.target.files;
   const dataTransfer = new DataTransfer();
