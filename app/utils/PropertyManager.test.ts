@@ -1,0 +1,16 @@
+import { PropertyManager } from './PropertyManager';
+
+describe('Property Manager', () => {
+  it('updatePlace should update the internal property information', () => {
+    const place = '6803 118th Avenue North, Largo, FL, USA';
+    const expected = {
+      street: '6803 118th Avenue North',
+      city: 'Largo',
+      state: 'FL',
+      country: 'USA',
+    };
+    PropertyManager.updatePlace(place);
+
+    expect(PropertyManager.address).toStrictEqual(expected);
+  });
+});
