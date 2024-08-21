@@ -13,4 +13,12 @@ describe('Property Manager', () => {
 
     expect(PropertyManager.address).toStrictEqual(expected);
   });
+
+  it('updatePlace should have a zillowUrl property with a valid zillowUrl', () => {
+    const place = '6803 118th Avenue North, Largo, FL, USA';
+    const expected =
+      'https://www.zillow.com/homes/6803-118th-Avenue-North,-Largo,-FL,-USA_rb/';
+    PropertyManager.updatePlace(place);
+    expect(PropertyManager.zillowUrl).toEqual(expected);
+  });
 });
