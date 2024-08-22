@@ -1,27 +1,23 @@
-import { json, ActionFunction, ActionFunctionArgs } from "@remix-run/node";
+import { json, ActionFunction, ActionFunctionArgs } from '@remix-run/node';
 import {
   PropertyAlreadyExistsError,
   PropertyNotFoundError,
   ZillowCaptchaError,
   ZillowResponseError,
-} from "~/utils/errors";
-import { writeFile, readFile, access, mkdir } from "fs/promises";
-import { dirname, join } from "path";
-import {
-  ZillowPropertyData,
-  getZillowDataFromHtml,
-  modifyAddress,
-} from "~/utils/helper";
-
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
-import { LaunchOptions, Page, PuppeteerLaunchOptions } from "puppeteer";
-import { PropertyServiceNew } from "~/types/property.new";
-import { RequiredZillowPropertyWithOtherData } from "~/types/Zillow";
+} from '~/utils/errors';
+import { writeFile, readFile, access, mkdir } from 'fs/promises';
+import { dirname, join } from 'path';
+import { ZillowPropertyData, getZillowDataFromHtml } from '~/utils/helper';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker';
+import { LaunchOptions, Page, PuppeteerLaunchOptions } from 'puppeteer';
+import { PropertyServiceNew } from '~/types/property.new';
+import { RequiredZillowPropertyWithOtherData } from '~/types/Zillow';
+import { modifyAddress } from '~/utils/createZillowUrl';
 
 // based on 2 letter state, get tax rate
-type State = "FL"; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
+type State = 'FL'; // | "GA" | "AL" | "MS" | "LA" | "TX" | "SC" | "NC" | "TN";
 const taxes: Record<State, number> = {
   FL: 0.0072,
 };
@@ -63,16 +59,16 @@ async function getPropertyDataFromZillow(url: string) {
 }
 
 export async function getLocalPropertyData(
-  modifiedAddress: string
+  modifiedAddress: string,
 ): Promise<ZillowPropertyData | null> {
   try {
     const data = await readFile(
-      join("app", "localPropertyData", `${modifiedAddress}.json`),
-      "utf8"
+      join('app', 'localPropertyData', `${modifiedAddress}.json`),
+      'utf8',
     );
     return JSON.parse(data);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
       return null;
     }
     throw err;
@@ -81,8 +77,8 @@ export async function getLocalPropertyData(
 
 export async function getPropertyData(url: string, address: string) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [streetAddress, city, stateZip, ..._] = address.split(", ");
-  const [state, zipcode] = stateZip.split(" ");
+  const [streetAddress, city, stateZip, ..._] = address.split(', ');
+  const [state, zipcode] = stateZip.split(' ');
 
   const searchData = {
     streetAddress,
@@ -113,7 +109,7 @@ function addTaxData(data: RequiredZillowPropertyWithOtherData): void {
 }
 
 async function fetchPropertyDataFromZillow(
-  url: string
+  url: string,
 ): Promise<RequiredZillowPropertyWithOtherData> {
   let html: string;
   let propertyData: RequiredZillowPropertyWithOtherData | undefined | null =
@@ -146,7 +142,7 @@ async function fetchPropertyDataFromZillow(
 
 async function scrapePropertyDataFromZillow(
   url: string,
-  config?: LaunchOptions
+  config?: LaunchOptions,
 ) {
   const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
@@ -164,7 +160,7 @@ async function scrapePropertyDataFromZillow(
 }
 
 async function extractPropertyDataFromPage(
-  page: Page
+  page: Page,
 ): Promise<RequiredZillowPropertyWithOtherData | undefined> {
   const newPattern = `</div><script id="__NEXT_DATA__" type="application/json">`;
   const newHTML = await page.content();
@@ -175,7 +171,7 @@ async function extractPropertyDataFromPage(
 
 async function fetchPropertyDataWithPuppeteer(
   url: string,
-  config?: PuppeteerLaunchOptions
+  config?: PuppeteerLaunchOptions,
 ): Promise<ZillowPropertyData> {
   const browser = await puppeteer.launch(config || {});
   const page = await browser.newPage();
@@ -187,19 +183,19 @@ async function fetchPropertyDataWithPuppeteer(
     // get a p that has the text "Press & Hold"
     // if it exists, we need to solve the captcha
     const captcha = await page.$(
-      "iframe[title='Human verification challenge']"
+      "iframe[title='Human verification challenge']",
     );
     if (captcha) {
       // Wait for the iframe to load
       await page.waitForSelector(
-        'iframe[title="Human verification challenge"]'
+        'iframe[title="Human verification challenge"]',
       );
 
       // Switch to the iframe context
       const frames = page.frames();
       const captchaFrame = frames.find(
         async (frame) =>
-          (await frame.title()) === "Human verification challenge"
+          (await frame.title()) === 'Human verification challenge',
       );
 
       // Ensure the frame was found
@@ -213,7 +209,7 @@ async function fetchPropertyDataWithPuppeteer(
           const element = document.querySelector(selector);
           if (!element) {
             // throw new Error(`Element not found: ${selector}`);
-            throw new Error("Captcha detected");
+            throw new Error('Captcha detected');
           }
           const { top, left, width, height } = element.getBoundingClientRect();
           return { x: left + width / 2, y: top + height / 2 };
@@ -231,7 +227,7 @@ async function fetchPropertyDataWithPuppeteer(
       }
     }
     const anchor = await page.waitForSelector(
-      `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`
+      `a[data-test-id="bdp-property-card"][class="unit-card-link"][href^="/homedetails/"]`,
     );
 
     if (!anchor) {
@@ -240,7 +236,7 @@ async function fetchPropertyDataWithPuppeteer(
 
     const newUrl =
       `https://www.zillow.com` +
-      (await page.evaluate((el) => el.getAttribute("href"), anchor));
+      (await page.evaluate((el) => el.getAttribute('href'), anchor));
 
     await Promise.all([page.goto(newUrl), page.waitForNavigation()]);
 
@@ -260,9 +256,9 @@ async function fetchPropertyDataWithPuppeteer(
 
 async function saveLocalPropertyData(
   modifiedAddress: string,
-  propertyData: ZillowPropertyData
+  propertyData: ZillowPropertyData,
 ): Promise<void> {
-  const filePath = join("app", "localPropertyData", `${modifiedAddress}.json`);
+  const filePath = join('app', 'localPropertyData', `${modifiedAddress}.json`);
   const directory = dirname(filePath);
   try {
     await access(directory); // Check if directory exists
@@ -284,27 +280,27 @@ export async function typeAddress(page: Page, url: string, address: string) {
   const inputField = await page.$(inputSelector);
 
   if (!inputField) {
-    throw new Error("Input field not found");
+    throw new Error('Input field not found');
   }
 
   // Type into the input field
   await inputField.type(address);
-  const button = await page.$(".StyledIconButton-c11n-8-86-1__sc-1pb8vz8-0");
+  const button = await page.$('.StyledIconButton-c11n-8-86-1__sc-1pb8vz8-0');
   if (!button) {
-    throw new Error("Button not found");
+    throw new Error('Button not found');
   }
   await button.click();
 }
 
 export async function getInsuranceData(
   page: Page,
-  propertyData: ZillowPropertyData
+  propertyData: ZillowPropertyData,
 ) {
   const button = await page.waitForSelector(
-    `button[id="label-home-insurance"]`
+    `button[id="label-home-insurance"]`,
   );
   if (!button) {
-    throw new Error("Button not found");
+    throw new Error('Button not found');
   }
 
   await Promise.all([
@@ -316,9 +312,9 @@ export async function getInsuranceData(
   const insuranceData = await page.evaluate(() => {
     // #home-insurance is an input element
     const insuranceData: HTMLInputElement | null = document.querySelector(
-      "input[id='home-insurance']"
+      "input[id='home-insurance']",
     );
-    if (!insuranceData) return "0";
+    if (!insuranceData) return '0';
     return insuranceData.value;
   });
 
@@ -328,7 +324,7 @@ export async function getInsuranceData(
 export async function getInsuranceDataFromPuppeteer(
   url: string,
   address: string,
-  propertyData: ZillowPropertyData
+  propertyData: ZillowPropertyData,
 ) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -348,7 +344,7 @@ export async function getInsuranceDataFromPuppeteer(
 
 export async function checkFreshnessOfLocalData(localData: ZillowPropertyData) {
   const currentTime = new Date().getTime();
-  if (!localData.timestamp) throw new Error("No timestamp found");
+  if (!localData.timestamp) throw new Error('No timestamp found');
 
   const localDataTime = new Date(localData.timestamp).getTime();
   const timeDifference = currentTime - localDataTime;
