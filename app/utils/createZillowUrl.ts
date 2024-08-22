@@ -1,4 +1,4 @@
-const modifyAddress = (address: string) => {
+export const modifyAddress = (address: string) => {
   return address.split(' ').join('-');
 };
 
