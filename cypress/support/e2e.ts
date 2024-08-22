@@ -18,8 +18,3 @@ import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-describe('The home page', () => {
-  it('loads correctly', () => {
-    cy.visit('https://localhost:3000');
-  });
-});
